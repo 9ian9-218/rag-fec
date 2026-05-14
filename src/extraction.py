@@ -2,10 +2,6 @@
 """
 LightRAG 结构化抽取：图 + JsonKV 写入 data/<markdown 主名>/，本地占位向量。
 
-输出目录、doc_id、manifest 的 document_title 均由 `--markdown` 文件主名推导。
-依赖：pip install lightrag-hku networkx nano-vectordb openai langchain-core（可选编排见 ``build_fec_lightrag_extraction_chain``）
-
-启动时从仓库根目录 `.env` 注入进程环境（不列举变量名；其余由 LightRAG / OpenAI 兼容客户端读取环境）。
 fec_structured_export/：graphml、entities.json、relations.json、full_doc.json；
   --export-text-chunks 时另复制 text_chunks.json。
 """
@@ -28,6 +24,8 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from dotenv import load_dotenv
+
+from prompt_texts import load_prompt
 
 load_dotenv(_REPO_ROOT / ".env", override=False)
 
@@ -60,29 +58,8 @@ FEC_ENTITY_TYPES: list[str] = list(FEC_ENTITY_KIND_TYPES)
 
 _TUPLE_DL = "<|#|>"
 _COMPLETE_DL = "<|COMPLETE|>"
-FEC_EXTRACTION_SYSTEM_APPEND = (
-    "\n\n【FEC 节点 id（tuple 第二段 entity_name，即图中节点唯一标识）— 附图与表】\n"
-    "图：遇 `![…](相对路径)` 或紧邻图题「图 m-n」→ 抽成实体，entity_type=image_asset；"
-    "节点 id 须为 `图m-n:相对路径`（英文冒号仅一处；无图号时可用相对路径单独构成节点 id）。\n"
-    "`<!-- fec_figure path=… -->` 与指向同一文件的 `![…](path)` 须合并为同一节点 id、一条实体。\n"
-    "禁止：节点 id 仅为「图 m-n」等图题、不含冒号后相对路径（无 `:` 后路径段、无 `images/` 等文件路径）时，"
-    "不得使用 entity_type=image_asset。\n"
-    "表：正文「表 m-n」→ entity_type=table，节点 id 须与书中表号引用一致（entity_name 与书中引用一致）。\n"
-    "\n"
-    "【FEC 实体 description 硬性要求】（tuple 第四段，须严格遵守）\n"
-    "1) 公式类：凡实体对应书中显式公式、等式、码多项式、生成/校验关系等数学表达式（含实体名形如「公式(m-n)」、"
-    "或类型属数学公式/数学方法等与式子直接相关者），description 中必须写出【完整公式表达式】——"
-    "与原文一致的符号、下标、多项式或矩阵形式（可含 LaTeX `$…$` 或书中原有记法），"
-    "禁止仅用「公式(m-n)给出某某」之类元叙述而不写出式子本身。\n"
-    "2) 专业术语：对编码/信道/译码等专业名词，description 必须包含【完整定义】——"
-    "从正文摘录或等价复述：条件、对象、结论/性质须齐全；禁止「某某是重要概念」「详见上文」等空泛句。\n"
-    "3) 全体实体：每条 description 须含【具体内容】（事实、数据、式子、步骤、判据等），使读者仅凭该段即可把握该实体；"
-    "禁止笼统概括、标题复述、无信息增量的套话。\n"
-    "4) entity_type=table：description 必须包含【表内实质内容】——至少列出表头与各行列关键数据/码字/多项式对应关系"
-    "（可用 Markdown 表或分行枚举复现正文表格信息），禁止仅写「表m-n列出了…」而不给出表体。\n"
-    "5) entity_type=image_asset：description 中禁止写入图片文件路径、URL 或 `![…](path)` 等可定位文件的片段；"
-    "路径信息已体现在节点 id（entity_name，形如 `图m-n:相对路径`）中，description 仅写图意、图注要点及与正文相关的技术说明。"
-)
+
+FEC_EXTRACTION_SYSTEM_APPEND = load_prompt("fec_extraction_system_append.txt")
 
 _FEC_JSON_EXTRACTION_EXAMPLE = json.dumps(
     {
@@ -93,12 +70,9 @@ _FEC_JSON_EXTRACTION_EXAMPLE = json.dumps(
     ensure_ascii=False,
 )
 
-_JSON_MODE_SYSTEM_SUFFIX = (
-    "\n\n【JSON】只输出一个 JSON 对象，且仅含键 extraction（小写）；"
-    "值为字符串，与未开 JSON 时 LightRAG 要求的正文逐字相同（含换行与末行结束符）。\n"
-    "示例：\n"
-    f"{_FEC_JSON_EXTRACTION_EXAMPLE}\n"
-    "禁止 Markdown 围栏；禁止 JSON 外任何字符。"
+_JSON_MODE_SYSTEM_SUFFIX = load_prompt(
+    "json_mode_system_suffix.txt",
+    fec_json_extraction_example=_FEC_JSON_EXTRACTION_EXAMPLE,
 )
 
 _CREATE_EXTRA_KEYS = frozenset(
@@ -113,6 +87,73 @@ _CREATE_EXTRA_KEYS = frozenset(
         "logit_bias",
     }
 )
+
+
+def _keyword_extraction_via_json_object() -> bool:
+    """
+    OpenAI 官方 API 可用 completions.parse + 结构化 schema；
+    DeepSeek 等会报 response_format 不可用，应走 json_object 或纯文本 JSON。
+    """
+    if _env_truthy("LIGHTRAG_KEYWORD_USE_OPENAI_PARSE"):
+        return False
+    if _env_truthy("LIGHTRAG_KEYWORD_JSON_OBJECT"):
+        return True
+    base = (os.getenv("OPENAI_API_BASE") or os.getenv("OPENAI_BASE_URL") or "").lower()
+    return "deepseek" in base
+
+
+async def _openai_keyword_extraction_compat(
+    *,
+    model: str,
+    prompt: str,
+    system_prompt: str | None,
+    history_messages: list | None,
+    base_url: str,
+    api_key: str | None,
+    http_timeout: int,
+    client_configs: dict | None,
+    safe_kw: dict[str, Any],
+) -> str:
+    """关键词抽取：避免 LightRAG 默认的 parse + GPTKeywordExtractionFormat（部分网关不支持）。"""
+    from lightrag.llm.openai import create_openai_async_client
+
+    bu = base_url.rstrip("/")
+    messages: list[dict[str, Any]] = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    if history_messages:
+        messages.extend(history_messages)
+    messages.append({"role": "user", "content": prompt})
+
+    last_err: Exception | None = None
+    for rf in ({"type": "json_object"}, None):
+        try:
+            client = create_openai_async_client(
+                api_key=api_key,
+                base_url=bu,
+                timeout=http_timeout,
+                client_configs=client_configs or None,
+            )
+            kwargs: dict[str, Any] = {**safe_kw, "timeout": http_timeout}
+            if rf is not None:
+                kwargs["response_format"] = rf
+            async with client:
+                resp = await client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    **kwargs,
+                )
+            return (resp.choices[0].message.content or "").strip()
+        except Exception as e:
+            last_err = e
+            if rf is None:
+                break
+            print(
+                f"[fec_lightrag_extract] keyword 使用 json_object 失败，将重试无 response_format: {e}",
+                file=sys.stderr,
+            )
+    assert last_err is not None
+    raise last_err
 
 
 def _effective_llm_timeout_seconds() -> int:
@@ -197,7 +238,7 @@ async def _probe_openai_only() -> int:
             base_url=base_url,
             timeout=timeout,
         )
-        messages = [{"role": "user", "content": "只回复一个字：好"}]
+        messages = [{"role": "user", "content": load_prompt("openai_probe_user.txt")}]
         async with client:
             if _env_truthy("OPENAI_JSON_OBJECT_MODE"):
                 resp = await client.chat.completions.create(
@@ -292,6 +333,18 @@ def _build_openai_llm():
         client_cfgs = kwargs.get("openai_client_configs")
 
         if keyword_extraction:
+            if _keyword_extraction_via_json_object():
+                return await _openai_keyword_extraction_compat(
+                    model=model,
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    history_messages=history_messages or [],
+                    base_url=base_url,
+                    api_key=api_key,
+                    http_timeout=http_timeout,
+                    client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
+                    safe_kw=safe_kw,
+                )
             return await openai_complete_if_cache(
                 model,
                 prompt,
@@ -429,6 +482,53 @@ def query_lightrag_stores_sync(
         aquery_lightrag_stores(
             question, working_dir=working_dir, workspace=workspace, mode=mode
         )
+    )
+
+
+def _dir_looks_like_lightrag_workdir(d: Path) -> bool:
+    if not d.is_dir():
+        return False
+    for name in ("kv_store_full_docs.json", "kv_store_doc_status.json"):
+        if (d / name).is_file():
+            return True
+    return False
+
+
+def resolve_lightrag_workdir_from_data_spec(spec: str | Path) -> Path:
+    """
+    将 ``data`` 下的导出目录名或路径解析为 LightRAG ``working_dir``。
+
+    接受例如：
+
+    - ``差错控制编码_第05章`` → ``<repo>/data/差错控制编码_第05章/lightrag_workdir``
+    - ``data/差错控制编码_第05章``（相对仓库根）
+    - 已指向 ``.../lightrag_workdir`` 的绝对路径
+
+    若目录本身已含 kv_store 等文件（即直接就是 workdir），则原样返回。
+    """
+    raw = Path(str(spec).strip()).expanduser()
+    if not str(raw):
+        raise ValueError("lightrag 数据源路径为空")
+
+    if raw.is_absolute():
+        base = raw.resolve()
+    else:
+        parts = raw.parts
+        if parts and parts[0] in ("data", "Data"):
+            base = (_REPO_ROOT / raw).resolve()
+        else:
+            base = (_REPO_ROOT / "data" / raw).resolve()
+
+    if base.name == "lightrag_workdir" and base.is_dir():
+        return base
+    nested = base / "lightrag_workdir"
+    if nested.is_dir():
+        return nested.resolve()
+    if _dir_looks_like_lightrag_workdir(base):
+        return base
+    raise ValueError(
+        "无法解析 LightRAG 工作目录："
+        f"期望 {nested} 存在，或 {base} 下已有 kv_store_*；当前 base={base}"
     )
 
 

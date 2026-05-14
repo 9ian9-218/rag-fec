@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """
-FEC 图检索：LightRAG 工作区（JsonKV/NetworkX）+ Neo4j（LREntity / LR_REL），LangChain 编排。
+FEC 检索：LangChain 链式编排 — LLM 解析检索意图 → LightRAG ``aquery_data``（默认）。
 
-1) LangChain ChatOpenAI 将自然语言解析为结构化 GraphQuery，再通过 Cypher 匹配种子并取邻域。
-2) 可选：对同一文档的 ``lightrag_workdir`` 调用 LightRAG ``aquery_data``（与 Neo4j 结果一并返回）。
-3) 若未配置 LLM 环境或调用/解析失败，回退为本地子串/词元打分；失败时向 stderr 打印异常与回溯。
+1) LangChain ChatOpenAI 将自然语言解析为 ``LightRagRetrievalPlan``（LightRAG 的 mode + 改写后的检索问句）。
+2) 使用 ``lightrag_data_spec``（``data`` 下目录名，见 ``resolve_lightrag_workdir_from_data_spec``）或 ``markdown_path``（或 FEC_GRAPH_MARKDOWN）定位 ``lightrag_workdir`` 后执行 ``aquery_data``。
 
-环境：NEO4J_URI、NEO4J_USERNAME、NEO4J_PASSWORD；LLM 从进程环境读取（由 .env 注入）。
-可选：FEC_GRAPH_MARKDOWN 指向与入库一致的源 .md，链输入未传 ``markdown_path`` 时使用。
+Neo4j 子图检索（Cypher + 邻居）代码仍保留在文件中，默认通过 ``_NEO4J_RETRIEVAL_ENABLED = False`` 关闭；
+将开关改为 ``True`` 时，链内会对同一问题额外解析 ``GraphQuery`` 并执行 ``retrieve_graph_hits_with_plan``。
 
-程序化串联：``build_fec_graph_retrieval_chain()`` 返回 LangChain Runnable（plan → Neo4j + LightRAG → 组装 JSON），
-依赖 ``langchain-core``、``langchain-openai``。
+环境：LLM 从 ``.env`` 注入；LightRAG 需 ``-s``（``data`` 下导出目录名）、或 ``markdown_path`` / ``FEC_GRAPH_MARKDOWN``。
+Neo4j（仅启用时）：NEO4J_URI（请用 bolt://）、NEO4J_USERNAME、NEO4J_PASSWORD。
+
+依赖：``langchain-core``、``langchain-openai``。
 """
 from __future__ import annotations
 
@@ -31,7 +32,12 @@ if str(_REPO_ROOT) not in sys.path:
 
 from dotenv import load_dotenv
 
+from prompt_texts import load_prompt
+
 load_dotenv(_REPO_ROOT / ".env", override=False)
+
+# 设为 True 时恢复 Neo4j 子图检索；链内默认仅 LightRAG。
+_NEO4J_RETRIEVAL_ENABLED = False
 
 NODE_LABEL = "LREntity"
 REL_TYPE = "LR_REL"
@@ -49,7 +55,7 @@ class QueryType(str, Enum):
 
 @dataclass
 class GraphQuery:
-    """与 all-in-rag 图 RAG 类似：由 LLM 产出，再驱动 Neo4j 检索。"""
+    """Neo4j 用结构化规划（与 ``retrieve_graph_hits_*`` 配套；链默认不启用 Neo4j）。"""
 
     query_type: QueryType = QueryType.SUBGRAPH
     source_entities: list[str] = field(default_factory=list)
@@ -145,27 +151,13 @@ def _llm_parse_graph_query(question: str) -> GraphQuery:
     if not key or not model:
         return GraphQuery(query_type=QueryType.KEYWORD_FALLBACK)
 
-    prompt = f"""你是信息检索规划器。用户图数据库模型如下（Neo4j）：
-- 节点标签：{NODE_LABEL}；主键属性：{ENTITY_KEY}（字符串，与书中实体名/公式名/表号等一致）。
-- 其它常用属性：entity_type、description、source_id、file_path 等。
-- 关系：仅一种有向关系 `{REL_TYPE}`，连接两个 {NODE_LABEL}（LightRAG 抽取的实体关联）。
-
-请把下面「用户问题」解析为 JSON 对象（不要 Markdown，不要解释），字段必须齐全：
-- query_type: 字符串，取值之一：
-  entity_relation（两实体是否直接相关/有无边）、
-  multi_hop（需经多跳关联推理）、
-  subgraph（围绕若干核心概念看局部子图）、
-  path_finding（从概念 A 到概念 B 的关联路径）。
-- source_entities: 字符串数组，图中可能出现的实体名/术语/表号/「公式(5-n)」等锚点，2～8 个为宜，优先具体名词。
-- target_entities: 字符串数组；仅在 path_finding / multi_hop 需要终点时填写，否则 []。
-- relation_types: 固定填 ["{REL_TYPE}"] 或 []（库中仅 {REL_TYPE}）。
-- max_depth: 整数 1～4，表示图上扩展深度（步数）。
-- max_nodes: 整数 10～120，控制候选节点规模上限。
-- constraints: 对象，可 {{}}；若有「仅限某章/某码型」等可写 {{ "notes": "..." }}。
-
-用户问题：
-{question}
-"""
+    prompt = load_prompt(
+        "neo4j_graph_query_planner.txt",
+        node_label=NODE_LABEL,
+        entity_key=ENTITY_KEY,
+        rel_type=REL_TYPE,
+        question=question,
+    )
     try:
         from langchain_core.messages import HumanMessage
         from langchain_openai import ChatOpenAI
@@ -226,6 +218,79 @@ def _llm_parse_graph_query(question: str) -> GraphQuery:
         max_nodes=mn,
         constraints=cons,
     )
+
+
+@dataclass
+class LightRagRetrievalPlan:
+    """LLM 为 LightRAG ``aquery_data`` 生成的检索计划（mode + 改写问句）。"""
+
+    lightrag_mode: str = "mix"
+    retrieval_query: str = ""
+    notes: str = ""
+
+
+def _llm_parse_lightrag_retrieval_plan(question: str) -> LightRagRetrievalPlan:
+    """LangChain：用户问句 → LightRAG 检索 mode + 适合向量/知识图谱检索的改写问句。"""
+    base = (os.getenv("OPENAI_API_BASE") or os.getenv("OPENAI_BASE_URL") or "").strip().rstrip("/")
+    key = (os.getenv("OPENAI_API_KEY") or "").strip()
+    model = (os.getenv("OPENAI_MODEL") or "").strip()
+    q0 = (question or "").strip()
+    if not q0:
+        return LightRagRetrievalPlan(retrieval_query="", notes="empty_question")
+    if not key or not model:
+        return LightRagRetrievalPlan(
+            lightrag_mode="mix",
+            retrieval_query=q0,
+            notes="no_llm_env_fallback",
+        )
+
+    prompt = load_prompt("lightrag_retrieval_planner.txt", user_question=q0)
+    try:
+        from langchain_core.messages import HumanMessage
+        from langchain_openai import ChatOpenAI
+
+        llm_kwargs: dict[str, Any] = {
+            "model": model,
+            "api_key": key,
+            "temperature": 0.1,
+            "max_tokens": 800,
+        }
+        if base:
+            llm_kwargs["base_url"] = base
+        llm = ChatOpenAI(**llm_kwargs)
+        if _env_truthy("OPENAI_JSON_OBJECT_MODE"):
+            llm = llm.bind(response_format={"type": "json_object"})
+        resp = llm.invoke([HumanMessage(content=prompt)])
+        raw = (resp.content or "").strip()
+        raw = _strip_json_fence(raw)
+        obj = json.loads(raw)
+    except Exception as e:
+        print(
+            f"[graph_query] LLM LightRAG 计划解析失败，将用原问句 + mix: {type(e).__name__}: {e}",
+            file=sys.stderr,
+        )
+        traceback.print_exc(file=sys.stderr)
+        return LightRagRetrievalPlan(
+            lightrag_mode="mix",
+            retrieval_query=q0,
+            notes="llm_parse_failed_fallback",
+        )
+
+    mode = str(obj.get("lightrag_mode") or "mix").strip().lower() or "mix"
+    allowed = frozenset({"mix", "hybrid", "local", "global", "naive", "bypass"})
+    if mode not in allowed:
+        mode = "mix"
+    rq = str(obj.get("retrieval_query") or "").strip() or q0
+    notes = str(obj.get("notes") or "").strip()
+    return LightRagRetrievalPlan(lightrag_mode=mode, retrieval_query=rq, notes=notes)
+
+
+def _retrieval_plan_to_json(plan: LightRagRetrievalPlan) -> dict[str, Any]:
+    return {
+        "lightrag_mode": plan.lightrag_mode,
+        "retrieval_query": plan.retrieval_query,
+        "notes": plan.notes,
+    }
 
 
 def _fetch_entities(driver: Any) -> list[tuple[str, dict[str, Any]]]:
@@ -333,12 +398,15 @@ def retrieve_graph_hits_with_plan(
     """
     在已有 GraphQuery 下执行 Neo4j 检索。返回 (hits, extras)；不含再次调用 LLM。
     """
+    if not _NEO4J_RETRIEVAL_ENABLED:
+        return [], {"neo4j_retrieval_disabled": True}
+
     try:
         from neo4j import GraphDatabase
     except ImportError as e:
         raise RuntimeError("请安装: pip install neo4j") from e
 
-    uri = uri or os.environ.get("NEO4J_URI", "neo4j://localhost:7687")
+    uri = uri or os.environ.get("NEO4J_URI", "bolt://localhost:7687")
     user = user or os.environ.get("NEO4J_USERNAME", "neo4j")
     password = password or os.environ.get("NEO4J_PASSWORD", "all-in-rag")
 
@@ -614,20 +682,20 @@ def _compact_lightrag_payload(
 
 def build_fec_graph_retrieval_chain():
     """
-    LangChain LCEL：LLM 规划 GraphQuery → Neo4j + LightRAG 检索 → JSON 负载。
+    LangChain LCEL 链：LLM 解析 LightRAG 检索计划 →（可选 Neo4j）+ LightRAG aquery_data → JSON。
 
     invoke 输入 dict 字段：
       question (str, 必填)
       top_k (int, 默认 5)
       neighbor_limit (int | None，默认 None 表示不截断邻居)
       full (bool，默认 False)
-      markdown_path (str | Path，可选)：源 md；缺省读环境变量 FEC_GRAPH_MARKDOWN
+      markdown_path (str | Path，可选)：源 md；与 lightrag_data_spec 二选一或作后备；缺省读 FEC_GRAPH_MARKDOWN
+      lightrag_data_spec (str | Path，可选)：``data`` 下导出目录名（如 ``差错控制编码_第05章``）或 ``data/...`` 相对路径；优先于 markdown_path
       lightrag_workspace (str，可选)
-      lightrag_mode (str，默认 mix)：LightRAG QueryParam.mode（local/global/hybrid/mix/…）
-      skip_lightrag (bool，默认 False)
+      lightrag_mode (str，可选)：若给出则覆盖 LLM 计划中的 mode，否则用计划里的值
       neo4j_uri / neo4j_user / neo4j_password (可选，缺省读环境变量)
 
-    返回 dict：含 graph_query、hits；若启用 LightRAG 则含 lightrag_retrieval。
+    返回 dict：含 retrieval_plan、lightrag_retrieval；Neo4j 开启时另有 graph_query、hits。
     """
     try:
         from langchain_core.runnables import RunnableLambda
@@ -638,10 +706,17 @@ def build_fec_graph_retrieval_chain():
         q = (d.get("question") or "").strip()
         if not q:
             raise ValueError("chain 输入缺少非空 question")
-        gq = _llm_parse_graph_query(q)
-        return {**d, "question": q, "graph_query": gq}
+        plan = _llm_parse_lightrag_retrieval_plan(q)
+        gq: GraphQuery
+        if _NEO4J_RETRIEVAL_ENABLED:
+            gq = _llm_parse_graph_query(q)
+        else:
+            gq = GraphQuery(query_type=QueryType.KEYWORD_FALLBACK)
+        return {**d, "question": q, "retrieval_plan": plan, "graph_query": gq}
 
     def _retrieve(d: dict[str, Any]) -> dict[str, Any]:
+        plan = d["retrieval_plan"]
+        assert isinstance(plan, LightRagRetrievalPlan)
         gq = d["graph_query"]
         assert isinstance(gq, GraphQuery)
         hits, extras = retrieve_graph_hits_with_plan(
@@ -653,34 +728,60 @@ def build_fec_graph_retrieval_chain():
             password=d.get("neo4j_password"),
         )
         lr: dict[str, Any] = {}
-        if not bool(d.get("skip_lightrag", False)):
-            md = d.get("markdown_path")
-            if md is None or (isinstance(md, str) and not md.strip()):
-                env_md = (os.getenv("FEC_GRAPH_MARKDOWN") or "").strip()
-                md = env_md or None
-            if md:
-                try:
-                    from fec_lightrag_extract import query_lightrag_for_markdown_doc
+        spec = d.get("lightrag_data_spec")
+        md = d.get("markdown_path")
+        if md is None or (isinstance(md, str) and not md.strip()):
+            env_md = (os.getenv("FEC_GRAPH_MARKDOWN") or "").strip()
+            md = env_md or None
+        rq = (plan.retrieval_query or "").strip() or d["question"]
+        mode = str(d.get("lightrag_mode") or plan.lightrag_mode or "mix").strip() or "mix"
+        ws = str(d.get("lightrag_workspace") or "").strip()
 
-                    mode = str(d.get("lightrag_mode") or "mix").strip() or "mix"
-                    ws = str(d.get("lightrag_workspace") or "").strip()
-                    lr = query_lightrag_for_markdown_doc(
-                        d["question"],
-                        Path(md),
-                        workspace=ws,
-                        mode=mode,
-                    )
-                except Exception as e:
-                    lr = {
-                        "status": "failure",
-                        "message": f"{type(e).__name__}: {e}",
-                        "data": {},
-                    }
+        if spec is not None and str(spec).strip():
+            try:
+                from extraction import (
+                    query_lightrag_stores_sync,
+                    resolve_lightrag_workdir_from_data_spec,
+                )
+
+                wd = resolve_lightrag_workdir_from_data_spec(spec)
+                lr = query_lightrag_stores_sync(
+                    rq, working_dir=wd, workspace=ws, mode=mode
+                )
+            except Exception as e:
+                lr = {
+                    "status": "failure",
+                    "message": f"{type(e).__name__}: {e}",
+                    "data": {},
+                }
+        elif md:
+            try:
+                from extraction import query_lightrag_for_markdown_doc
+
+                lr = query_lightrag_for_markdown_doc(
+                    rq,
+                    Path(md),
+                    workspace=ws,
+                    mode=mode,
+                )
+            except Exception as e:
+                lr = {
+                    "status": "failure",
+                    "message": f"{type(e).__name__}: {e}",
+                    "data": {},
+                }
+        else:
+            lr = {
+                "status": "failure",
+                "message": "未配置 lightrag_data_spec（-s）、markdown_path 或 FEC_GRAPH_MARKDOWN，无法调用 LightRAG",
+                "data": {},
+            }
         return {**d, "hits": hits, "extras": extras, "lightrag_retrieval": lr}
 
     def _assemble(d: dict[str, Any]) -> dict[str, Any]:
         hits: list[dict[str, Any]] = list(d.get("hits") or [])
         gq: GraphQuery = d["graph_query"]
+        plan: LightRagRetrievalPlan = d["retrieval_plan"]
         nl = d.get("neighbor_limit")
         if nl is not None and int(nl) >= 0:
             hits = apply_neighbor_limit(hits, int(nl))
@@ -689,6 +790,7 @@ def build_fec_graph_retrieval_chain():
         payload: dict[str, Any] = {
             "question": d["question"],
             "top_k": top_k,
+            "retrieval_plan": _retrieval_plan_to_json(plan),
             "graph_query": _graph_query_to_json(gq),
             "hits": hits,
         }
@@ -708,12 +810,17 @@ def build_fec_graph_retrieval_chain():
                 payload["within_depth_entity_ids"] = ex["within_depth_entity_ids"]
         return payload
 
-    return RunnableLambda(_plan) | RunnableLambda(_retrieve) | RunnableLambda(_assemble)
+    # LCEL 链式：plan → retrieve → assemble（等价于 RunnableSequence）
+    return (
+        RunnableLambda(_plan)
+        | RunnableLambda(_retrieve)
+        | RunnableLambda(_assemble)
+    )
 
 
 def main() -> int:
     p = argparse.ArgumentParser(
-        description="FEC 图检索：LangChain 规划 GraphQuery + Neo4j；可选 LightRAG aquery_data"
+        description="FEC 检索：LangChain 规划 LightRAG 问句与 mode，默认调用 LightRAG（Neo4j 子图检索可由 _NEO4J_RETRIEVAL_ENABLED 开启）"
     )
     p.add_argument("question", nargs="?", default="", help="自然语言问题")
     p.add_argument(
@@ -724,21 +831,25 @@ def main() -> int:
         help="与 question 二选一，作为问题文本",
     )
     p.add_argument(
+        "-s",
+        "--source",
+        dest="lightrag_data_spec",
+        default=None,
+        metavar="SPEC",
+        help="data 下导出目录名或路径（如 差错控制编码_第05章 或 data/子目录/名）；解析为 lightrag_workdir 后检索；优先于 --markdown",
+    )
+    p.add_argument(
         "--markdown",
         type=Path,
         default=None,
         metavar="MD",
-        help="与抽取/导入一致的源 markdown，用于 LightRAG 工作区检索；缺省读 FEC_GRAPH_MARKDOWN",
+        help="（可选）源 markdown，用于推导 data/<主名>/lightrag_workdir；无 -s 时可用；缺省还可读 FEC_GRAPH_MARKDOWN",
     )
     p.add_argument(
         "--lightrag-mode",
-        default="mix",
-        help="LightRAG QueryParam.mode，如 mix、hybrid、local、global",
-    )
-    p.add_argument(
-        "--no-lightrag",
-        action="store_true",
-        help="不调用 LightRAG，仅 Neo4j",
+        default=None,
+        metavar="MODE",
+        help="覆盖 LLM 计划的 LightRAG QueryParam.mode（如 mix、hybrid、local、global）；默认由 LLM 决定",
     )
     p.add_argument(
         "--top-k",
@@ -763,29 +874,40 @@ def main() -> int:
     if not q:
         p.print_help()
         print(
-            "\n请提供问题，例如: python3 src/graph_query.py '循环码的生成多项式是什么'",
+            "\n请提供问题，例如: python3 src/graph_query.py -s 差错控制编码_第05章 '循环码的生成多项式是什么'",
             file=sys.stderr,
         )
         return 2
 
+    spec_arg = (args.lightrag_data_spec or "").strip() or None
     md_arg = args.markdown
     if md_arg is not None:
         md_arg = md_arg.resolve()
+    env_md = (os.getenv("FEC_GRAPH_MARKDOWN") or "").strip() or None
+
+    if not spec_arg and md_arg is None and not env_md:
+        print(
+            "请用 -s 指定 data 下导出目录（如 -s 差错控制编码_第05章），"
+            "或设置 --markdown / 环境变量 FEC_GRAPH_MARKDOWN。",
+            file=sys.stderr,
+        )
+        return 2
 
     chain = build_fec_graph_retrieval_chain()
-    payload = chain.invoke(
-        {
-            "question": q,
-            "top_k": args.top_k,
-            "neighbor_limit": args.neighbor_limit
-            if args.neighbor_limit is not None and args.neighbor_limit >= 0
-            else None,
-            "full": args.full,
-            "markdown_path": md_arg,
-            "lightrag_mode": args.lightrag_mode,
-            "skip_lightrag": args.no_lightrag,
-        }
-    )
+    inv: dict[str, Any] = {
+        "question": q,
+        "top_k": args.top_k,
+        "neighbor_limit": args.neighbor_limit
+        if args.neighbor_limit is not None and args.neighbor_limit >= 0
+        else None,
+        "full": args.full,
+        "markdown_path": md_arg,
+    }
+    if spec_arg:
+        inv["lightrag_data_spec"] = spec_arg
+    if args.lightrag_mode is not None:
+        inv["lightrag_mode"] = str(args.lightrag_mode).strip()
+    payload = chain.invoke(inv)
 
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     return 0
