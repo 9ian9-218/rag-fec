@@ -3,7 +3,7 @@
 LightRAG 结构化抽取：图 + JsonKV 写入 data/<markdown 主名>/，本地占位向量。
 
 输出目录、doc_id、manifest 的 document_title 均由 `--markdown` 文件主名推导。
-依赖：pip install lightrag-hku networkx nano-vectordb openai
+依赖：pip install lightrag-hku networkx nano-vectordb openai langchain-core（可选编排见 ``build_fec_lightrag_extraction_chain``）
 
 启动时从仓库根目录 `.env` 注入进程环境（不列举变量名；其余由 LightRAG / OpenAI 兼容客户端读取环境）。
 fec_structured_export/：graphml、entities.json、relations.json、full_doc.json；
@@ -21,6 +21,7 @@ import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(_REPO_ROOT) not in sys.path:
@@ -60,13 +61,13 @@ FEC_ENTITY_TYPES: list[str] = list(FEC_ENTITY_KIND_TYPES)
 _TUPLE_DL = "<|#|>"
 _COMPLETE_DL = "<|COMPLETE|>"
 FEC_EXTRACTION_SYSTEM_APPEND = (
-    "\n\n【FEC 附图/表】\n"
-    "图：遇 `![…](相对路径)` 或紧邻图题「图 m-n」→ 抽成实体，entity_type=image_asset，"
-    "entity_name=`图m-n:相对路径`（英文冒号仅一处；无图号时可用路径作名）。\n"
-    "`<!-- fec_figure path=… -->` 与指向同一文件的 `![…](path)` 合并为一条实体。\n"
-    "禁止：entity_name 仅为「图 m-n」等图题、不含冒号后相对路径（无 `:` 后路径段、无 `images/` 等文件路径）时，"
+    "\n\n【FEC 节点 id（tuple 第二段 entity_name，即图中节点唯一标识）— 附图与表】\n"
+    "图：遇 `![…](相对路径)` 或紧邻图题「图 m-n」→ 抽成实体，entity_type=image_asset；"
+    "节点 id 须为 `图m-n:相对路径`（英文冒号仅一处；无图号时可用相对路径单独构成节点 id）。\n"
+    "`<!-- fec_figure path=… -->` 与指向同一文件的 `![…](path)` 须合并为同一节点 id、一条实体。\n"
+    "禁止：节点 id 仅为「图 m-n」等图题、不含冒号后相对路径（无 `:` 后路径段、无 `images/` 等文件路径）时，"
     "不得使用 entity_type=image_asset。\n"
-    "表：正文「表 m-n」→ entity_type=table，entity_name 与书中引用一致。\n"
+    "表：正文「表 m-n」→ entity_type=table，节点 id 须与书中表号引用一致（entity_name 与书中引用一致）。\n"
     "\n"
     "【FEC 实体 description 硬性要求】（tuple 第四段，须严格遵守）\n"
     "1) 公式类：凡实体对应书中显式公式、等式、码多项式、生成/校验关系等数学表达式（含实体名形如「公式(m-n)」、"
@@ -78,7 +79,9 @@ FEC_EXTRACTION_SYSTEM_APPEND = (
     "3) 全体实体：每条 description 须含【具体内容】（事实、数据、式子、步骤、判据等），使读者仅凭该段即可把握该实体；"
     "禁止笼统概括、标题复述、无信息增量的套话。\n"
     "4) entity_type=table：description 必须包含【表内实质内容】——至少列出表头与各行列关键数据/码字/多项式对应关系"
-    "（可用 Markdown 表或分行枚举复现正文表格信息），禁止仅写「表m-n列出了…」而不给出表体。"
+    "（可用 Markdown 表或分行枚举复现正文表格信息），禁止仅写「表m-n列出了…」而不给出表体。\n"
+    "5) entity_type=image_asset：description 中禁止写入图片文件路径、URL 或 `![…](path)` 等可定位文件的片段；"
+    "路径信息已体现在节点 id（entity_name，形如 `图m-n:相对路径`）中，description 仅写图意、图注要点及与正文相关的技术说明。"
 )
 
 _FEC_JSON_EXTRACTION_EXAMPLE = json.dumps(
@@ -349,6 +352,136 @@ def _build_stub_embedding():
     return EmbeddingFunc(embedding_dim=dim, max_token_size=8192, func=_stub)
 
 
+def build_lightrag_instance(
+    *,
+    working_dir: Path,
+    workspace: str = "",
+    chunk_token_size: int = 1200,
+    chunk_overlap_token_size: int = 100,
+):
+    """
+    与 ``_run`` 中相同的 LightRAG 配置（JsonKV + NetworkX + NanoVectorDB），
+    供 Neo4j 图检索侧复用；调用方须 ``await rag.initialize_storages()`` 后再 query。
+    """
+    _ensure_lightrag_installed()
+    from lightrag import LightRAG
+
+    llm_model_func, llm_model_name = _build_openai_llm()
+    embedding_func = _build_stub_embedding()
+    ws = (workspace or "").strip()
+    return LightRAG(
+        working_dir=str(working_dir.resolve()),
+        workspace=ws,
+        llm_model_func=llm_model_func,
+        llm_model_name=llm_model_name,
+        llm_model_kwargs={},
+        embedding_func=embedding_func,
+        kv_storage="JsonKVStorage",
+        doc_status_storage="JsonDocStatusStorage",
+        graph_storage="NetworkXStorage",
+        vector_storage="NanoVectorDBStorage",
+        vector_db_storage_cls_kwargs={"cosine_better_than_threshold": 0.2},
+        addon_params={"language": "Chinese", "entity_types": FEC_ENTITY_TYPES},
+        chunk_token_size=chunk_token_size,
+        chunk_overlap_token_size=chunk_overlap_token_size,
+    )
+
+
+async def aquery_lightrag_stores(
+    question: str,
+    *,
+    working_dir: Path,
+    workspace: str = "",
+    mode: str = "mix",
+) -> dict[str, Any]:
+    """
+    打开工作区存储，执行 ``aquery_data``（图 + 向量上下文，不生成最终 RAG 答案段落）。
+    ``mode`` 为 LightRAG 的 ``QueryParam.mode``（如 local / global / hybrid / mix）。
+    """
+    if not (question or "").strip():
+        return {"status": "failure", "message": "empty question", "data": {}}
+    wd = working_dir.resolve()
+    if not wd.is_dir():
+        return {
+            "status": "skipped",
+            "message": f"LightRAG 工作目录不存在: {wd}",
+            "data": {},
+        }
+    from lightrag.base import QueryParam
+
+    rag = build_lightrag_instance(working_dir=wd, workspace=workspace)
+    await rag.initialize_storages()
+    try:
+        param = QueryParam(mode=mode)
+        return await rag.aquery_data(question.strip(), param)
+    finally:
+        await rag.finalize_storages()
+
+
+def query_lightrag_stores_sync(
+    question: str,
+    *,
+    working_dir: Path,
+    workspace: str = "",
+    mode: str = "mix",
+) -> dict[str, Any]:
+    return asyncio.run(
+        aquery_lightrag_stores(
+            question, working_dir=working_dir, workspace=workspace, mode=mode
+        )
+    )
+
+
+def query_lightrag_for_markdown_doc(
+    question: str,
+    markdown_path: Path,
+    *,
+    workspace: str = "",
+    mode: str = "mix",
+) -> dict[str, Any]:
+    """根据源 markdown 定位 ``data/<主名>/lightrag_workdir`` 并查询 LightRAG。"""
+    out_dir, _stem, _ = _run_paths_and_doc_from_markdown(markdown_path.resolve())
+    work_dir = out_dir / "lightrag_workdir"
+    return query_lightrag_stores_sync(
+        question, working_dir=work_dir, workspace=workspace, mode=mode
+    )
+
+
+def build_fec_lightrag_extraction_chain():
+    """
+    LangChain Runnable：与 CLI 相同的异步抽取。
+
+    输入 dict：markdown (str|Path)、workspace、max_chars、chunk_token_size、
+    chunk_overlap、clear、llm_timeout、export_text_chunks（均可选，缺省与 CLI 一致）。
+    输出 dict：out_dir、manifest、lightrag_workdir、doc_key。
+    """
+    from langchain_core.runnables import RunnableLambda
+
+    def _go(d: dict[str, Any]) -> dict[str, Any]:
+        md = Path(d["markdown"]).resolve()
+        args = argparse.Namespace(
+            markdown=md,
+            workspace=str(d.get("workspace") or ""),
+            max_chars=int(d.get("max_chars", 0)),
+            chunk_token_size=int(d.get("chunk_token_size", 1200)),
+            chunk_overlap=int(d.get("chunk_overlap", 100)),
+            clear=bool(d.get("clear", False)),
+            llm_timeout=d.get("llm_timeout"),
+            export_text_chunks=bool(d.get("export_text_chunks", False)),
+            probe_openai=False,
+        )
+        asyncio.run(_run(args))
+        out_dir, stem, _ = _run_paths_and_doc_from_markdown(md)
+        return {
+            "out_dir": str(out_dir),
+            "doc_key": stem,
+            "manifest": str(out_dir / "manifest.json"),
+            "lightrag_workdir": str(out_dir / "lightrag_workdir"),
+        }
+
+    return RunnableLambda(_go)
+
+
 def _export_structured_copies(
     out_dir: Path, work_dir: Path, rel_ws: Path, *, export_text_chunks: bool
 ) -> dict[str, str]:
@@ -387,27 +520,13 @@ async def _run(args: argparse.Namespace) -> None:
         text = text[: args.max_chars]
 
     _ensure_lightrag_installed()
-    from lightrag import LightRAG
-
-    llm_model_func, llm_model_name = _build_openai_llm()
-    embedding_func = _build_stub_embedding()
-
-    rag = LightRAG(
-        working_dir=str(work_dir),
+    rag = build_lightrag_instance(
+        working_dir=work_dir,
         workspace=args.workspace,
-        llm_model_func=llm_model_func,
-        llm_model_name=llm_model_name,
-        llm_model_kwargs={},
-        embedding_func=embedding_func,
-        kv_storage="JsonKVStorage",
-        doc_status_storage="JsonDocStatusStorage",
-        graph_storage="NetworkXStorage",
-        vector_storage="NanoVectorDBStorage",
-        vector_db_storage_cls_kwargs={"cosine_better_than_threshold": 0.2},
-        addon_params={"language": "Chinese", "entity_types": FEC_ENTITY_TYPES},
         chunk_token_size=args.chunk_token_size,
         chunk_overlap_token_size=args.chunk_overlap,
     )
+    llm_model_name = rag.llm_model_name
 
     await rag.initialize_storages()
     await rag.ainsert(text, ids=[doc_key], file_paths=[str(md_path)])
