@@ -1,0 +1,7 @@
+
+
+【JSON】只输出一个 JSON 对象，且仅含键 extraction（小写）；
+值为字符串，与未开 JSON 时 LightRAG 要求的正文逐字相同（含换行与末行结束符）。
+示例：
+{fec_json_extraction_example}
+禁止 Markdown 围栏；禁止 JSON 外任何字符。
