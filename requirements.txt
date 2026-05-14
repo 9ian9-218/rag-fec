@@ -46,7 +46,7 @@ google-cloud-vision==3.13.0
 gradio_pdf==0.0.24
 grpcio-status==1.67.1
 httptools==0.7.1
-lightrag==0.1.0b6
+lightrag-hku>=1.4.16
 lmdeploy==0.11.1
 mineru==3.1.8
 pdf2image==1.17.0

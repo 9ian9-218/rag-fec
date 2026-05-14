@@ -1,36 +1,13 @@
 #!/usr/bin/env python3
 """
-1) 使用 LightRAG 对《差错控制编码》等 Markdown 做实体/关系抽取。
+LightRAG 结构化抽取：图 + JsonKV 写入 data/<markdown 主名>/，本地占位向量。
 
-图与 KV 均写入本地工作目录（不连 Neo4j），便于与 2) 导入脚本解耦。
-中间结果默认目录：data/fec_lightrag_intermediate/
-
+输出目录、doc_id、manifest 的 document_title 均由 `--markdown` 文件主名推导。
 依赖：pip install lightrag-hku networkx nano-vectordb openai
 
-**配置全部来自仓库根目录 `.env`（勿提交版本库）**，不再内置固定网关地址，也不支持 Ollama 本地模型。
-
-必需（抽取 / 嵌入走同一套 OpenAI 兼容 HTTP API 时）：
-  - OPENAI_API_BASE 或 OPENAI_BASE_URL：API 根地址（通常以 `/v1` 结尾，如 `https://api.deepseek.com/v1`）
-  - OPENAI_API_KEY
-  - OPENAI_MODEL：对话与实体抽取所用模型 id
-
-嵌入（非 `--structured-only` 时）：
-  - EMBEDDING_MODEL：默认 `text-embedding-3-small`
-  - EMBEDDING_DIM：向量维度，默认 `1536`（需与所用嵌入模型一致）
-
-可选：
-  - OPENAI_JSON_OBJECT_MODE=1：对 **非 keyword_extraction** 的补全使用
-    `response_format={"type":"json_object"}`，并在系统提示中要求模型将原 delimited 正文放在
-    JSON 键 `extraction` 的字符串值中，脚本再解包给 LightRAG。若网关不支持会报错，请改回 0。
-
-  - LLM_TIMEOUT / OPENAI_TIMEOUT：见脚本 `--llm-timeout` 说明。
-
-  仅要结构化结果、暂不调用真实嵌入 API：
-  python3 src/fec_lightrag_extract.py --structured-only
-
-fec_structured_export/ 下各文件（由 LightRAG 的 JsonKV + NetworkX 导出）：
-  entities.json / relations.json / graph_chunk_entity_relation.graphml / full_doc.json
-  text_chunks.json（需 --export-text-chunks）
+启动时从仓库根目录 `.env` 注入进程环境（不列举变量名；其余由 LightRAG / OpenAI 兼容客户端读取环境）。
+fec_structured_export/：graphml、entities.json、relations.json、full_doc.json；
+  --export-text-chunks 时另复制 text_chunks.json。
 """
 from __future__ import annotations
 
@@ -39,10 +16,10 @@ import asyncio
 import json
 import os
 import re
+import shlex
 import shutil
 import sys
 from datetime import datetime, timezone
-from functools import partial
 from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -51,64 +28,74 @@ if str(_REPO_ROOT) not in sys.path:
 
 from dotenv import load_dotenv
 
+load_dotenv(_REPO_ROOT / ".env", override=False)
+
 
 def _ensure_lightrag_installed() -> None:
     try:
         import lightrag  # noqa: F401
     except ModuleNotFoundError:
-        print(
-            "未找到 Python 包 `lightrag`（由 PyPI 的 lightrag-hku 提供）。\n"
-            "请在当前环境中执行:\n"
-            "  pip install lightrag-hku networkx nano-vectordb\n"
-            "若曾用「可编辑安装」链到已删除的 LightRAG/ 目录，请先:\n"
-            "  pip uninstall lightrag-hku -y && pip install lightrag-hku\n"
-            "若已安装旧包 lightrag==0.1.0b6 且冲突，请先: pip uninstall lightrag -y\n"
-            "再: pip install lightrag-hku",
-            file=sys.stderr,
-        )
         raise SystemExit(1) from None
 
 
-def _merge_dotenv_when_empty() -> None:
-    """先 load_dotenv；若 shell 里 export 了空字符串（常见于误配），用 .env 里的非空值补上。"""
-    load_dotenv(_REPO_ROOT / ".env", override=False)
-    env_path = _REPO_ROOT / ".env"
-    if not env_path.is_file():
-        return
-    try:
-        from dotenv import dotenv_values
-    except ImportError:
-        return
-    for key, val in dotenv_values(env_path).items():
-        if val is None or str(val).strip() == "":
-            continue
-        cur = os.environ.get(key)
-        if cur is None or (isinstance(cur, str) and cur.strip() == ""):
-            os.environ[key] = str(val).strip()
-
-
-_merge_dotenv_when_empty()
-
-FEC_ENTITY_TYPES = [
-    "Document",
-    "Chapter",
-    "Concept",
-    "Entity",
-    "Attribute",
-    "Case",
-]
-
 DEFAULT_MD = _REPO_ROOT / "data" / "差错控制编码.md"
-DEFAULT_OUT = _REPO_ROOT / "data" / "fec_lightrag_intermediate"
-
-# LightRAG 默认 LLM_TIMEOUT=180，内部 Worker 上限约为 2×该值（秒）
 _DEFAULT_LLM_TIMEOUT_S = "600"
 
+FEC_ENTITY_KIND_TYPES: tuple[str, ...] = (
+    "coding_paradigm",
+    "coding_scheme",
+    "encoding_methods",
+    "decoding_methods",
+    "code_instance",
+    "modulation_and_demodulation_methods",
+    "math_methods_or_math_interpretations",
+    "channel_model",
+    "channel_phenomena",
+    "case_for_illustration",
+    "image_asset",
+    "table",
+)
+FEC_ENTITY_TYPES: list[str] = list(FEC_ENTITY_KIND_TYPES)
+
+_TUPLE_DL = "<|#|>"
+_COMPLETE_DL = "<|COMPLETE|>"
+FEC_EXTRACTION_SYSTEM_APPEND = (
+    "\n\n【FEC 附图/表】\n"
+    "图：遇 `![…](相对路径)` 或紧邻图题「图 m-n」→ 抽成实体，entity_type=image_asset，"
+    "entity_name=`图m-n:相对路径`（英文冒号仅一处；无图号时可用路径作名）。\n"
+    "`<!-- fec_figure path=… -->` 与指向同一文件的 `![…](path)` 合并为一条实体。\n"
+    "禁止：entity_name 仅为「图 m-n」等图题、不含冒号后相对路径（无 `:` 后路径段、无 `images/` 等文件路径）时，"
+    "不得使用 entity_type=image_asset。\n"
+    "表：正文「表 m-n」→ entity_type=table，entity_name 与书中引用一致。\n"
+    "\n"
+    "【FEC 实体 description 硬性要求】（tuple 第四段，须严格遵守）\n"
+    "1) 公式类：凡实体对应书中显式公式、等式、码多项式、生成/校验关系等数学表达式（含实体名形如「公式(m-n)」、"
+    "或类型属数学公式/数学方法等与式子直接相关者），description 中必须写出【完整公式表达式】——"
+    "与原文一致的符号、下标、多项式或矩阵形式（可含 LaTeX `$…$` 或书中原有记法），"
+    "禁止仅用「公式(m-n)给出某某」之类元叙述而不写出式子本身。\n"
+    "2) 专业术语：对编码/信道/译码等专业名词，description 必须包含【完整定义】——"
+    "从正文摘录或等价复述：条件、对象、结论/性质须齐全；禁止「某某是重要概念」「详见上文」等空泛句。\n"
+    "3) 全体实体：每条 description 须含【具体内容】（事实、数据、式子、步骤、判据等），使读者仅凭该段即可把握该实体；"
+    "禁止笼统概括、标题复述、无信息增量的套话。\n"
+    "4) entity_type=table：description 必须包含【表内实质内容】——至少列出表头与各行列关键数据/码字/多项式对应关系"
+    "（可用 Markdown 表或分行枚举复现正文表格信息），禁止仅写「表m-n列出了…」而不给出表体。"
+)
+
+_FEC_JSON_EXTRACTION_EXAMPLE = json.dumps(
+    {
+        "extraction": (
+            f"entity{_TUPLE_DL}图3-2:images/p.png{_TUPLE_DL}image_asset{_TUPLE_DL}图注一句。\n{_COMPLETE_DL}"
+        )
+    },
+    ensure_ascii=False,
+)
+
 _JSON_MODE_SYSTEM_SUFFIX = (
-    "\n\n【JSON 输出协议】为便于服务端 json_object 模式校验，你必须只输出一个 JSON 对象，"
-    "且仅包含一个字符串键 \"extraction\"（不要使用其它顶层键）。"
-    "\"extraction\" 的值必须是本任务原本要求的那种分隔符元组正文，保持 delimiter 与实体类型约束不变；"
-    "不要在 JSON 外输出任何字符，也不要使用 Markdown 代码围栏。"
+    "\n\n【JSON】只输出一个 JSON 对象，且仅含键 extraction（小写）；"
+    "值为字符串，与未开 JSON 时 LightRAG 要求的正文逐字相同（含换行与末行结束符）。\n"
+    "示例：\n"
+    f"{_FEC_JSON_EXTRACTION_EXAMPLE}\n"
+    "禁止 Markdown 围栏；禁止 JSON 外任何字符。"
 )
 
 _CREATE_EXTRA_KEYS = frozenset(
@@ -138,38 +125,41 @@ def _env_truthy(name: str) -> bool:
     return v in ("1", "true", "yes", "on")
 
 
-def _require_openai_api_base() -> str:
-    _merge_dotenv_when_empty()
-    base = (os.getenv("OPENAI_API_BASE") or os.getenv("OPENAI_BASE_URL") or "").strip()
-    if not base:
-        raise RuntimeError(
-            "请在仓库根目录 `.env` 中设置 OPENAI_API_BASE 或 OPENAI_BASE_URL（OpenAI 兼容 API 根地址，"
-            "通常以 /v1 结尾，例如 https://api.deepseek.com/v1）。脚本不再使用内置默认网关。"
-        )
-    return base.rstrip("/")
+def _run_paths_and_doc_from_markdown(md_path: Path) -> tuple[Path, str, str]:
+    stem = (md_path.stem or "").strip() or "unnamed"
+    out_dir = (_REPO_ROOT / "data" / stem).resolve()
+    return out_dir, stem, stem
 
 
-def _require_openai_model() -> str:
-    _merge_dotenv_when_empty()
-    model = (os.getenv("OPENAI_MODEL") or "").strip()
-    if not model:
-        raise RuntimeError(
-            "请在 `.env` 中设置 OPENAI_MODEL（对话与实体抽取所用模型 id，例如 deepseek-chat）。"
-        )
-    return model
+def _looks_like_lightrag_tuple_extraction(text: str) -> bool:
+    s = (text or "").strip()
+    if _TUPLE_DL not in s:
+        return False
+    for line in s.splitlines():
+        t = line.strip()
+        if t.startswith("entity" + _TUPLE_DL) or t.startswith("relation" + _TUPLE_DL):
+            return True
+    return False
+
+
+def _ensure_lightrag_extraction_complete(text: str) -> str:
+    if not text or not text.strip():
+        return text
+    if _COMPLETE_DL in text:
+        return text
+    if not _looks_like_lightrag_tuple_extraction(text):
+        return text
+    return text.rstrip() + "\n" + _COMPLETE_DL
 
 
 def _unwrap_json_object_extraction(raw: str) -> str:
-    """将 json_object 模式下的整段 JSON 尽量还原为 LightRAG 期望的 delimited 正文。"""
     text = (raw or "").strip()
     if text.startswith("```"):
         text = re.sub(r"^```(?:json)?\s*", "", text, flags=re.IGNORECASE)
         if "```" in text:
             text = text.split("```", 1)[0].strip()
-    if not text:
-        return ""
-    if not (text.startswith("{") or text.startswith("[")):
-        return text
+    if not text or not (text.startswith("{") or text.startswith("[")):
+        return text or ""
     try:
         obj = json.loads(text)
     except json.JSONDecodeError:
@@ -185,51 +175,14 @@ def _unwrap_json_object_extraction(raw: str) -> str:
     return raw.strip()
 
 
-def _log_startup_diagnostic(
-    *,
-    structured_only: bool,
-    embedding_backend: str | None,
-) -> None:
-    base = _require_openai_api_base()
-    model = _require_openai_model()
-    key = os.getenv("OPENAI_API_KEY") or ""
-    key_ok = len(key.strip()) >= 8
-    proxy = os.getenv("ALL_PROXY") or os.getenv("HTTPS_PROXY") or os.getenv("HTTP_PROXY") or ""
-    json_mode = _env_truthy("OPENAI_JSON_OBJECT_MODE")
-    msg = (
-        "[fec_lightrag_extract] 配置快照 — "
-        f"structured_only={structured_only}, "
-        f"embedding={embedding_backend or 'n/a'}, "
-        f"OPENAI_API_BASE={base}, OPENAI_MODEL={model}, "
-        f"OPENAI_JSON_OBJECT_MODE={'on' if json_mode else 'off'}, "
-        f"OPENAI_API_KEY={'已设置' if key_ok else '未设置或为空'}, "
-        f"LLM_TIMEOUT={os.getenv('LLM_TIMEOUT', _DEFAULT_LLM_TIMEOUT_S)}, "
-        f"proxy={'有' if proxy else '无'}"
-    )
-    print(msg, file=sys.stderr)
-    print(
-        "[fec_lightrag_extract] 说明: LightRAG 会先写入 chunk 向量(Stage1)再调用 LLM 抽实体(Stage2)；"
-        "structured-only 使用本地占位向量，Stage1 应秒级完成。"
-        "若控制台长期无计费，多为请求未到达网关或卡在连接；请运行 --probe-openai。",
-        file=sys.stderr,
-    )
-
-
 async def _probe_openai_only() -> int:
-    """单次 chat 调用，验证密钥、BASE_URL、模型是否可用。"""
-    _merge_dotenv_when_empty()
     _apply_lightrag_timeout_env(None)
     _ensure_lightrag_installed()
     from lightrag.llm.openai import create_openai_async_client
 
-    if not (os.getenv("OPENAI_API_KEY") or "").strip():
-        print(
-            "[fec_lightrag_extract] OPENAI_API_KEY 为空；若已写 .env，请检查 shell 是否 export 了空变量遮蔽 .env。",
-            file=sys.stderr,
-        )
-        return 1
-    model = _require_openai_model()
-    base_url = _require_openai_api_base()
+    model = (os.getenv("OPENAI_MODEL") or "").strip()
+    base_raw = (os.getenv("OPENAI_API_BASE") or os.getenv("OPENAI_BASE_URL") or "").strip()
+    base_url = base_raw.rstrip("/")
     api_key = os.getenv("OPENAI_API_KEY")
     timeout = _effective_openai_http_timeout_seconds()
     import time
@@ -291,15 +244,14 @@ async def _openai_chat_create_json_object(
 ) -> str:
     from lightrag.llm.openai import create_openai_async_client
 
-    system_eff = (system_prompt or "") + _JSON_MODE_SYSTEM_SUFFIX
+    system_eff = (system_prompt or "") + FEC_EXTRACTION_SYSTEM_APPEND + _JSON_MODE_SYSTEM_SUFFIX
     client = create_openai_async_client(
         api_key=api_key,
         base_url=base_url,
         timeout=http_timeout,
         client_configs=client_configs or None,
     )
-    messages: list[dict] = []
-    messages.append({"role": "system", "content": system_eff})
+    messages: list[dict] = [{"role": "system", "content": system_eff}]
     if history_messages:
         messages.extend(history_messages)
     messages.append({"role": "user", "content": prompt})
@@ -317,8 +269,9 @@ async def _openai_chat_create_json_object(
 def _build_openai_llm():
     from lightrag.llm.openai import openai_complete_if_cache
 
-    model = _require_openai_model()
-    base_url = _require_openai_api_base()
+    model = (os.getenv("OPENAI_MODEL") or "").strip()
+    base_raw = (os.getenv("OPENAI_API_BASE") or os.getenv("OPENAI_BASE_URL") or "").strip()
+    base_url = base_raw.rstrip("/")
     api_key = os.getenv("OPENAI_API_KEY")
     http_timeout = _effective_openai_http_timeout_seconds()
     use_json_object = _env_truthy("OPENAI_JSON_OBJECT_MODE")
@@ -348,11 +301,13 @@ def _build_openai_llm():
                 **kwargs,
             )
 
+        system_entity = (system_prompt or "") + FEC_EXTRACTION_SYSTEM_APPEND
+
         if use_json_object:
-            return await _openai_chat_create_json_object(
+            out = await _openai_chat_create_json_object(
                 model=model,
                 prompt=prompt,
-                system_prompt=system_prompt,
+                system_prompt=system_entity,
                 history_messages=history_messages or [],
                 base_url=base_url,
                 api_key=api_key,
@@ -360,11 +315,12 @@ def _build_openai_llm():
                 extra=safe_kw,
                 client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
             )
+            return _ensure_lightrag_extraction_complete(out)
 
-        return await openai_complete_if_cache(
+        out = await openai_complete_if_cache(
             model,
             prompt,
-            system_prompt=system_prompt,
+            system_prompt=system_entity,
             history_messages=history_messages or [],
             keyword_extraction=False,
             base_url=base_url,
@@ -372,12 +328,12 @@ def _build_openai_llm():
             timeout=http_timeout,
             **kwargs,
         )
+        return _ensure_lightrag_extraction_complete(out)
 
     return llm_model_func, model
 
 
 def _build_stub_embedding():
-    """占位嵌入：不访问网络，仅满足 LightRAG 对向量库的写入；后续 Milvus 请用真实模型重算。"""
     import numpy as np
     from lightrag.utils import EmbeddingFunc
 
@@ -393,34 +349,9 @@ def _build_stub_embedding():
     return EmbeddingFunc(embedding_dim=dim, max_token_size=8192, func=_stub)
 
 
-def _build_openai_embedding_func():
-    """从 .env 绑定 base_url / api_key / 模型，供 LightRAG Stage1 向量写入。"""
-    from lightrag.llm.openai import openai_embed
-    from lightrag.utils import EmbeddingFunc
-
-    base_url = _require_openai_api_base()
-    api_key = (os.getenv("OPENAI_API_KEY") or "").strip() or None
-    embed_model = (os.getenv("EMBEDDING_MODEL") or "text-embedding-3-small").strip()
-    embed_dim = int(os.getenv("EMBEDDING_DIM", "1536"))
-    max_token = int(os.getenv("EMBEDDING_TOKEN_LIMIT", "8192"))
-
-    inner = partial(
-        openai_embed.func,
-        model=embed_model,
-        base_url=base_url,
-        api_key=api_key,
-    )
-    return EmbeddingFunc(
-        embedding_dim=embed_dim,
-        max_token_size=max_token,
-        func=inner,
-    )
-
-
 def _export_structured_copies(
     out_dir: Path, work_dir: Path, rel_ws: Path, *, export_text_chunks: bool
 ) -> dict[str, str]:
-    """将导入 Neo4j / 后续 Milvus 所需的结构化文件复制到 data 下固定子目录。"""
     export_dir = out_dir / "fec_structured_export"
     export_dir.mkdir(parents=True, exist_ok=True)
     copies: dict[str, str] = {}
@@ -442,30 +373,15 @@ def _export_structured_copies(
 
 
 async def _run(args: argparse.Namespace) -> None:
-    _merge_dotenv_when_empty()
     _apply_lightrag_timeout_env(args.llm_timeout)
 
-    _require_openai_api_base()
-    _require_openai_model()
-
-    embedding_backend: str
-    if args.structured_only:
-        embedding_backend = "stub_local"
-    else:
-        embedding_backend = "openai_api"
-
-    _log_startup_diagnostic(
-        structured_only=args.structured_only,
-        embedding_backend=embedding_backend,
-    )
-
-    out_dir: Path = args.output_dir.resolve()
+    md_path = args.markdown.resolve()
+    out_dir, doc_key, document_title = _run_paths_and_doc_from_markdown(md_path)
     work_dir = out_dir / "lightrag_workdir"
     if args.clear and work_dir.exists():
         shutil.rmtree(work_dir)
     work_dir.mkdir(parents=True, exist_ok=True)
 
-    md_path: Path = args.markdown.resolve()
     text = md_path.read_text(encoding="utf-8")
     if args.max_chars > 0:
         text = text[: args.max_chars]
@@ -473,78 +389,57 @@ async def _run(args: argparse.Namespace) -> None:
     _ensure_lightrag_installed()
     from lightrag import LightRAG
 
-    llm_model_kwargs: dict = {}
-
-    if not (os.getenv("OPENAI_API_KEY") or "").strip():
-        raise RuntimeError(
-            "未设置 OPENAI_API_KEY。请在仓库根目录 `.env` 中填写密钥，"
-            "或执行: export OPENAI_API_KEY=你的key"
-        )
-
     llm_model_func, llm_model_name = _build_openai_llm()
-
-    if args.structured_only:
-        embedding_func = _build_stub_embedding()
-    else:
-        embedding_func = _build_openai_embedding_func()
+    embedding_func = _build_stub_embedding()
 
     rag = LightRAG(
         working_dir=str(work_dir),
         workspace=args.workspace,
         llm_model_func=llm_model_func,
         llm_model_name=llm_model_name,
-        llm_model_kwargs=llm_model_kwargs,
+        llm_model_kwargs={},
         embedding_func=embedding_func,
         kv_storage="JsonKVStorage",
         doc_status_storage="JsonDocStatusStorage",
         graph_storage="NetworkXStorage",
         vector_storage="NanoVectorDBStorage",
         vector_db_storage_cls_kwargs={"cosine_better_than_threshold": 0.2},
-        addon_params={
-            "language": "Chinese",
-            "entity_types": FEC_ENTITY_TYPES,
-        },
+        addon_params={"language": "Chinese", "entity_types": FEC_ENTITY_TYPES},
         chunk_token_size=args.chunk_token_size,
         chunk_overlap_token_size=args.chunk_overlap,
     )
 
     await rag.initialize_storages()
-
-    doc_key = args.doc_id
-    await rag.ainsert(
-        text,
-        ids=[doc_key],
-        file_paths=[str(md_path)],
-    )
+    await rag.ainsert(text, ids=[doc_key], file_paths=[str(md_path)])
     await rag.finalize_storages()
 
     ws = (args.workspace or "").strip()
     rel_ws = Path(ws) if ws else Path()
-
     graphml = work_dir / rel_ws / "graph_chunk_entity_relation.graphml"
-    export_paths: dict[str, str] = {}
-    if args.structured_only or args.export_structured_copies:
-        export_paths = _export_structured_copies(
-            out_dir,
-            work_dir,
-            rel_ws,
-            export_text_chunks=args.export_text_chunks,
-        )
+
+    export_paths = _export_structured_copies(
+        out_dir,
+        work_dir,
+        rel_ws,
+        export_text_chunks=args.export_text_chunks,
+    )
 
     manifest = {
         "step": "extract",
         "markdown_path": str(md_path),
         "doc_id": doc_key,
-        "document_title": args.title,
+        "document_title": document_title,
         "fec_entity_types": FEC_ENTITY_TYPES,
         "llm_backend": "openai_compatible_api",
-        "embedding_backend": embedding_backend,
-        "structured_only": args.structured_only,
+        "embedding_backend": "stub_local",
         "openai_json_object_mode": _env_truthy("OPENAI_JSON_OBJECT_MODE"),
         "llm_timeout_seconds": _effective_llm_timeout_seconds(),
         "openai_http_timeout_seconds": _effective_openai_http_timeout_seconds(),
         "llm_model": llm_model_name,
         "max_chars_applied": args.max_chars if args.max_chars > 0 else None,
+        "chunking_mode": "lightrag_token_window",
+        "chunk_token_size": args.chunk_token_size,
+        "chunk_overlap_token_size": args.chunk_overlap,
         "workspace": ws or None,
         "lightrag_working_dir": str(work_dir),
         "artifacts": {
@@ -562,8 +457,7 @@ async def _run(args: argparse.Namespace) -> None:
             "chapter9_sec3": "Milvus 索引构建：待 Neo4j/图结构稳定后，用正式 embedding 对 text chunk 重编码入库",
         },
         "finished_at": datetime.now(timezone.utc).isoformat(),
-        "import_hint": "运行: python3 src/fec_neo4j_import.py --intermediate-dir "
-        + str(out_dir),
+        "import_hint": "python3 src/fec_neo4j_import.py -s " + shlex.quote(str(md_path)),
     }
     (out_dir / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2),
@@ -571,27 +465,12 @@ async def _run(args: argparse.Namespace) -> None:
     )
 
 
-def main() -> int:
+def build_arg_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        description="FEC: LightRAG 抽取 → data/fec_lightrag_intermediate（仅 OpenAI 兼容 API + .env）",
-        epilog=(
-            "常见问题:\n"
-            "  • Duplicate document — 请加 --clear 或换 --doc-id。\n"
-            "  • Worker execution timeout after 360s — LightRAG 默认 LLM_TIMEOUT=180（Worker≈2×）。"
-            "本脚本默认将 LLM_TIMEOUT 提到 600；仍慢可在 .env 设 LLM_TIMEOUT=900 或 "
-            "命令行 --llm-timeout 900；HTTP 层可用 OPENAI_TIMEOUT（默认跟随 LLM_TIMEOUT）。\n"
-            "  • Retrying /chat/completions — 网关抖动或限流，稍候重试或换模型。\n"
-            "  • 长时间运行但控制台无 token — 可能卡在连接、代理 SOCKS、或 shell 里空的 OPENAI_API_KEY"
-            " 遮蔽了 .env；请执行 --probe-openai。\n"
-            "  • .env 须设置 OPENAI_API_BASE（或 OPENAI_BASE_URL）与 OPENAI_MODEL；可选 OPENAI_JSON_OBJECT_MODE=1。\n"
-            "使用 python3 src/fec_lightrag_extract.py -h 查看本页。"
-        ),
+        description="FEC: LightRAG 结构化抽取 → data/<markdown 主文件名>/（占位向量）",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p.add_argument("--markdown", type=Path, default=DEFAULT_MD)
-    p.add_argument("--output-dir", type=Path, default=DEFAULT_OUT)
-    p.add_argument("--doc-id", default="fec_ecc_zh_md", help="LightRAG 文档 id")
-    p.add_argument("--title", default="差错控制编码", help="写入 manifest，供导入建 Document")
     p.add_argument("--workspace", default="", help="LightRAG workspace 子目录，默认空")
     p.add_argument("--max-chars", type=int, default=0, help="0 表示全文")
     p.add_argument("--chunk-token-size", type=int, default=1200)
@@ -599,24 +478,14 @@ def main() -> int:
     p.add_argument(
         "--clear",
         action="store_true",
-        help="删除 output-dir/lightrag_workdir（含 doc_status、KV、graphml），避免 Duplicate document 并从头抽取",
+        help="删除 data/<markdown 主文件名>/lightrag_workdir 后重抽",
     )
     p.add_argument(
         "--llm-timeout",
         type=int,
         default=None,
         metavar="SEC",
-        help="写入环境变量 LLM_TIMEOUT（秒）；不传则默认 600。LightRAG Worker 上限约为其 2 倍",
-    )
-    p.add_argument(
-        "--structured-only",
-        action="store_true",
-        help="不调用远程 embedding API，仅用占位向量跑通 LightRAG；并复制结构化文件到 fec_structured_export/",
-    )
-    p.add_argument(
-        "--export-structured-copies",
-        action="store_true",
-        help="即使未加 --structured-only，也将 entities/relations/graphml 复制到 fec_structured_export/",
+        help="写入 LLM_TIMEOUT（秒）；不传则默认 600",
     )
     p.add_argument(
         "--export-text-chunks",
@@ -626,13 +495,15 @@ def main() -> int:
     p.add_argument(
         "--probe-openai",
         action="store_true",
-        help="不做抽取，仅发一条最短 chat 验证 BASE_URL/密钥/模型是否可达",
+        help="不做抽取，仅发一条最短 chat 探测 LLM 是否可达",
     )
-    args = p.parse_args()
+    return p
 
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_arg_parser().parse_args(argv)
     if args.probe_openai:
         raise SystemExit(asyncio.run(_probe_openai_only()))
-
     asyncio.run(_run(args))
     return 0
 
