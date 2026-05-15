@@ -1,0 +1,6701 @@
+{
+  "校正子寄存器": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-7df234c6336cfa688fa90f814aa320da",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-5b77a2307bfc556cd4965677f420af80",
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-c47cb5d0e6217a08b156d071b4025469",
+      "chunk-dd5936945e724d0d680c614c82865204",
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-39906389da7113575b8a0b67c4606dfd",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7",
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1",
+      "chunk-2e5763e17552c56157530bc9893de0b2",
+      "chunk-476533d730f7beb2ad24ae62564fe71a",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518",
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 26,
+    "create_time": 1778819864,
+    "update_time": 1778819864,
+    "_id": "校正子寄存器"
+  },
+  "接收向量r(X)": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-39906389da7113575b8a0b67c4606dfd",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7",
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 9,
+    "create_time": 1778819864,
+    "update_time": 1778819864,
+    "_id": "接收向量r(X)"
+  },
+  "门3": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 6,
+    "create_time": 1778819864,
+    "update_time": 1778819864,
+    "_id": "门3"
+  },
+  "门2": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-5aebe049676c6c482b747d4520c53d04",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 7,
+    "create_time": 1778819864,
+    "update_time": 1778819864,
+    "_id": "门2"
+  },
+  "门4": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 6,
+    "create_time": 1778819864,
+    "update_time": 1778819864,
+    "_id": "门4"
+  },
+  "差错位": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-476533d730f7beb2ad24ae62564fe71a",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 5,
+    "create_time": 1778819864,
+    "update_time": 1778819864,
+    "_id": "差错位"
+  },
+  "缓冲寄存器": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 12,
+    "create_time": 1778819864,
+    "update_time": 1778819864,
+    "_id": "缓冲寄存器"
+  },
+  "校正子的重量": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-476533d730f7beb2ad24ae62564fe71a"
+    ],
+    "count": 2,
+    "create_time": 1778819864,
+    "update_time": 1778819864,
+    "_id": "校正子的重量"
+  },
+  "校正子": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-c47cb5d0e6217a08b156d071b4025469",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-ad0ad87f87496b869ddeecb3fcc2c444",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5",
+      "chunk-476533d730f7beb2ad24ae62564fe71a",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 15,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "校正子"
+  },
+  "n": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-369707369ecfd01cfbae99e16a8fdde6"
+    ],
+    "count": 2,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "n"
+  },
+  "t": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d"
+    ],
+    "count": 1,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "t"
+  },
+  "k": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-369707369ecfd01cfbae99e16a8fdde6"
+    ],
+    "count": 2,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "k"
+  },
+  "循环移位": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-c47cb5d0e6217a08b156d071b4025469",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7",
+      "chunk-65defaec082128edd1f300ab4a7fd8d8",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20",
+      "chunk-476533d730f7beb2ad24ae62564fe71a",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 12,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "循环移位"
+  },
+  "错误模式": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-ad0ad87f87496b869ddeecb3fcc2c444",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60",
+      "chunk-476533d730f7beb2ad24ae62564fe71a",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 8,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "错误模式"
+  },
+  "检测开关": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d"
+    ],
+    "count": 1,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "检测开关"
+  },
+  "校验位": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c",
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 3,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "校验位"
+  },
+  "信息位": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c",
+      "chunk-45dfc4b9a9848c70065e485098fde835"
+    ],
+    "count": 4,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "信息位"
+  },
+  "首尾相接的错误模式": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d"
+    ],
+    "count": 1,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "首尾相接的错误模式"
+  },
+  "不可纠正的错误模式": {
+    "chunk_ids": [
+      "chunk-e90921551cb7280b2a898fb834514b0d",
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 2,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "不可纠正的错误模式"
+  },
+  "(28,23)缩短码": {
+    "chunk_ids": [
+      "chunk-f90db355bcbe413707c0a33fa8d2a6ae"
+    ],
+    "count": 1,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "(28,23)缩短码"
+  },
+  "(31,26)循环汉明码": {
+    "chunk_ids": [
+      "chunk-f90db355bcbe413707c0a33fa8d2a6ae",
+      "chunk-5b77a2307bfc556cd4965677f420af80",
+      "chunk-2e5763e17552c56157530bc9893de0b2",
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 4,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "(31,26)循环汉明码"
+  },
+  "生成多项式g(X)=1+X^2+X^5": {
+    "chunk_ids": [
+      "chunk-f90db355bcbe413707c0a33fa8d2a6ae",
+      "chunk-5b77a2307bfc556cd4965677f420af80",
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 3,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "生成多项式g(X)=1+X^2+X^5"
+  },
+  "多项式 ρ(X)=1+X^2+X^3": {
+    "chunk_ids": [
+      "chunk-f90db355bcbe413707c0a33fa8d2a6ae"
+    ],
+    "count": 1,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "多项式 ρ(X)=1+X^2+X^3"
+  },
+  "图5-20": {
+    "chunk_ids": [
+      "chunk-f90db355bcbe413707c0a33fa8d2a6ae"
+    ],
+    "count": 1,
+    "create_time": 1778819865,
+    "update_time": 1778819865,
+    "_id": "图5-20"
+  },
+  "例5-12": {
+    "chunk_ids": [
+      "chunk-f90db355bcbe413707c0a33fa8d2a6ae",
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 2,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "例5-12"
+  },
+  "图5-21": {
+    "chunk_ids": [
+      "chunk-f90db355bcbe413707c0a33fa8d2a6ae",
+      "chunk-5b77a2307bfc556cd4965677f420af80"
+    ],
+    "count": 2,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "图5-21"
+  },
+  "(31,26)循环码译码电路": {
+    "chunk_ids": [
+      "chunk-f90db355bcbe413707c0a33fa8d2a6ae"
+    ],
+    "count": 1,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "(31,26)循环码译码电路"
+  },
+  "(28,23)缩短码译码电路": {
+    "chunk_ids": [
+      "chunk-f90db355bcbe413707c0a33fa8d2a6ae"
+    ],
+    "count": 1,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "(28,23)缩短码译码电路"
+  },
+  "图5-3": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04",
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 2,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "图5-3"
+  },
+  "m=5": {
+    "chunk_ids": [
+      "chunk-f90db355bcbe413707c0a33fa8d2a6ae"
+    ],
+    "count": 1,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "m=5"
+  },
+  "(n,k)循环码编码电路(图5-3)": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "(n,k)循环码编码电路(图5-3)"
+  },
+  "校验多项式h(X)": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7",
+      "chunk-1ee2655872c86c9ede618cd5939e27dd",
+      "chunk-c4092c1d1844455159fc4161c382bc44",
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 5,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "校验多项式h(X)"
+  },
+  "图5-4": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "图5-4"
+  },
+  "例5-6": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "例5-6"
+  },
+  "(7,4)循环码编码电路(图5-4)": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "(7,4)循环码编码电路(图5-4)"
+  },
+  "消息(1011)": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "消息(1011)"
+  },
+  "校检位差分方程": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819866,
+    "update_time": 1778819866,
+    "_id": "校检位差分方程"
+  },
+  "信号处理流程图": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "信号处理流程图"
+  },
+  "k级编码电路": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "k级编码电路"
+  },
+  "门1": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 6,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "门1"
+  },
+  "n-k级编码电路": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "n-k级编码电路"
+  },
+  "加法器": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "加法器"
+  },
+  "P点": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "P点"
+  },
+  "移位寄存器": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04",
+      "chunk-27bf5ddad86044c386138c62532c998a",
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 3,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "移位寄存器"
+  },
+  "信道": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04",
+      "chunk-27bf5ddad86044c386138c62532c998a"
+    ],
+    "count": 2,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "信道"
+  },
+  "生成多项式g(X)=1+X+X^3": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04",
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-dd5936945e724d0d680c614c82865204",
+      "chunk-c7b9a22f24680fc202f63d289439ea61",
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7",
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c",
+      "chunk-200507b41c28dac905f411304df86bdf",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 11,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "生成多项式g(X)=1+X+X^3"
+  },
+  "校验多项式h(X)=1+X+X^2+X^4": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "校验多项式h(X)=1+X+X^2+X^4"
+  },
+  "消息位": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "消息位"
+  },
+  "校检位": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04",
+      "chunk-868c93e206fb03a67b04af326f571a94"
+    ],
+    "count": 2,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "校检位"
+  },
+  "通用校检位差分方程": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "通用校检位差分方程"
+  },
+  "k级移位寄存器": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "k级移位寄存器"
+  },
+  "n-k级移位寄存器": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "n-k级移位寄存器"
+  },
+  "错误模式检测电路": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "错误模式检测电路"
+  },
+  "通用循环码译码器": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-dd5936945e724d0d680c614c82865204"
+    ],
+    "count": 2,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "通用循环码译码器"
+  },
+  "梅吉特译码器": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "梅吉特译码器"
+  },
+  "(7,4)循环码": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-c47cb5d0e6217a08b156d071b4025469",
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c",
+      "chunk-dd5936945e724d0d680c614c82865204",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-c7b9a22f24680fc202f63d289439ea61",
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7",
+      "chunk-7f863da5759264cf01dfc13f8790e7ce",
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-1ee2655872c86c9ede618cd5939e27dd",
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c",
+      "chunk-c4092c1d1844455159fc4161c382bc44",
+      "chunk-200507b41c28dac905f411304df86bdf",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 19,
+    "create_time": 1778819867,
+    "update_time": 1778819867,
+    "_id": "(7,4)循环码"
+  },
+  "反馈连接": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "反馈连接"
+  },
+  "图5-8": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 2,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "图5-8"
+  },
+  "流程图": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-45dfc4b9a9848c70065e485098fde835"
+    ],
+    "count": 2,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "流程图"
+  },
+  "例5-9": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 2,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "例5-9"
+  },
+  "最小距离": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e",
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 4,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "最小距离"
+  },
+  "陪集首": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 2,
+    "update_time": 1778819936,
+    "_id": "陪集首"
+  },
+  "单个差错": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 3,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "单个差错"
+  },
+  "7种含单个差错的错误模式": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "7种含单个差错的错误模式"
+  },
+  "第3步": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "第3步"
+  },
+  "第4步": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "第4步"
+  },
+  "第5步": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "第5步"
+  },
+  "已纠错向量": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "已纠错向量"
+  },
+  "门": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-c4092c1d1844455159fc4161c382bc44",
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 4,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "门"
+  },
+  "接收符号": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "接收符号"
+  },
+  "循环码": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3",
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-7df234c6336cfa688fa90f814aa320da",
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef",
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c",
+      "chunk-27bf5ddad86044c386138c62532c998a",
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-e0223ae137e7bae068574f379fa7d1d3",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20",
+      "chunk-369707369ecfd01cfbae99e16a8fdde6",
+      "chunk-c4092c1d1844455159fc4161c382bc44",
+      "chunk-476533d730f7beb2ad24ae62564fe71a",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a",
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 19,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "循环码"
+  },
+  "差错估值": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "差错估值"
+  },
+  "纠正方法": {
+    "chunk_ids": [
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 1,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "纠正方法"
+  },
+  "生成多项式": {
+    "chunk_ids": [
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c",
+      "chunk-ad0ad87f87496b869ddeecb3fcc2c444",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e",
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60",
+      "chunk-c4092c1d1844455159fc4161c382bc44",
+      "chunk-476533d730f7beb2ad24ae62564fe71a",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 9,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "生成多项式"
+  },
+  "定理5-4": {
+    "chunk_ids": [
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef"
+    ],
+    "count": 2,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "定理5-4"
+  },
+  "定理5-5": {
+    "chunk_ids": [
+      "chunk-868c93e206fb03a67b04af326f571a94"
+    ],
+    "count": 1,
+    "create_time": 1778819868,
+    "update_time": 1778819868,
+    "_id": "定理5-5"
+  },
+  "表4-1": {
+    "chunk_ids": [
+      "chunk-868c93e206fb03a67b04af326f571a94"
+    ],
+    "count": 1,
+    "create_time": 1778819869,
+    "update_time": 1778819869,
+    "_id": "表4-1"
+  },
+  "码多项式": {
+    "chunk_ids": [
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef",
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-1ee2655872c86c9ede618cd5939e27dd",
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20",
+      "chunk-200507b41c28dac905f411304df86bdf",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f"
+    ],
+    "count": 9,
+    "create_time": 1778819869,
+    "update_time": 1778819869,
+    "_id": "码多项式"
+  },
+  "二进制多项式": {
+    "chunk_ids": [
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f"
+    ],
+    "count": 2,
+    "create_time": 1778819870,
+    "update_time": 1778819870,
+    "_id": "二进制多项式"
+  },
+  "定理5-3": {
+    "chunk_ids": [
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f"
+    ],
+    "count": 2,
+    "create_time": 1778819870,
+    "update_time": 1778819870,
+    "_id": "定理5-3"
+  },
+  "公式(5-1)": {
+    "chunk_ids": [
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5",
+      "chunk-200507b41c28dac905f411304df86bdf",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f"
+    ],
+    "count": 4,
+    "create_time": 1778819870,
+    "update_time": 1778819870,
+    "_id": "公式(5-1)"
+  },
+  "X^n+1": {
+    "chunk_ids": [
+      "chunk-868c93e206fb03a67b04af326f571a94",
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5",
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0"
+    ],
+    "count": 3,
+    "update_time": 1778819932,
+    "_id": "X^n+1"
+  },
+  "码多项式g^{(k)}(X)": {
+    "chunk_ids": [
+      "chunk-868c93e206fb03a67b04af326f571a94"
+    ],
+    "count": 1,
+    "create_time": 1778819870,
+    "update_time": 1778819870,
+    "_id": "码多项式g^{(k)}(X)"
+  },
+  "生成多项式g(X) = (X^3+1)p(X)": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819870,
+    "update_time": 1778819870,
+    "_id": "生成多项式g(X) = (X^3+1)p(X)"
+  },
+  "不可约多项式p(X)": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819870,
+    "update_time": 1778819870,
+    "_id": "不可约多项式p(X)"
+  },
+  "多项式(X^3+1)": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819870,
+    "update_time": 1778819870,
+    "_id": "多项式(X^3+1)"
+  },
+  "单个差错错误模式": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819870,
+    "update_time": 1778819870,
+    "_id": "单个差错错误模式"
+  },
+  "相邻双重错误模式": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da",
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 2,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "相邻双重错误模式"
+  },
+  "相邻三重错误模式": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "相邻三重错误模式"
+  },
+  "标准阵的陪集首": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "标准阵的陪集首"
+  },
+  "捕错译码器": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da",
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963",
+      "chunk-39906389da7113575b8a0b67c4606dfd",
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 7,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "捕错译码器"
+  },
+  "组合逻辑电路": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da",
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860",
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 5,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "组合逻辑电路"
+  },
+  "本原多项式p(X) = 1 + X + X^4": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "本原多项式p(X) = 1 + X + X^4"
+  },
+  "多项式X^n+1": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da",
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-200507b41c28dac905f411304df86bdf"
+    ],
+    "count": 4,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "多项式X^n+1"
+  },
+  "最小整数n": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "最小整数n"
+  },
+  "C2 (7,3)极长码": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "C2 (7,3)极长码"
+  },
+  "C1 (3,1)循环码": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "C1 (3,1)循环码"
+  },
+  "循环乘积码": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da",
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2",
+      "chunk-34c4760f52be6b8308f2285a64569683",
+      "chunk-27bf5ddad86044c386138c62532c998a",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 5,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "循环乘积码"
+  },
+  "例5-14": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da",
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e"
+    ],
+    "count": 2,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "例5-14"
+  },
+  "(15,5)准循环码": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da",
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e"
+    ],
+    "count": 2,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "(15,5)准循环码"
+  },
+  "(15,5)准循环码的编码电路": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "(15,5)准循环码的编码电路"
+  },
+  "E Prange": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "E Prange"
+  },
+  "E R Berlekamp": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "E R Berlekamp"
+  },
+  "W W Peterson and E J Weldon, Jr": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "W W Peterson and E J Weldon, Jr"
+  },
+  "R E Blahut": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "R E Blahut"
+  },
+  "F J MacWilliams and N. J. A. Sloane": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "F J MacWilliams and N. J. A. Sloane"
+  },
+  "R J McEliece": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "R J McEliece"
+  },
+  "G Clark and J Cain": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "G Clark and J Cain"
+  },
+  "S B Wicker": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "S B Wicker"
+  },
+  "S A Vanstone and P C van Oorschot": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819871,
+    "update_time": 1778819871,
+    "_id": "S A Vanstone and P C van Oorschot"
+  },
+  "J E Meggitt": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "J E Meggitt"
+  },
+  "T Kasami": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da",
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 2,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "T Kasami"
+  },
+  "M E Mitchell et al.": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "M E Mitchell et al."
+  },
+  "L Rudolph and M E Mitchell": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "L Rudolph and M E Mitchell"
+  },
+  "循环码的参考文献列表": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "循环码的参考文献列表"
+  },
+  "捕错译码": {
+    "chunk_ids": [
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963",
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 5,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "捕错译码"
+  },
+  "图5-15": {
+    "chunk_ids": [
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744"
+    ],
+    "count": 2,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "图5-15"
+  },
+  "阈值检测开关": {
+    "chunk_ids": [
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963",
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860",
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 6,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "阈值检测开关"
+  },
+  "可纠正的首尾相接错误模式": {
+    "chunk_ids": [
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "可纠正的首尾相接错误模式"
+  },
+  "不可纠正的差错": {
+    "chunk_ids": [
+      "chunk-aa9e31b29937a30c2cb6485eeea9ed6b"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "不可纠正的差错"
+  },
+  "消息(1011)对应的码字(1001011)": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "消息(1011)对应的码字(1001011)"
+  },
+  "校正子计算": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 2,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "校正子计算"
+  },
+  "除法电路(校正子电路)": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "除法电路(校正子电路)"
+  },
+  "编码电路": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef",
+      "chunk-45dfc4b9a9848c70065e485098fde835"
+    ],
+    "count": 2,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "编码电路"
+  },
+  "生成多项式g(X)": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef",
+      "chunk-c47cb5d0e6217a08b156d071b4025469",
+      "chunk-39906389da7113575b8a0b67c4606dfd",
+      "chunk-7f863da5759264cf01dfc13f8790e7ce",
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-1ee2655872c86c9ede618cd5939e27dd",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518",
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a",
+      "chunk-369707369ecfd01cfbae99e16a8fdde6"
+    ],
+    "count": 12,
+    "update_time": 1778819907,
+    "_id": "生成多项式g(X)"
+  },
+  "校验矩阵H": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef",
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0",
+      "chunk-1ee2655872c86c9ede618cd5939e27dd",
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c"
+    ],
+    "count": 4,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "校验矩阵H"
+  },
+  "定理5-8": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef",
+      "chunk-c47cb5d0e6217a08b156d071b4025469"
+    ],
+    "count": 2,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "定理5-8"
+  },
+  "图5-5": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "图5-5"
+  },
+  "信道噪声": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "信道噪声"
+  },
+  "校检位计算示例": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "校检位计算示例"
+  },
+  "线性码": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "线性码"
+  },
+  "接收多项式r(X)": {
+    "chunk_ids": [
+      "chunk-e616cf4aac59fd9d17d3176c19dfa1ef",
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-dd5936945e724d0d680c614c82865204",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518",
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 6,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "接收多项式r(X)"
+  },
+  "(28,23)缩短循环码": {
+    "chunk_ids": [
+      "chunk-5b77a2307bfc556cd4965677f420af80"
+    ],
+    "count": 1,
+    "create_time": 1778819872,
+    "update_time": 1778819872,
+    "_id": "(28,23)缩短循环码"
+  },
+  "差错检测电路": {
+    "chunk_ids": [
+      "chunk-5b77a2307bfc556cd4965677f420af80",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 3,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "差错检测电路"
+  },
+  "(28,23)缩短循环码的译码电路": {
+    "chunk_ids": [
+      "chunk-5b77a2307bfc556cd4965677f420af80"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "(28,23)缩短循环码的译码电路"
+  },
+  "图5-22": {
+    "chunk_ids": [
+      "chunk-5b77a2307bfc556cd4965677f420af80"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "图5-22"
+  },
+  "例5-13": {
+    "chunk_ids": [
+      "chunk-5b77a2307bfc556cd4965677f420af80"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "例5-13"
+  },
+  "校正子(01000)": {
+    "chunk_ids": [
+      "chunk-5b77a2307bfc556cd4965677f420af80"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "校正子(01000)"
+  },
+  "余式ρ(X)": {
+    "chunk_ids": [
+      "chunk-5b77a2307bfc556cd4965677f420af80",
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d",
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a",
+      "chunk-39906389da7113575b8a0b67c4606dfd"
+    ],
+    "count": 5,
+    "update_time": 1778819923,
+    "_id": "余式ρ(X)"
+  },
+  "28比特缓冲寄存器": {
+    "chunk_ids": [
+      "chunk-5b77a2307bfc556cd4965677f420af80"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "28比特缓冲寄存器"
+  },
+  "与门": {
+    "chunk_ids": [
+      "chunk-5b77a2307bfc556cd4965677f420af80"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "与门"
+  },
+  "错误模式e(X)=X^27": {
+    "chunk_ids": [
+      "chunk-5b77a2307bfc556cd4965677f420af80"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "错误模式e(X)=X^27"
+  },
+  "g(X)": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5",
+      "chunk-9df14ba2673aaeab4ef2c8d2740f8ef7",
+      "chunk-369707369ecfd01cfbae99e16a8fdde6"
+    ],
+    "count": 3,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "g(X)"
+  },
+  "(n,k)循环码": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f"
+    ],
+    "count": 4,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "(n,k)循环码"
+  },
+  "定理5-6": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "定理5-6"
+  },
+  "例5-1": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5",
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c"
+    ],
+    "count": 2,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "例5-1"
+  },
+  "X^7+1": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "X^7+1"
+  },
+  "g^(k)(X)": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "g^(k)(X)"
+  },
+  "公式(5-5)": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "公式(5-5)"
+  },
+  "a(X)": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "a(X)"
+  },
+  "v(X)": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "v(X)"
+  },
+  "v^(1)(X)": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "v^(1)(X)"
+  },
+  "定义5-1": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "定义5-1"
+  },
+  "X^{k-1}g(X)": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "X^{k-1}g(X)"
+  },
+  "Xg(X)": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819873,
+    "update_time": 1778819873,
+    "_id": "Xg(X)"
+  },
+  "1+X": {
+    "chunk_ids": [
+      "chunk-7d73df20d9ff8bb6ed75692a68a55bd5"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "1+X"
+  },
+  "Meggitt译码器": {
+    "chunk_ids": [
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-27bf5ddad86044c386138c62532c998a",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 3,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Meggitt译码器"
+  },
+  "图5-11": {
+    "chunk_ids": [
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-dd5936945e724d0d680c614c82865204",
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 3,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "图5-11"
+  },
+  "图5-9": {
+    "chunk_ids": [
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 2,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "图5-9"
+  },
+  "错误模式e(X)": {
+    "chunk_ids": [
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-39906389da7113575b8a0b67c4606dfd",
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 4,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "错误模式e(X)"
+  },
+  "异或门": {
+    "chunk_ids": [
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 4,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "异或门"
+  },
+  "串行处理": {
+    "chunk_ids": [
+      "chunk-84ebc7309afb54a7e682cce1493941f2"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "串行处理"
+  },
+  "图3-9": {
+    "chunk_ids": [
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 2,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "图3-9"
+  },
+  "多路选择开关": {
+    "chunk_ids": [
+      "chunk-84ebc7309afb54a7e682cce1493941f2",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 2,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "多路选择开关"
+  },
+  "Multiple-Error-Correction Cyclic Codes": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Multiple-Error-Correction Cyclic Codes"
+  },
+  "Permutation Decoding": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Permutation Decoding"
+  },
+  "Systematic Codes": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Systematic Codes"
+  },
+  "Cyclic Codes": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Cyclic Codes"
+  },
+  "Cyclic Codes Decoding": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Cyclic Codes Decoding"
+  },
+  "Ray-Chaudhuris Algorithm": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Ray-Chaudhuris Algorithm"
+  },
+  "Minimum Cover of an Abstract Complex": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Minimum Cover of an Abstract Complex"
+  },
+  "Interleaved Golay Code": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Interleaved Golay Code"
+  },
+  "Prime Implicant Tables": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Prime Implicant Tables"
+  },
+  "Digital Coding": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819874,
+    "update_time": 1778819874,
+    "_id": "Digital Coding"
+  },
+  "Three-Dimensional Product Code": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "Three-Dimensional Product Code"
+  },
+  "Undetected Error Probability of Linear Codes": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "Undetected Error Probability of Linear Codes"
+  },
+  "Golay Code": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "Golay Code"
+  },
+  "Linear Codes": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "Linear Codes"
+  },
+  "Product Codes": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "Product Codes"
+  },
+  "Cascade Decoding": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "Cascade Decoding"
+  },
+  "Cyclic Product Codes": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "Cyclic Product Codes"
+  },
+  "F J MacWilliams": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525",
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 2,
+    "update_time": 1778819905,
+    "_id": "F J MacWilliams"
+  },
+  "L Rudolph": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525",
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 2,
+    "update_time": 1778819905,
+    "_id": "L Rudolph"
+  },
+  "M E Mitchell": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525",
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 2,
+    "update_time": 1778819905,
+    "_id": "M E Mitchell"
+  },
+  "D C Foata": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "D C Foata"
+  },
+  "I B Pyne": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "I B Pyne"
+  },
+  "E J McCluskey": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "E J McCluskey"
+  },
+  "M J E Golay": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "M J E Golay"
+  },
+  "E J Weldon, Jr": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "E J Weldon, Jr"
+  },
+  "S K Leung-Yan-Cheong": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "S K Leung-Yan-Cheong"
+  },
+  "E R Barnes": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "E R Barnes"
+  },
+  "D U Friedman": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "D U Friedman"
+  },
+  "H O Burton": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "H O Burton"
+  },
+  "S Lin": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "S Lin"
+  },
+  "W C Gore": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "W C Gore"
+  },
+  "重量": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "重量"
+  },
+  "校正子s(X)": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-39906389da7113575b8a0b67c4606dfd",
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860",
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 6,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "校正子s(X)"
+  },
+  "N M Abramson": {
+    "chunk_ids": [
+      "chunk-9e1cc8a9172fb60fccd728f5b0f43525"
+    ],
+    "count": 1,
+    "create_time": 1778819875,
+    "update_time": 1778819875,
+    "_id": "N M Abramson"
+  },
+  "纠错能力t": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744"
+    ],
+    "count": 1,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "纠错能力t"
+  },
+  "时钟计数": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744"
+    ],
+    "count": 1,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "时钟计数"
+  },
+  "循环汉明码": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20",
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 6,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "循环汉明码"
+  },
+  "纠单个错误的分组码": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 2,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "纠单个错误的分组码"
+  },
+  "纠突发错误码": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 2,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "纠突发错误码"
+  },
+  "纠双错误码": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744",
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 2,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "纠双错误码"
+  },
+  "图5-14": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744"
+    ],
+    "count": 1,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "图5-14"
+  },
+  "信息位长度k": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744"
+    ],
+    "count": 1,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "信息位长度k"
+  },
+  "校验位长度n-k": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744"
+    ],
+    "count": 1,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "校验位长度n-k"
+  },
+  "第一种捕错实现方案": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744"
+    ],
+    "count": 1,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "第一种捕错实现方案"
+  },
+  "时钟": {
+    "chunk_ids": [
+      "chunk-7bd942fcdf728653d804e04f1e3b6744"
+    ],
+    "count": 1,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "时钟"
+  },
+  "图5-22译码电路": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 1,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "图5-22译码电路"
+  },
+  "(28,23)缩短汉明码": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 1,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "(28,23)缩短汉明码"
+  },
+  "缩短循环码": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 2,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "缩短循环码"
+  },
+  "循环冗余校验(CRC)码": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 1,
+    "create_time": 1778819876,
+    "update_time": 1778819876,
+    "_id": "循环冗余校验(CRC)码"
+  },
+  "CCITT X-25": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "CCITT X-25"
+  },
+  "ANSI": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "ANSI"
+  },
+  "IEC TC57": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "IEC TC57"
+  },
+  "IBM-SDLC": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "IBM-SDLC"
+  },
+  "IEEE 802.3": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "IEEE 802.3"
+  },
+  "ARQ协议": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "ARQ协议"
+  },
+  "乘积码": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "乘积码"
+  },
+  "本原多项式p(X)": {
+    "chunk_ids": [
+      "chunk-c92aa443ed6cf635b6529e67c7cecaf2",
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 3,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "本原多项式p(X)"
+  },
+  "校正子电路": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7",
+      "chunk-ad0ad87f87496b869ddeecb3fcc2c444"
+    ],
+    "count": 3,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "校正子电路"
+  },
+  "图5-6": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 2,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "图5-6"
+  },
+  "例5-7": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "例5-7"
+  },
+  "接收向量r=(0010110)": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "接收向量r=(0010110)"
+  },
+  "校正子s=(101)": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "校正子s=(101)"
+  },
+  "表5-3": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 2,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "表5-3"
+  },
+  "余式s(X)": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "余式s(X)"
+  },
+  "余式s^(1)(X)": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "余式s^(1)(X)"
+  },
+  "多项式r(X)": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "多项式r(X)"
+  },
+  "多项式r^(1)(X)": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "多项式r^(1)(X)"
+  },
+  "输入门": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 2,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "输入门"
+  },
+  "差错检测": {
+    "chunk_ids": [
+      "chunk-c47cb5d0e6217a08b156d071b4025469",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 2,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "差错检测"
+  },
+  "消息多项式": {
+    "chunk_ids": [
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "消息多项式"
+  },
+  "表5-1": {
+    "chunk_ids": [
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c",
+      "chunk-7f863da5759264cf01dfc13f8790e7ce",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20",
+      "chunk-200507b41c28dac905f411304df86bdf",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f"
+    ],
+    "count": 5,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "表5-1"
+  },
+  "系统形式": {
+    "chunk_ids": [
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c",
+      "chunk-45dfc4b9a9848c70065e485098fde835"
+    ],
+    "count": 2,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "系统形式"
+  },
+  "消息(1010)": {
+    "chunk_ids": [
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "消息(1010)"
+  },
+  "码字(1110010)": {
+    "chunk_ids": [
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c"
+    ],
+    "count": 1,
+    "create_time": 1778819877,
+    "update_time": 1778819877,
+    "_id": "码字(1110010)"
+  },
+  "因式1+X^2+X^3": {
+    "chunk_ids": [
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "因式1+X^2+X^3"
+  },
+  "非系统形式": {
+    "chunk_ids": [
+      "chunk-86f63c7b4857242e9105dea3c7bbd23c"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "非系统形式"
+  },
+  "图5-10": {
+    "chunk_ids": [
+      "chunk-dd5936945e724d0d680c614c82865204",
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 2,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "图5-10"
+  },
+  "图5-12": {
+    "chunk_ids": [
+      "chunk-dd5936945e724d0d680c614c82865204",
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf"
+    ],
+    "count": 2,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "图5-12"
+  },
+  "表5-5": {
+    "chunk_ids": [
+      "chunk-dd5936945e724d0d680c614c82865204"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "表5-5"
+  },
+  "例5-10": {
+    "chunk_ids": [
+      "chunk-dd5936945e724d0d680c614c82865204"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "例5-10"
+  },
+  "图5-8译码器": {
+    "chunk_ids": [
+      "chunk-dd5936945e724d0d680c614c82865204"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "图5-8译码器"
+  },
+  "图5-9所示电路": {
+    "chunk_ids": [
+      "chunk-dd5936945e724d0d680c614c82865204"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "图5-9所示电路"
+  },
+  "改进的捕错译码": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963",
+      "chunk-39906389da7113575b8a0b67c4606dfd",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 3,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "改进的捕错译码"
+  },
+  "例5-11": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "例5-11"
+  },
+  "生成多项式g(X)=1+X^4+X^6+X^7+X^8": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "生成多项式g(X)=1+X^4+X^6+X^7+X^8"
+  },
+  "(15,7)循环码": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "(15,7)循环码"
+  },
+  "最小距离d_min=5": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "最小距离d_min=5"
+  },
+  "图5-17": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "图5-17"
+  },
+  "图5-16": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "图5-16"
+  },
+  "环状排列": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "环状排列"
+  },
+  "门1至门4": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "门1至门4"
+  },
+  "7比特缓冲寄存器": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "7比特缓冲寄存器"
+  },
+  "高码率码": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "高码率码"
+  },
+  "长码": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "长码"
+  },
+  "第5.7节": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "第5.7节"
+  },
+  "第6章": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "第6章"
+  },
+  "第20章": {
+    "chunk_ids": [
+      "chunk-9c7acf9fa9fbec64d97e7473ea463963"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "第20章"
+  },
+  "接收多项式": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60",
+      "chunk-476533d730f7beb2ad24ae62564fe71a",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 5,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "接收多项式"
+  },
+  "表5-4": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "表5-4"
+  },
+  "例3-9": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 1,
+    "create_time": 1778819878,
+    "update_time": 1778819878,
+    "_id": "例3-9"
+  },
+  "译码电路": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 5,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "译码电路"
+  },
+  "三输入与门": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "三输入与门"
+  },
+  "传送码字": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "传送码字"
+  },
+  "接收码字": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 3,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "接收码字"
+  },
+  "移位操作": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "移位操作"
+  },
+  "校正子向量": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "校正子向量"
+  },
+  "输入": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "输入"
+  },
+  "输出": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8",
+      "chunk-7bd942fcdf728653d804e04f1e3b6744"
+    ],
+    "count": 2,
+    "update_time": 1778819912,
+    "_id": "输出"
+  },
+  "校正子(101)": {
+    "chunk_ids": [
+      "chunk-f1ef62428cbbd294fcc21b9bffcf7ca8"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "校正子(101)"
+  },
+  "分量码C1": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "分量码C1"
+  },
+  "分量码C2": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "分量码C2"
+  },
+  "生成多项式g1(X)": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683",
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 3,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "生成多项式g1(X)"
+  },
+  "奇偶校验多项式h1(X)": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "奇偶校验多项式h1(X)"
+  },
+  "奇偶校验多项式h2(X)": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "奇偶校验多项式h2(X)"
+  },
+  "生成多项式g2(X)": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683",
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 3,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "生成多项式g2(X)"
+  },
+  "循环乘积码的生成多项式g(X)": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "循环乘积码的生成多项式g(X)"
+  },
+  "循环乘积码的奇偶校验多项式h(X)": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "循环乘积码的奇偶校验多项式h(X)"
+  },
+  "长度n1": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "长度n1"
+  },
+  "长度n2": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "长度n2"
+  },
+  "码阵列": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "码阵列"
+  },
+  "传送顺序(45度斜对角线)": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "传送顺序(45度斜对角线)"
+  },
+  "Start": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "Start"
+  },
+  "图5-23": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "图5-23"
+  },
+  "Path 1": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "Path 1"
+  },
+  "Path 2": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "Path 2"
+  },
+  "多项式X^11+X^10+X^8+X^7+X^5+X^4+X^2+X+1": {
+    "chunk_ids": [
+      "chunk-34c4760f52be6b8308f2285a64569683"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "多项式X^11+X^10+X^8+X^7+X^5+X^4+X^2+X+1"
+  },
+  "系统形式的循环码": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61"
+    ],
+    "count": 1,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "系统形式的循环码"
+  },
+  "消息多项式u(X)": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61",
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c"
+    ],
+    "count": 2,
+    "create_time": 1778819879,
+    "update_time": 1778819879,
+    "_id": "消息多项式u(X)"
+  },
+  "校验位多项式b(X)": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "校验位多项式b(X)"
+  },
+  "系统编码的三个步骤": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "系统编码的三个步骤"
+  },
+  "表5-2": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "表5-2"
+  },
+  "例5-2": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "例5-2"
+  },
+  "码字v=(0 1 1 1 0 0 1)": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "码字v=(0 1 1 1 0 0 1)"
+  },
+  "消息u(X)=1+X^3": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "消息u(X)=1+X^3"
+  },
+  "商式X^3+X": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "商式X^3+X"
+  },
+  "余式X+X^2": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "余式X+X^2"
+  },
+  "码多项式v(X)=X+X^2+X^3+X^6": {
+    "chunk_ids": [
+      "chunk-c7b9a22f24680fc202f63d289439ea61"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "码多项式v(X)=X+X^2+X^3+X^6"
+  },
+  "表格(错误多项式与伴随式)": {
+    "chunk_ids": [
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "表格(错误多项式与伴随式)"
+  },
+  "汉明码": {
+    "chunk_ids": [
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf",
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 3,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "汉明码"
+  },
+  "奇偶校验矩阵": {
+    "chunk_ids": [
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf",
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-65defaec082128edd1f300ab4a7fd8d8"
+    ],
+    "count": 3,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "奇偶校验矩阵"
+  },
+  "公式(5-28)": {
+    "chunk_ids": [
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf",
+      "chunk-b1a874ad876ce9e2c9121d012707c366"
+    ],
+    "count": 2,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "公式(5-28)"
+  },
+  "余式b_i(X)": {
+    "chunk_ids": [
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf",
+      "chunk-b1a874ad876ce9e2c9121d012707c366"
+    ],
+    "count": 2,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "余式b_i(X)"
+  },
+  "译码电路流程图": {
+    "chunk_ids": [
+      "chunk-ffef87560fa08563f3d8f64e9fa90bbf"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "译码电路流程图"
+  },
+  "Kasami": {
+    "chunk_ids": [
+      "chunk-39906389da7113575b8a0b67c4606dfd"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "Kasami"
+  },
+  "覆盖多项式": {
+    "chunk_ids": [
+      "chunk-39906389da7113575b8a0b67c4606dfd",
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 2,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "覆盖多项式"
+  },
+  "多项式组[φ_j(X)]": {
+    "chunk_ids": [
+      "chunk-39906389da7113575b8a0b67c4606dfd"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "多项式组[φ_j(X)]"
+  },
+  "余式ρ_j(X)": {
+    "chunk_ids": [
+      "chunk-39906389da7113575b8a0b67c4606dfd"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "余式ρ_j(X)"
+  },
+  "校验部分e_p(X)": {
+    "chunk_ids": [
+      "chunk-39906389da7113575b8a0b67c4606dfd"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "校验部分e_p(X)"
+  },
+  "信息部分e_I(X)": {
+    "chunk_ids": [
+      "chunk-39906389da7113575b8a0b67c4606dfd"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "信息部分e_I(X)"
+  },
+  "余式 ρ(X)": {
+    "chunk_ids": [
+      "chunk-39906389da7113575b8a0b67c4606dfd",
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 2,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "余式 ρ(X)"
+  },
+  "图5-7": {
+    "chunk_ids": [
+      "chunk-682c24e2aeb18f96fc63070d036acbf7",
+      "chunk-ad0ad87f87496b869ddeecb3fcc2c444"
+    ],
+    "count": 2,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "图5-7"
+  },
+  "校正子s": {
+    "chunk_ids": [
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "校正子s"
+  },
+  "公式(5-24)和(5-25)": {
+    "chunk_ids": [
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "公式(5-24)和(5-25)"
+  },
+  "发送码字 ν(X)": {
+    "chunk_ids": [
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 1,
+    "create_time": 1778819880,
+    "update_time": 1778819880,
+    "_id": "发送码字 ν(X)"
+  },
+  "错误多项式e(X)": {
+    "chunk_ids": [
+      "chunk-682c24e2aeb18f96fc63070d036acbf7",
+      "chunk-b1a874ad876ce9e2c9121d012707c366"
+    ],
+    "count": 2,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "错误多项式e(X)"
+  },
+  "接收向量r = (0010110)": {
+    "chunk_ids": [
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "接收向量r = (0010110)"
+  },
+  "校正子s = (101)": {
+    "chunk_ids": [
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "校正子s = (101)"
+  },
+  "接收向量r^{(1)}(X) = (0001011)": {
+    "chunk_ids": [
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "接收向量r^{(1)}(X) = (0001011)"
+  },
+  "校正子s^{(1)} = (100)": {
+    "chunk_ids": [
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "校正子s^{(1)} = (100)"
+  },
+  "校正子s^{(2)} = (010)": {
+    "chunk_ids": [
+      "chunk-682c24e2aeb18f96fc63070d036acbf7"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "校正子s^{(2)} = (010)"
+  },
+  "准循环码": {
+    "chunk_ids": [
+      "chunk-27bf5ddad86044c386138c62532c998a",
+      "chunk-45dfc4b9a9848c70065e485098fde835",
+      "chunk-65defaec082128edd1f300ab4a7fd8d8",
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 5,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "准循环码"
+  },
+  "(9,3)准循环码": {
+    "chunk_ids": [
+      "chunk-27bf5ddad86044c386138c62532c998a",
+      "chunk-45dfc4b9a9848c70065e485098fde835"
+    ],
+    "count": 2,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "(9,3)准循环码"
+  },
+  "最大公约式": {
+    "chunk_ids": [
+      "chunk-27bf5ddad86044c386138c62532c998a"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "最大公约式"
+  },
+  "表5-6": {
+    "chunk_ids": [
+      "chunk-27bf5ddad86044c386138c62532c998a"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "表5-6"
+  },
+  "图5-24": {
+    "chunk_ids": [
+      "chunk-27bf5ddad86044c386138c62532c998a",
+      "chunk-45dfc4b9a9848c70065e485098fde835"
+    ],
+    "count": 2,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "图5-24"
+  },
+  "行向量译码": {
+    "chunk_ids": [
+      "chunk-27bf5ddad86044c386138c62532c998a"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "行向量译码"
+  },
+  "列向量译码": {
+    "chunk_ids": [
+      "chunk-27bf5ddad86044c386138c62532c998a"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "列向量译码"
+  },
+  "生成矩阵G": {
+    "chunk_ids": [
+      "chunk-27bf5ddad86044c386138c62532c998a",
+      "chunk-7f863da5759264cf01dfc13f8790e7ce",
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e",
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c"
+    ],
+    "count": 4,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "生成矩阵G"
+  },
+  "待编码的消息": {
+    "chunk_ids": [
+      "chunk-27bf5ddad86044c386138c62532c998a"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "待编码的消息"
+  },
+  "循环码C": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce",
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0",
+      "chunk-1ee2655872c86c9ede618cd5939e27dd",
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 5,
+    "update_time": 1778819952,
+    "_id": "循环码C"
+  },
+  "校验矩阵": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "校验矩阵"
+  },
+  "行变换": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "行变换"
+  },
+  "系统形式的生成矩阵G'": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "系统形式的生成矩阵G'"
+  },
+  "信息位(1001)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "信息位(1001)"
+  },
+  "信息位(0101)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "信息位(0101)"
+  },
+  "信息位(0011)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "信息位(0011)"
+  },
+  "信息位(1101)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "信息位(1101)"
+  },
+  "信息位(1011)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "信息位(1011)"
+  },
+  "信息位(0111)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "信息位(0111)"
+  },
+  "信息位(1111)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819881,
+    "update_time": 1778819881,
+    "_id": "信息位(1111)"
+  },
+  "码字(0111001)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "码字(0111001)"
+  },
+  "码字(1100101)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "码字(1100101)"
+  },
+  "码字(0001101)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "码字(0001101)"
+  },
+  "码字(0100011)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "码字(0100011)"
+  },
+  "码字(1001011)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "码字(1001011)"
+  },
+  "码字(0010111)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "码字(0010111)"
+  },
+  "码字(1111111)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "码字(1111111)"
+  },
+  "生成矩阵的一般形式(5-9)": {
+    "chunk_ids": [
+      "chunk-7f863da5759264cf01dfc13f8790e7ce"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "生成矩阵的一般形式(5-9)"
+  },
+  "本原多项式": {
+    "chunk_ids": [
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 2,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "本原多项式"
+  },
+  "Q矩阵": {
+    "chunk_ids": [
+      "chunk-b1a874ad876ce9e2c9121d012707c366"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "Q矩阵"
+  },
+  "b_i向量": {
+    "chunk_ids": [
+      "chunk-b1a874ad876ce9e2c9121d012707c366"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "b_i向量"
+  },
+  "循环汉明码的译码器": {
+    "chunk_ids": [
+      "chunk-b1a874ad876ce9e2c9121d012707c366"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "循环汉明码的译码器"
+  },
+  "图5-13": {
+    "chunk_ids": [
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 2,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "图5-13"
+  },
+  "表2-7": {
+    "chunk_ids": [
+      "chunk-b1a874ad876ce9e2c9121d012707c366"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "表2-7"
+  },
+  "公式(5-17)": {
+    "chunk_ids": [
+      "chunk-b1a874ad876ce9e2c9121d012707c366"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "公式(5-17)"
+  },
+  "p(X)=1+X+X^3": {
+    "chunk_ids": [
+      "chunk-b1a874ad876ce9e2c9121d012707c366"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "p(X)=1+X+X^3"
+  },
+  "锁相电路结构图": {
+    "chunk_ids": [
+      "chunk-b1a874ad876ce9e2c9121d012707c366",
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 2,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "锁相电路结构图"
+  },
+  "译码方式": {
+    "chunk_ids": [
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "译码方式"
+  },
+  "重量w[·]": {
+    "chunk_ids": [
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "重量w[·]"
+  },
+  "模2和运算": {
+    "chunk_ids": [
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "模2和运算"
+  },
+  "接收码字r(X)": {
+    "chunk_ids": [
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "接收码字r(X)"
+  },
+  "校验子多项式 ρ_j(X)": {
+    "chunk_ids": [
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "校验子多项式 ρ_j(X)"
+  },
+  "参数t": {
+    "chunk_ids": [
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "参数t"
+  },
+  "参数N": {
+    "chunk_ids": [
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "参数N"
+  },
+  "信息部分错误模式": {
+    "chunk_ids": [
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "信息部分错误模式"
+  },
+  "校验部分错误模式": {
+    "chunk_ids": [
+      "chunk-d3ee4d61a28b86b17aeb89f5dbee4860"
+    ],
+    "count": 1,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "校验部分错误模式"
+  },
+  "接收向量": {
+    "chunk_ids": [
+      "chunk-ad0ad87f87496b869ddeecb3fcc2c444",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 5,
+    "create_time": 1778819882,
+    "update_time": 1778819882,
+    "_id": "接收向量"
+  },
+  "发送码字": {
+    "chunk_ids": [
+      "chunk-ad0ad87f87496b869ddeecb3fcc2c444"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "发送码字"
+  },
+  "译码器": {
+    "chunk_ids": [
+      "chunk-ad0ad87f87496b869ddeecb3fcc2c444",
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-704bdbbef433b22c1d5c1de59d5f3ea3"
+    ],
+    "count": 4,
+    "update_time": 1778819901,
+    "_id": "译码器"
+  },
+  "公式(5-26)": {
+    "chunk_ids": [
+      "chunk-ad0ad87f87496b869ddeecb3fcc2c444"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "公式(5-26)"
+  },
+  "公式(5-27)": {
+    "chunk_ids": [
+      "chunk-ad0ad87f87496b869ddeecb3fcc2c444",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 2,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "公式(5-27)"
+  },
+  "表格示例": {
+    "chunk_ids": [
+      "chunk-45dfc4b9a9848c70065e485098fde835"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "表格示例"
+  },
+  "寄存器": {
+    "chunk_ids": [
+      "chunk-45dfc4b9a9848c70065e485098fde835"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "寄存器"
+  },
+  "奇偶校验位": {
+    "chunk_ids": [
+      "chunk-45dfc4b9a9848c70065e485098fde835",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 2,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "奇偶校验位"
+  },
+  "码字": {
+    "chunk_ids": [
+      "chunk-45dfc4b9a9848c70065e485098fde835",
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-65defaec082128edd1f300ab4a7fd8d8",
+      "chunk-200507b41c28dac905f411304df86bdf"
+    ],
+    "count": 4,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "码字"
+  },
+  "生成矩阵": {
+    "chunk_ids": [
+      "chunk-45dfc4b9a9848c70065e485098fde835",
+      "chunk-65defaec082128edd1f300ab4a7fd8d8"
+    ],
+    "count": 2,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "生成矩阵"
+  },
+  "移位约束": {
+    "chunk_ids": [
+      "chunk-45dfc4b9a9848c70065e485098fde835"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "移位约束"
+  },
+  "矩阵G": {
+    "chunk_ids": [
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "矩阵G"
+  },
+  "矩阵G'": {
+    "chunk_ids": [
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0",
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c"
+    ],
+    "count": 2,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "矩阵G'"
+  },
+  "反多项式X^k h(X^{-1})": {
+    "chunk_ids": [
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "反多项式X^k h(X^{-1})"
+  },
+  "多项式h(X)": {
+    "chunk_ids": [
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 2,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "多项式h(X)"
+  },
+  "码字v(X)": {
+    "chunk_ids": [
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 2,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "码字v(X)"
+  },
+  "信息多项式a(X)": {
+    "chunk_ids": [
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "信息多项式a(X)"
+  },
+  "校验方程(5-12)": {
+    "chunk_ids": [
+      "chunk-6274ffeffa5580db2f51c2cfd445a7a0"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "校验方程(5-12)"
+  },
+  "生成多项式p(X)": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "生成多项式p(X)"
+  },
+  "C1": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-9df14ba2673aaeab4ef2c8d2740f8ef7"
+    ],
+    "count": 2,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "C1"
+  },
+  "m输入与门": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "m输入与门"
+  },
+  "两个差错": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "两个差错"
+  },
+  "C2": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-9df14ba2673aaeab4ef2c8d2740f8ef7"
+    ],
+    "count": 2,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "C2"
+  },
+  "多项式X+1": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "多项式X+1"
+  },
+  "错误多项式": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 1,
+    "create_time": 1778819883,
+    "update_time": 1778819883,
+    "_id": "错误多项式"
+  },
+  "余式": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "余式"
+  },
+  "奇偶校检位": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "奇偶校检位"
+  },
+  "最小重量": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581",
+      "chunk-9df14ba2673aaeab4ef2c8d2740f8ef7"
+    ],
+    "count": 2,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "最小重量"
+  },
+  "奇数重量的码多项式": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "奇数重量的码多项式"
+  },
+  "覆盖多项式集合{φ_j(X)}": {
+    "chunk_ids": [
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "覆盖多项式集合{φ_j(X)}"
+  },
+  "偶数重量的码多项式": {
+    "chunk_ids": [
+      "chunk-b40ebf96d195e20cd7837a8564844581"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "偶数重量的码多项式"
+  },
+  "Kasami译码器": {
+    "chunk_ids": [
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 5,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "Kasami译码器"
+  },
+  "(23,12)格雷码": {
+    "chunk_ids": [
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc",
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5",
+      "chunk-74c6ec874342c35e63381ae7f0c3de20",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 6,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "(23,12)格雷码"
+  },
+  "简单捕错方案": {
+    "chunk_ids": [
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "简单捕错方案"
+  },
+  "错误模式e(X)=X^11+X^22": {
+    "chunk_ids": [
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "错误模式e(X)=X^11+X^22"
+  },
+  "错误模式e(X)=X^5+X^11+X^22": {
+    "chunk_ids": [
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "错误模式e(X)=X^5+X^11+X^22"
+  },
+  "11级移位寄存器": {
+    "chunk_ids": [
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "11级移位寄存器"
+  },
+  "余式ρ1(X)": {
+    "chunk_ids": [
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "余式ρ1(X)"
+  },
+  "余式ρ2(X)": {
+    "chunk_ids": [
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "余式ρ2(X)"
+  },
+  "余式ρ3(X)": {
+    "chunk_ids": [
+      "chunk-e1de2e0c29acffa12b47ac22017d7cfc"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "余式ρ3(X)"
+  },
+  "多项式g(X)": {
+    "chunk_ids": [
+      "chunk-e0223ae137e7bae068574f379fa7d1d3"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "多项式g(X)"
+  },
+  "定理5-2": {
+    "chunk_ids": [
+      "chunk-e0223ae137e7bae068574f379fa7d1d3",
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f"
+    ],
+    "count": 2,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "定理5-2"
+  },
+  "定理5-1": {
+    "chunk_ids": [
+      "chunk-e0223ae137e7bae068574f379fa7d1d3"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "定理5-1"
+  },
+  "表格": {
+    "chunk_ids": [
+      "chunk-e0223ae137e7bae068574f379fa7d1d3"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "表格"
+  },
+  "标准化阵列陪集首": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "标准化阵列陪集首"
+  },
+  "查表法译码": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "查表法译码"
+  },
+  "漏检错误模式": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "漏检错误模式"
+  },
+  "突发差错": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-369707369ecfd01cfbae99e16a8fdde6",
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 3,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "突发差错"
+  },
+  "首尾相接突发": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 1,
+    "create_time": 1778819884,
+    "update_time": 1778819884,
+    "_id": "首尾相接突发"
+  },
+  "示例错误模式": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "示例错误模式"
+  },
+  "标准阵列": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd",
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 2,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "标准阵列"
+  },
+  "B(X)多项式": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "B(X)多项式"
+  },
+  "随机错误": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "随机错误"
+  },
+  "X^j因子": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "X^j因子"
+  },
+  "校正位": {
+    "chunk_ids": [
+      "chunk-c68aa50a5e0e923ca2df88a6f12064dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "校正位"
+  },
+  "(9, 3)准循环码": {
+    "chunk_ids": [
+      "chunk-65defaec082128edd1f300ab4a7fd8d8"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "(9, 3)准循环码"
+  },
+  "公式(5-44)": {
+    "chunk_ids": [
+      "chunk-65defaec082128edd1f300ab4a7fd8d8"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "公式(5-44)"
+  },
+  "公式(5-45)": {
+    "chunk_ids": [
+      "chunk-65defaec082128edd1f300ab4a7fd8d8"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "公式(5-45)"
+  },
+  "公式(5-46)": {
+    "chunk_ids": [
+      "chunk-65defaec082128edd1f300ab4a7fd8d8"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "公式(5-46)"
+  },
+  "子矩阵P_i": {
+    "chunk_ids": [
+      "chunk-65defaec082128edd1f300ab4a7fd8d8"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "子矩阵P_i"
+  },
+  "子矩阵G_i": {
+    "chunk_ids": [
+      "chunk-65defaec082128edd1f300ab4a7fd8d8",
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e"
+    ],
+    "count": 2,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "子矩阵G_i"
+  },
+  "消息向量": {
+    "chunk_ids": [
+      "chunk-65defaec082128edd1f300ab4a7fd8d8"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "消息向量"
+  },
+  "转置矩阵P_i^T": {
+    "chunk_ids": [
+      "chunk-65defaec082128edd1f300ab4a7fd8d8"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "转置矩阵P_i^T"
+  },
+  "(7,3)循环码": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "(7,3)循环码"
+  },
+  "对偶码": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "对偶码"
+  },
+  "定理5-7": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "定理5-7"
+  },
+  "例5-3": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "例5-3"
+  },
+  "表(5-1)": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "表(5-1)"
+  },
+  "系统形式的生成矩阵G": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "系统形式的生成矩阵G"
+  },
+  "反多项式X^{4}h(X^{-1})": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "反多项式X^{4}h(X^{-1})"
+  },
+  "多项式X^7+1": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "多项式X^7+1"
+  },
+  "多项式1+X^2+X^3": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "多项式1+X^2+X^3"
+  },
+  "多项式1+X+X^2+X^4": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "多项式1+X+X^2+X^4"
+  },
+  "p(X)": {
+    "chunk_ids": [
+      "chunk-9df14ba2673aaeab4ef2c8d2740f8ef7"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "p(X)"
+  },
+  "A2(z)": {
+    "chunk_ids": [
+      "chunk-9df14ba2673aaeab4ef2c8d2740f8ef7"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "A2(z)"
+  },
+  "A1(z)": {
+    "chunk_ids": [
+      "chunk-9df14ba2673aaeab4ef2c8d2740f8ef7"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "A1(z)"
+  },
+  "公式(5-31)": {
+    "chunk_ids": [
+      "chunk-9df14ba2673aaeab4ef2c8d2740f8ef7"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "公式(5-31)"
+  },
+  "X+1": {
+    "chunk_ids": [
+      "chunk-9df14ba2673aaeab4ef2c8d2740f8ef7"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "X+1"
+  },
+  "Kasami捕错译码方案": {
+    "chunk_ids": [
+      "chunk-b65854929cdb58d949889bc292cb47c1"
+    ],
+    "count": 1,
+    "create_time": 1778819885,
+    "update_time": 1778819885,
+    "_id": "Kasami捕错译码方案"
+  },
+  "图5-18": {
+    "chunk_ids": [
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 2,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "图5-18"
+  },
+  "阈值检测开关T0": {
+    "chunk_ids": [
+      "chunk-b65854929cdb58d949889bc292cb47c1"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "阈值检测开关T0"
+  },
+  "计数器C": {
+    "chunk_ids": [
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 2,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "计数器C"
+  },
+  "多项式ρ_2(X)": {
+    "chunk_ids": [
+      "chunk-b65854929cdb58d949889bc292cb47c1"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "多项式ρ_2(X)"
+  },
+  "多项式ρ_3(X)": {
+    "chunk_ids": [
+      "chunk-b65854929cdb58d949889bc292cb47c1"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "多项式ρ_3(X)"
+  },
+  "门5": {
+    "chunk_ids": [
+      "chunk-b65854929cdb58d949889bc292cb47c1",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 2,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "门5"
+  },
+  "M_j": {
+    "chunk_ids": [
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "M_j"
+  },
+  "Q_l": {
+    "chunk_ids": [
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "Q_l"
+  },
+  "循环阵": {
+    "chunk_ids": [
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "循环阵"
+  },
+  "(15,11)循环汉明码": {
+    "chunk_ids": [
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e",
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 2,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "(15,11)循环汉明码"
+  },
+  "习题5-1": {
+    "chunk_ids": [
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e",
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 2,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "习题5-1"
+  },
+  "生成矩阵G_c": {
+    "chunk_ids": [
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "生成矩阵G_c"
+  },
+  "循环结构": {
+    "chunk_ids": [
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "循环结构"
+  },
+  "例5-4": {
+    "chunk_ids": [
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "例5-4"
+  },
+  "系统形式的(n,k)循环码编码": {
+    "chunk_ids": [
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "系统形式的(n,k)循环码编码"
+  },
+  "ν_0(X)": {
+    "chunk_ids": [
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "ν_0(X)"
+  },
+  "ν_1(X)": {
+    "chunk_ids": [
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "ν_1(X)"
+  },
+  "ν_3(X)": {
+    "chunk_ids": [
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "ν_3(X)"
+  },
+  "v_2(X)": {
+    "chunk_ids": [
+      "chunk-684fef42ea8b31c3d2a3f815e5e48b9c"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "v_2(X)"
+  },
+  "距离为4的循环汉明码": {
+    "chunk_ids": [
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "距离为4的循环汉明码"
+  },
+  "距离为3的循环汉明码": {
+    "chunk_ids": [
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "距离为3的循环汉明码"
+  },
+  "距离为4的循环汉明码的对偶码": {
+    "chunk_ids": [
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "距离为4的循环汉明码的对偶码"
+  },
+  "重量枚举式": {
+    "chunk_ids": [
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 2,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "重量枚举式"
+  },
+  "漏检差错概率": {
+    "chunk_ids": [
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60"
+    ],
+    "count": 1,
+    "create_time": 1778819886,
+    "update_time": 1778819886,
+    "_id": "漏检差错概率"
+  },
+  "BSC信道": {
+    "chunk_ids": [
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "BSC信道"
+  },
+  "Meggitt译码": {
+    "chunk_ids": [
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "Meggitt译码"
+  },
+  "循环码C1": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "循环码C1"
+  },
+  "通信系统": {
+    "chunk_ids": [
+      "chunk-fac2e1e675d40da2b06cfa283bb21d60"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "通信系统"
+  },
+  "循环码C2": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "循环码C2"
+  },
+  "循环码C3": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "循环码C3"
+  },
+  "最小距离d1": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "最小距离d1"
+  },
+  "最小距离d2": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "最小距离d2"
+  },
+  "漏检误码率上界": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "漏检误码率上界"
+  },
+  "对偶码C_d": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "对偶码C_d"
+  },
+  "汉明码C": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "汉明码C"
+  },
+  "生成多项式h*(X)": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "生成多项式h*(X)"
+  },
+  "循环移位v^(i)(X)": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "循环移位v^(i)(X)"
+  },
+  "全零码字": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "全零码字"
+  },
+  "重量为2^m-1的码字": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "重量为2^m-1的码字"
+  },
+  "突发误码": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "突发误码"
+  },
+  "(15,5)循环码": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "(15,5)循环码"
+  },
+  "生成多项式g(X) (15,5码)": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "生成多项式g(X) (15,5码)"
+  },
+  "简单捕错译码方案": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "简单捕错译码方案"
+  },
+  "BSC (二元对称信道)": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "BSC (二元对称信道)"
+  },
+  "接收多项式r(X) (示例)": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "接收多项式r(X) (示例)"
+  },
+  "校验子寄存器": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819887,
+    "update_time": 1778819887,
+    "_id": "校验子寄存器"
+  },
+  "二进制多项式g(X) (5-29)": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "二进制多项式g(X) (5-29)"
+  },
+  "不可约多项式p(X) (5-29)": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "不可约多项式p(X) (5-29)"
+  },
+  "完备码": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "完备码"
+  },
+  "双个差错": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "双个差错"
+  },
+  "三个差错的错误模式": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "三个差错的错误模式"
+  },
+  "线性分组码": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20",
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 2,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "线性分组码"
+  },
+  "BCH码": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "BCH码"
+  },
+  "里德-索罗门码": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "里德-索罗门码"
+  },
+  "欧氏几何码": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "欧氏几何码"
+  },
+  "射影几何码": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "射影几何码"
+  },
+  "二次剩余码": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "二次剩余码"
+  },
+  "法尔码": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "法尔码"
+  },
+  "(7,4)线性码": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "(7,4)线性码"
+  },
+  "缩短的循环码": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "缩短的循环码"
+  },
+  "带反馈连接的移位寄存器": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "带反馈连接的移位寄存器"
+  },
+  "普蓝奇": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "普蓝奇"
+  },
+  "系统搜索译码器": {
+    "chunk_ids": [
+      "chunk-74c6ec874342c35e63381ae7f0c3de20",
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1",
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 3,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "系统搜索译码器"
+  },
+  "错误模式s(X)+ρ2(X)": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "错误模式s(X)+ρ2(X)"
+  },
+  "输出向量Q": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "输出向量Q"
+  },
+  "输出E": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "输出E"
+  },
+  "ρ2(X)": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "ρ2(X)"
+  },
+  "重量枚举式A(Z)": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "重量枚举式A(Z)"
+  },
+  "ρ3(X)": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "ρ3(X)"
+  },
+  "错误模式s(X)+ρ3(X)": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "错误模式s(X)+ρ3(X)"
+  },
+  "校正子s^(1)(X)": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "校正子s^(1)(X)"
+  },
+  "数据接收器": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "数据接收器"
+  },
+  "接收信息位": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "接收信息位"
+  },
+  "首尾相接突发差错": {
+    "chunk_ids": [
+      "chunk-369707369ecfd01cfbae99e16a8fdde6",
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 2,
+    "create_time": 1778819888,
+    "update_time": 1778819888,
+    "_id": "首尾相接突发差错"
+  },
+  "定理5-9": {
+    "chunk_ids": [
+      "chunk-369707369ecfd01cfbae99e16a8fdde6"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "定理5-9"
+  },
+  "e": {
+    "chunk_ids": [
+      "chunk-369707369ecfd01cfbae99e16a8fdde6"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "e"
+  },
+  "i": {
+    "chunk_ids": [
+      "chunk-369707369ecfd01cfbae99e16a8fdde6"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "i"
+  },
+  "长度为n-k+1的突发差错": {
+    "chunk_ids": [
+      "chunk-369707369ecfd01cfbae99e16a8fdde6"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "长度为n-k+1的突发差错"
+  },
+  "e(X)=X^i g(X)": {
+    "chunk_ids": [
+      "chunk-369707369ecfd01cfbae99e16a8fdde6"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "e(X)=X^i g(X)"
+  },
+  "(15,11)循环汉明码的生成多项式g(X)=1+X+X^4": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(15,11)循环汉明码的生成多项式g(X)=1+X+X^4"
+  },
+  "(15,11)循环汉明码的对偶码生成多项式": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(15,11)循环汉明码的对偶码生成多项式"
+  },
+  "(15,11)循环汉明码的校验多项式h(X)": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(15,11)循环汉明码的校验多项式h(X)"
+  },
+  "(15,11)循环汉明码的系统形式生成矩阵": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(15,11)循环汉明码的系统形式生成矩阵"
+  },
+  "(15,11)循环汉明码的系统形式奇偶校验矩阵": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(15,11)循环汉明码的系统形式奇偶校验矩阵"
+  },
+  "(15,11)循环汉明码的编码器": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(15,11)循环汉明码的编码器"
+  },
+  "(15,11)循环汉明码的译码器": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(15,11)循环汉明码的译码器"
+  },
+  "(21,11)循环码的生成多项式g(X)=1+X^2+X^4+X^6+X^7+X^10": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(21,11)循环码的生成多项式g(X)=1+X^2+X^4+X^6+X^7+X^10"
+  },
+  "(21,11)循环码": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(21,11)循环码"
+  },
+  "(21,11)循环码的校正子计算电路": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(21,11)循环码的校正子计算电路"
+  },
+  "(8,4)缩短循环码": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(8,4)缩短循环码"
+  },
+  "接收多项式r(X)=1+X^5+X^17": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "接收多项式r(X)=1+X^5+X^17"
+  },
+  "(8,4)缩短循环码的译码器": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(8,4)缩短循环码的译码器"
+  },
+  "(20,15)缩短循环码": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(20,15)缩短循环码"
+  },
+  "(20,15)缩短循环码的译码电路": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "(20,15)缩短循环码的译码电路"
+  },
+  "二进制循环码的生成多项式g(X)": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "二进制循环码的生成多项式g(X)"
+  },
+  "奇数重量的码字": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819889,
+    "update_time": 1778819889,
+    "_id": "奇数重量的码字"
+  },
+  "全1组成的码字": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "全1组成的码字"
+  },
+  "最小重量至少为3的码": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "最小重量至少为3的码"
+  },
+  "反多项式g*(X)=X^{n-k}g(X^{-1})": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "反多项式g*(X)=X^{n-k}g(X^{-1})"
+  },
+  "由g(X)生成的循环码C": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "由g(X)生成的循环码C"
+  },
+  "由g*(X)生成的循环码C*": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "由g*(X)生成的循环码C*"
+  },
+  "重量枚举式A(z)": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "重量枚举式A(z)"
+  },
+  "由(X+1)g(X)生成的循环码": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "由(X+1)g(X)生成的循环码"
+  },
+  "BSC信道(p=10^{-2})": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "BSC信道(p=10^{-2})"
+  },
+  "(15,10)循环汉明码": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "(15,10)循环汉明码"
+  },
+  "(15,10)循环汉明码的漏检误码率P_u(E)": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "(15,10)循环汉明码的漏检误码率P_u(E)"
+  },
+  "(2^m-1,2^m-m-2)循环汉明码": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "(2^m-1,2^m-m-2)循环汉明码"
+  },
+  "(2^m-1,2^m-m-2)循环汉明码的生成多项式g(X)=(X+1)p(X)": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "(2^m-1,2^m-m-2)循环汉明码的生成多项式g(X)=(X+1)p(X)"
+  },
+  "习题5-3": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "习题5-3"
+  },
+  "习题5-2": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "习题5-2"
+  },
+  "习题5-4": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "习题5-4"
+  },
+  "习题5-5": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "习题5-5"
+  },
+  "习题5-6": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "习题5-6"
+  },
+  "习题5-8": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "习题5-8"
+  },
+  "习题5-7": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "习题5-7"
+  },
+  "习题5-10": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "习题5-10"
+  },
+  "习题5-9": {
+    "chunk_ids": [
+      "chunk-2e5763e17552c56157530bc9893de0b2"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "习题5-9"
+  },
+  "除法电路": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44",
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 2,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "除法电路"
+  },
+  "系统形式循环码编码方法": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "系统形式循环码编码方法"
+  },
+  "图5-1": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "图5-1"
+  },
+  "例5-5": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "例5-5"
+  },
+  "生成多项式1+X+X^3": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "生成多项式1+X+X^3"
+  },
+  "消息向量(1011)": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44"
+    ],
+    "count": 1,
+    "create_time": 1778819890,
+    "update_time": 1778819890,
+    "_id": "消息向量(1011)"
+  },
+  "寄存器内容变化表": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "寄存器内容变化表"
+  },
+  "完整码字(1001011)": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "完整码字(1001011)"
+  },
+  "码多项式1+X^3+X^5+X^6": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "码多项式1+X^3+X^5+X^6"
+  },
+  "图5-2": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44",
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 2,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "图5-2"
+  },
+  "捕错": {
+    "chunk_ids": [
+      "chunk-476533d730f7beb2ad24ae62564fe71a"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "捕错"
+  },
+  "多项式X^i v(X)": {
+    "chunk_ids": [
+      "chunk-200507b41c28dac905f411304df86bdf"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "多项式X^i v(X)"
+  },
+  "首尾相接": {
+    "chunk_ids": [
+      "chunk-476533d730f7beb2ad24ae62564fe71a"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "首尾相接"
+  },
+  "纠t个错误的循环码": {
+    "chunk_ids": [
+      "chunk-476533d730f7beb2ad24ae62564fe71a"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "纠t个错误的循环码"
+  },
+  "循环移位码多项式v^{(i)}(X)": {
+    "chunk_ids": [
+      "chunk-200507b41c28dac905f411304df86bdf"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "循环移位码多项式v^{(i)}(X)"
+  },
+  "商多项式q(X)": {
+    "chunk_ids": [
+      "chunk-200507b41c28dac905f411304df86bdf"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "商多项式q(X)"
+  },
+  "消息序列": {
+    "chunk_ids": [
+      "chunk-200507b41c28dac905f411304df86bdf"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "消息序列"
+  },
+  "数和计时电路": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "数和计时电路"
+  },
+  "纠多个差错的循环码": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "纠多个差错的循环码"
+  },
+  "BSC": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "BSC"
+  },
+  "漏检差错的概率P_u(E)": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "漏检差错的概率P_u(E)"
+  },
+  "上确界2^{-11}": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "上确界2^{-11}"
+  },
+  "多项式码": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "多项式码"
+  },
+  "线性子码": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "线性子码"
+  },
+  "译码延时": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "译码延时"
+  },
+  "长度为n-l的向量": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "长度为n-l的向量"
+  },
+  "(n-l, k-l)线性码": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "(n-l, k-l)线性码"
+  },
+  "接收位r_{n-l-1}": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "接收位r_{n-l-1}"
+  },
+  "线性组合": {
+    "chunk_ids": [
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "线性组合"
+  },
+  "公式(5-2)": {
+    "chunk_ids": [
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "公式(5-2)"
+  },
+  "公式(5-3)": {
+    "chunk_ids": [
+      "chunk-27b8bde9f8c1ee814c7dd3c540b94b1f"
+    ],
+    "count": 1,
+    "create_time": 1778819891,
+    "update_time": 1778819891,
+    "_id": "公式(5-3)"
+  },
+  "定理5-10": {
+    "chunk_ids": [
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "定理5-10"
+  },
+  "定理5-11": {
+    "chunk_ids": [
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "定理5-11"
+  },
+  "例5-8": {
+    "chunk_ids": [
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "例5-8"
+  },
+  "突发差错检测": {
+    "chunk_ids": [
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "突发差错检测"
+  },
+  "译码表": {
+    "chunk_ids": [
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "译码表"
+  },
+  "随机差错": {
+    "chunk_ids": [
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "随机差错"
+  },
+  "模2加法": {
+    "chunk_ids": [
+      "chunk-90def7397901b238357adf3dcd7ec7ee",
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 2,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "模2加法"
+  },
+  "串行译码": {
+    "chunk_ids": [
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "串行译码"
+  },
+  "可纠正错误模式": {
+    "chunk_ids": [
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "可纠正错误模式"
+  },
+  "(15, 10)循环汉明码": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "(15, 10)循环汉明码"
+  },
+  "漏检误码率$P_{u}(E)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "漏检误码率$P_{u}(E)$"
+  },
+  "循环汉明码C": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "循环汉明码C"
+  },
+  "m次本原多项式": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "m次本原多项式"
+  },
+  "单码错误模式": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "单码错误模式"
+  },
+  "(7, 3)汉明码": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "(7, 3)汉明码"
+  },
+  "错误模式$e(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "错误模式$e(X)$"
+  },
+  "接收多项式$r(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "接收多项式$r(X)$"
+  },
+  "接收位$r_{i}$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "接收位$r_{i}$"
+  },
+  "码多项式$v(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "码多项式$v(X)$"
+  },
+  "差错位$e_{i}$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "差错位$e_{i}$"
+  },
+  "交织深度$\\lambda$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "交织深度$\\lambda$"
+  },
+  "交织后的码$C^{\\lambda}$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "交织后的码$C^{\\lambda}$"
+  },
+  "生成多项式$g(X^{\\lambda})$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "生成多项式$g(X^{\\lambda})$"
+  },
+  "长度为15的所有二进制循环码": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "长度为15的所有二进制循环码"
+  },
+  "伽罗华域$GF(2^{4})$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "伽罗华域$GF(2^{4})$"
+  },
+  "$X^{15}+1$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819892,
+    "update_time": 1778819892,
+    "_id": "$X^{15}+1$"
+  },
+  "表2-9": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "表2-9"
+  },
+  "不可约多项式": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "不可约多项式"
+  },
+  "$\\beta$(伽罗华域$GF(2^{m})$的非零元素且$\\beta \\neq 1$)": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "$\\beta$(伽罗华域$GF(2^{m})$的非零元素且$\\beta \\neq 1$)"
+  },
+  "最小多项式$\\phi(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "最小多项式$\\phi(X)$"
+  },
+  "生成多项式为$\\phi(X)$的循环码": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "生成多项式为$\\phi(X)$的循环码"
+  },
+  "$\\beta_{1}$和$\\beta_{2}$(两个独立的非零元素)": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "$\\beta_{1}$和$\\beta_{2}$(两个独立的非零元素)"
+  },
+  "生成多项式$\\pmb{g}(X) = \\pmb{\\phi}_{1}(X) \\cdot \\pmb{\\phi}_{2}(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "生成多项式$\\pmb{g}(X) = \\pmb{\\phi}_{1}(X) \\cdot \\pmb{\\phi}_{2}(X)$"
+  },
+  "素元$\\alpha$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "素元$\\alpha$"
+  },
+  "码多项式(汉明码)": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "码多项式(汉明码)"
+  },
+  "$C_1$和$C_2$(长度n的两个循环码)": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "$C_1$和$C_2$(长度n的两个循环码)"
+  },
+  "$C_3$(交集构成的循环码)": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "$C_3$(交集构成的循环码)"
+  },
+  "$d_1$和$d_2$(最小距离)": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "$d_1$和$d_2$(最小距离)"
+  },
+  "陪集": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "陪集"
+  },
+  "循环移位最小整数l": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "循环移位最小整数l"
+  },
+  "生成多项式$\\pmb{g}_1(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "生成多项式$\\pmb{g}_1(X)$"
+  },
+  "生成多项式$\\pmb{g}_2(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "生成多项式$\\pmb{g}_2(X)$"
+  },
+  "差分方程(5-18)": {
+    "chunk_ids": [
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "差分方程(5-18)"
+  },
+  "$\\alpha$的共轭": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "$\\alpha$的共轭"
+  },
+  "码字1001011": {
+    "chunk_ids": [
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "码字1001011"
+  },
+  "系统形式循环码": {
+    "chunk_ids": [
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "系统形式循环码"
+  },
+  "寄存器内容(100)": {
+    "chunk_ids": [
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "寄存器内容(100)"
+  },
+  "信息位u(X)": {
+    "chunk_ids": [
+      "chunk-78e771dd6f64d90f7e2d87211bdbf48d"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "信息位u(X)"
+  },
+  "图5-14捕错译码器": {
+    "chunk_ids": [
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "图5-14捕错译码器"
+  },
+  "k比特缓冲寄存器": {
+    "chunk_ids": [
+      "chunk-b92cf4971e65bfcafd7bd457d5369518"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "k比特缓冲寄存器"
+  },
+  "公式(5-41)": {
+    "chunk_ids": [
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "公式(5-41)"
+  },
+  "公式(5-40)": {
+    "chunk_ids": [
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "公式(5-40)"
+  },
+  "校正子s^(n-k+l)(X)": {
+    "chunk_ids": [
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "校正子s^(n-k+l)(X)"
+  },
+  "缩短3位的(31,26)循环汉明码": {
+    "chunk_ids": [
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "缩短3位的(31,26)循环汉明码"
+  },
+  "图5-19": {
+    "chunk_ids": [
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 1,
+    "create_time": 1778819893,
+    "update_time": 1778819893,
+    "_id": "图5-19"
+  },
+  "g(X)=1+X^2+X^5": {
+    "chunk_ids": [
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "g(X)=1+X^2+X^5"
+  },
+  "l次移位": {
+    "chunk_ids": [
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "l次移位"
+  },
+  "译码": {
+    "chunk_ids": [
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "译码"
+  },
+  "第一个接收位": {
+    "chunk_ids": [
+      "chunk-ca71a82a7b6c6e80629cc237039ac96a"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "第一个接收位"
+  },
+  "通用(n,k)循环码": {
+    "chunk_ids": [
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "通用(n,k)循环码"
+  },
+  "错误模式检测器": {
+    "chunk_ids": [
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "错误模式检测器"
+  },
+  "循环码译码器": {
+    "chunk_ids": [
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "循环码译码器"
+  },
+  "译码步骤": {
+    "chunk_ids": [
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "译码步骤"
+  },
+  "接收多项式r^{(1)}(X)": {
+    "chunk_ids": [
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "接收多项式r^{(1)}(X)"
+  },
+  "修正的接收多项式r_1(X)": {
+    "chunk_ids": [
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "修正的接收多项式r_1(X)"
+  },
+  "可纠正的错误模式": {
+    "chunk_ids": [
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "可纠正的错误模式"
+  },
+  "不能纠正的错误模式": {
+    "chunk_ids": [
+      "chunk-eadd494d5f72a097e9c99d6bf1bb6908"
+    ],
+    "count": 1,
+    "create_time": 1778819894,
+    "update_time": 1778819894,
+    "_id": "不能纠正的错误模式"
+  },
+  "图5‑3": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819900,
+    "update_time": 1778819900,
+    "_id": "图5‑3"
+  },
+  "(n,k)循环码编码电路(图5‑3)": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819900,
+    "update_time": 1778819900,
+    "_id": "(n,k)循环码编码电路(图5‑3)"
+  },
+  "(7,4)循环码编码电路(图5‑4)": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819900,
+    "update_time": 1778819900,
+    "_id": "(7,4)循环码编码电路(图5‑4)"
+  },
+  "例5‑6": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819900,
+    "update_time": 1778819900,
+    "_id": "例5‑6"
+  },
+  "图5‑4": {
+    "chunk_ids": [
+      "chunk-5aebe049676c6c482b747d4520c53d04"
+    ],
+    "count": 1,
+    "create_time": 1778819900,
+    "update_time": 1778819900,
+    "_id": "图5‑4"
+  },
+  "习题5-31": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819904,
+    "update_time": 1778819904,
+    "_id": "习题5-31"
+  },
+  "Cyclic Error-Correcting Codes in Two Symbols": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819904,
+    "update_time": 1778819904,
+    "_id": "Cyclic Error-Correcting Codes in Two Symbols"
+  },
+  "Algebraic Coding Theory": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819904,
+    "update_time": 1778819904,
+    "_id": "Algebraic Coding Theory"
+  },
+  "Error-Correcting Codes": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819904,
+    "update_time": 1778819904,
+    "_id": "Error-Correcting Codes"
+  },
+  "The Theory of Error-Correcting Codes": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819904,
+    "update_time": 1778819904,
+    "_id": "The Theory of Error-Correcting Codes"
+  },
+  "Error-Correction Codes for Digital Communications": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819904,
+    "update_time": 1778819904,
+    "_id": "Error-Correction Codes for Digital Communications"
+  },
+  "Theory and Practice of Error Control Codes": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819904,
+    "update_time": 1778819904,
+    "_id": "Theory and Practice of Error Control Codes"
+  },
+  "The Theory of Information and Coding": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819904,
+    "update_time": 1778819904,
+    "_id": "The Theory of Information and Coding"
+  },
+  "An Introduction to Error Correcting Codes with Applications": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819904,
+    "update_time": 1778819904,
+    "_id": "An Introduction to Error Correcting Codes with Applications"
+  },
+  "Error Control Systems for Digital Communication and Storage": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819905,
+    "update_time": 1778819905,
+    "_id": "Error Control Systems for Digital Communication and Storage"
+  },
+  "A Decoding Method for Multiple-Error-Correcting Cyclic Codes by Using Threshold Logics": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819905,
+    "update_time": 1778819905,
+    "_id": "A Decoding Method for Multiple-Error-Correcting Cyclic Codes by Using Threshold Logics"
+  },
+  "Coding and Decoding Operation Research": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819905,
+    "update_time": 1778819905,
+    "_id": "Coding and Decoding Operation Research"
+  },
+  "Error Correcting Codes and Their Implementation": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819905,
+    "update_time": 1778819905,
+    "_id": "Error Correcting Codes and Their Implementation"
+  },
+  "Easily Implemented Error-Correction Encoding-Decoding": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819905,
+    "update_time": 1778819905,
+    "_id": "Easily Implemented Error-Correction Encoding-Decoding"
+  },
+  "Error-Trap Decoding of Cyclic Codes": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819905,
+    "update_time": 1778819905,
+    "_id": "Error-Trap Decoding of Cyclic Codes"
+  },
+  "Permutation Decoding of Systematic Codes": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819905,
+    "update_time": 1778819905,
+    "_id": "Permutation Decoding of Systematic Codes"
+  },
+  "A Decoding Procedure For Multiple-Error-Correction Cyclic Codes": {
+    "chunk_ids": [
+      "chunk-7df234c6336cfa688fa90f814aa320da"
+    ],
+    "count": 1,
+    "create_time": 1778819905,
+    "update_time": 1778819905,
+    "_id": "A Decoding Procedure For Multiple-Error-Correction Cyclic Codes"
+  },
+  "接收向量最高位": {
+    "chunk_ids": [
+      "chunk-b1a874ad876ce9e2c9121d012707c366"
+    ],
+    "count": 1,
+    "create_time": 1778819927,
+    "update_time": 1778819927,
+    "_id": "接收向量最高位"
+  },
+  "反多项式X^4h(X^(-1))": {
+    "chunk_ids": [
+      "chunk-1ee2655872c86c9ede618cd5939e27dd"
+    ],
+    "count": 1,
+    "create_time": 1778819938,
+    "update_time": 1778819938,
+    "_id": "反多项式X^4h(X^(-1))"
+  },
+  "循环阵Q_l": {
+    "chunk_ids": [
+      "chunk-22c42f5cb11f55ab9ee78117b3f3880e"
+    ],
+    "count": 1,
+    "create_time": 1778819940,
+    "update_time": 1778819940,
+    "_id": "循环阵Q_l"
+  },
+  "循环码(5-29)": {
+    "chunk_ids": [
+      "chunk-f4d4808879767a1ec2972c5fdf0a03c5"
+    ],
+    "count": 1,
+    "create_time": 1778819944,
+    "update_time": 1778819944,
+    "_id": "循环码(5-29)"
+  },
+  "纠正多个差错的循环码": {
+    "chunk_ids": [
+      "chunk-9fb44ef24c18558ccaa56eb0e84b8fb1"
+    ],
+    "count": 1,
+    "create_time": 1778819946,
+    "update_time": 1778819946,
+    "_id": "纠正多个差错的循环码"
+  },
+  "循环码编码": {
+    "chunk_ids": [
+      "chunk-c4092c1d1844455159fc4161c382bc44"
+    ],
+    "count": 1,
+    "create_time": 1778819949,
+    "update_time": 1778819949,
+    "_id": "循环码编码"
+  },
+  "纠错": {
+    "chunk_ids": [
+      "chunk-476533d730f7beb2ad24ae62564fe71a"
+    ],
+    "count": 1,
+    "create_time": 1778819950,
+    "update_time": 1778819950,
+    "_id": "纠错"
+  },
+  "原循环码": {
+    "chunk_ids": [
+      "chunk-fab5d9e74ac00590dbdd898fe07d1b2d"
+    ],
+    "count": 1,
+    "create_time": 1778819952,
+    "update_time": 1778819952,
+    "_id": "原循环码"
+  },
+  "差错纠正": {
+    "chunk_ids": [
+      "chunk-90def7397901b238357adf3dcd7ec7ee"
+    ],
+    "count": 1,
+    "create_time": 1778819954,
+    "update_time": 1778819954,
+    "_id": "差错纠正"
+  },
+  "生成多项式$g(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819954,
+    "update_time": 1778819954,
+    "_id": "生成多项式$g(X)$"
+  },
+  "伽罗华域$GF(2^{m})$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819955,
+    "update_time": 1778819955,
+    "_id": "伽罗华域$GF(2^{m})$"
+  },
+  "m次本原多项式$\\pmb{p}(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819956,
+    "update_time": 1778819956,
+    "_id": "m次本原多项式$\\pmb{p}(X)$"
+  },
+  "最小多项式$\\pmb{\\phi}_{1}(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819956,
+    "update_time": 1778819956,
+    "_id": "最小多项式$\\pmb{\\phi}_{1}(X)$"
+  },
+  "最小多项式$\\pmb{\\phi}_{2}(X)$": {
+    "chunk_ids": [
+      "chunk-1daa6b1f2764629dbdf04c3f7acd970a"
+    ],
+    "count": 1,
+    "create_time": 1778819956,
+    "update_time": 1778819956,
+    "_id": "最小多项式$\\pmb{\\phi}_{2}(X)$"
+  }
+}
