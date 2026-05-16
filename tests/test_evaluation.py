@@ -35,8 +35,8 @@ def test_build_report_from_sample_file() -> None:
     pytest.importorskip("rouge_score")
     from src.evaluation.runner import build_report_from_path
 
-    p = Path(__file__).resolve().parents[1] / "data" / "test" / "eval_sample_full.jsonl"
-    report = build_report_from_path(p, max_detail_rows=5)
+    p = Path(__file__).resolve().parent / "fixtures" / "eval_sample_full.jsonl"
+    report = build_report_from_path(p, max_detail_rows=5, include_answer=True)
     assert report["counts"]["rows_total"] >= 1
     assert "answer" in report
     assert "rouge_avg" in report["answer"]
@@ -57,7 +57,9 @@ def test_build_report_answer_only(tmp_path: Path) -> None:
         + "\n",
         encoding="utf-8",
     )
-    r = build_report_from_path(f, include_retrieval=False, include_graph=False)
+    r = build_report_from_path(
+        f, include_answer=True, include_retrieval=False, include_graph=False
+    )
     assert r["counts"]["answer_evaluated"] == 1
     assert "retrieval" not in r
     assert "graph" not in r

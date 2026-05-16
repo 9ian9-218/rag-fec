@@ -1,7 +1,9 @@
+# ----- Secrets -----
 .env
 .env.*
 !.env.example
 
+# ----- Python / tooling -----
 __pycache__/
 *.py[cod]
 *$py.class
@@ -9,8 +11,57 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 
+# ----- Downloaded model weights (large) -----
 models/hub/
 models/xet/
 
-data/logs/
+# ----- Local data (documents, indexes, DB, caches, eval, logs) -----
+# 原始文献、MinerU 产物、LightRAG KV、SQLite、增量缓存、评估输入/输出、运行日志
+data/*
+!data/raw/
+!data/processed/
+!data/meta/
+!data/test/
+!data/lightrag_workdir/
+!data/logs/
+
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/meta/*
+!data/meta/.gitkeep
+data/test/*
+!data/test/.gitkeep
+data/lightrag_workdir/*
+!data/lightrag_workdir/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
+
+# Eval / monitoring artifacts (any path)
+**/eval_gold.jsonl
+**/eval_predictions.jsonl
+**/eval_report.json
+**/eval_all_metrics.json
+**/pairs.jsonl
+**/online_metrics_summary.json
+**/query_metrics.jsonl
+**/collect_run.log
+**/evaluate_run.log
+**/fill_predictions*.log
+
+# Documents dropped at repo root
+/*.pdf
+/*.PDF
+/*.doc
+/*.docx
+/*.md
+!README.md
+
+# DB / local persistence
+*.sqlite3
+*.sqlite
+*.db
+
+# Logs
 *.log
