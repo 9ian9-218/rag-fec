@@ -1,18 +1,4 @@
-"""檢索完成後：從 chunk 解析 ``![](images/...)``，讀取本地圖片並送入支援 vision 的 API；否則告警並純文字作答。
-
-**與 LightRAG 管線的順序（以 ``rag.aquery_data`` / ``aquery`` 為準）**
-
-1. **關鍵詞與檢索**：依 ``QueryParam.mode``（如 ``mix``：圖譜 + 向量 chunk；``hybrid``：local+global
-   結果 **round-robin** 合併，見 LightRAG ``kg_query``）。
-2. **Rerank 與低分去噪**：若 ``enable_rerank`` 且已注入 ``rerank_model_func``（本專案為 BGE
-   CrossEncoder），對候選 chunk 做 rerank；再以 ``min_rerank_score`` / ``MIN_RERANK_SCORE``
-   做歸一化分數閾值過濾；最後按 ``chunk_top_k`` 等截斷——**以上均在 LightRAG 內完成**，
-   ``aquery_data`` 回傳的 ``chunks`` 已是「將送 LLM 前」的處理結果（含 ``metadata.processing_info`` 可觀測數量變化）。
-3. **本模組（多模態）後處理**：在拿到上述 **最終 chunks** 之後，再依設定做
-   ``max_reference_chunks`` + ``reference_context_max_chars`` 的參考長度預算（與向量側 token 上限互補、避免上下文膨脹）；
-   **僅在該子集上**用正則提取本地圖片路徑，且受 ``max_images_per_query`` 限制，**滿額後不再解析後續地址**；
-   最後對送入模型的「檢索上下文」字串做 ``strip_image_markup``，避免正文中重複堆疊圖片語法（圖檔仍以 image_url 單獨傳）。
-"""
+"""檢索後解析 chunk 內 ``![](images/...)``，可選送入 vision API；純文字降級走 ``OPENAI_*``。"""
 
 from __future__ import annotations
 
@@ -151,7 +137,7 @@ async def _chat_completion_text(
     history_messages: list[dict[str, str]] | None,
     system_prompt: str | None,
 ) -> str:
-    client, base = _main_llm_client_and_base(settings)
+    client, _ = _main_llm_client_and_base(settings)
     messages: list[dict[str, Any]] = []
     sp = (system_prompt or "").strip()
     if sp:
@@ -163,7 +149,6 @@ async def _chat_completion_text(
             if role in ("user", "assistant") and isinstance(content, str) and content.strip():
                 messages.append({"role": role, "content": content})
     messages.append({"role": "user", "content": user_text})
-    logger.debug("純文字 LLM：model=%s base=%s", model, base)
     resp = await client.chat.completions.create(
         model=model,
         temperature=float(settings.resolved_llm_temperature()),

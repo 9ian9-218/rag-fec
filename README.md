@@ -26,7 +26,7 @@
 - 清空索引：`python scripts/clear_index.py --all`（會清空 Neo4j 圖、LightRAG 工作目錄檔案與 SQLite；請謹慎）
 - 評估：`python scripts/evaluate.py --input data/test/eval_sample_full.jsonl --out data/test/eval_report.json`
 - PDF→Markdown（MinerU，与索引分离）：`python scripts/convert.py one data/raw/your.pdf`；增量转档：`python scripts/convert.py incremental`
-- 本地問答：`python scripts/query.py "問題"`；多模態：`python scripts/query.py "問題" --multimodal`（需 `MULTIMODAL_VISION_MODEL` 等支援 vision 的端點）（答案 ROUGE1/2/L、EM、分詞/字元 F1；可選 `gold_doc_ids`/`retrieved_doc_ids` 檢索與 `gold_entities` 等圖欄位，見報告內 `schema`）
+- 本地問答：`python scripts/query.py "問題"`；多模態：`python scripts/query.py "問題" --multimodal`（需配置 `MULTIMODAL_*`）
 
 ## Docker Compose（僅資料庫依賴）
 
@@ -79,4 +79,4 @@ pytest -q
 
 與需求一致：`config/`、`data/`、`src/`（含 `data_processing`、`storage`、`incremental`、`retrieval`、`service`、`utils`）、`scripts/`、`tests/`、`docker-compose.yml`、`main.py`。
 
-更多 curl 範例見 `examples/example_usage.py`。
+API 調用見上文「API 摘要」與 `/docs`。

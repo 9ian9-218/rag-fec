@@ -351,10 +351,6 @@ class Settings(BaseSettings):
     def resolved_multimodal_temperature(self) -> float:
         return float(self.multimodal.temperature)
 
-    def resolved_vision_model_name(self) -> str:
-        """向後相容別名。"""
-        return self.resolved_multimodal_model_name()
-
     def rerank_runtime_available(self) -> bool:
         """本機 rerank 是否應開啟（關閉開關、離線且無快照時為 False）。"""
         if not self.models.rerank_enabled:

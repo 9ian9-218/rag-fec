@@ -271,25 +271,3 @@ def remove_mineru_sidecars_for_markdown(md_path: Path) -> None:
                 images_dir.rmdir()
         except OSError:
             pass
-
-
-def ensure_pdf_markdown_cached(
-    pdf_path: Path,
-    *,
-    project_root: Path | None = None,
-    data_processed: Path | None = None,
-    infer_backend: str = "vlm-auto-engine",
-    force: bool = False,
-) -> Path:
-    del project_root, data_processed
-    return ensure_pdf_markdown_beside_source(pdf_path, infer_backend=infer_backend, force=force)
-
-
-def hf_project_cache_env(project_root: Path | None = None) -> dict[str, str]:
-    """向後相容：等同 ``scripts.convert.mineru_subprocess_env()``。"""
-    del project_root
-    if str(_PROJECT_ROOT) not in sys.path:
-        sys.path.insert(0, str(_PROJECT_ROOT))
-    from scripts.convert import mineru_subprocess_env
-
-    return mineru_subprocess_env()
