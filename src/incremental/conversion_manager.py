@@ -33,7 +33,13 @@ class ConversionManager:
         if not self._raw.is_absolute():
             self._raw = (root / self._raw).resolve()
 
-    def convert_path(self, pdf_path: Path, *, force: bool | None = None) -> Path:
+    def convert_path(
+        self,
+        pdf_path: Path,
+        *,
+        force: bool | None = None,
+        infer_backend: str | None = None,
+    ) -> Path:
         """轉換單一 PDF；回傳生成的 Markdown 路徑。"""
         s = get_settings()
         pdf_path = pdf_path.expanduser().resolve()
@@ -44,9 +50,10 @@ class ConversionManager:
         if not mineru_executable():
             raise RuntimeError("未找到 mineru 命令，請安裝 MinerU")
         refresh = s.document.mineru_force_refresh if force is None else force
+        backend = (infer_backend or s.document.mineru_infer_backend).strip()
         return ensure_pdf_markdown_beside_source(
             pdf_path,
-            infer_backend=s.document.mineru_infer_backend,
+            infer_backend=backend,
             force=refresh,
         )
 

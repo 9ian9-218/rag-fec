@@ -51,11 +51,17 @@ def _extract_chunks_and_kg(bundle: dict[str, Any]) -> tuple[list[dict[str, Any]]
     inner = bundle.get("data") or {}
     if not isinstance(inner, dict):
         inner = {}
-    chunks = inner.get("chunks") or []
+    # LightRAG aquery_data：{status, data:{chunks,...}}；retrieve_data 包裝：{data:{status, data:{chunks}}}
+    payload = inner
+    if isinstance(inner.get("data"), dict) and (
+        "chunks" in inner["data"] or "entities" in inner["data"]
+    ):
+        payload = inner["data"]
+    chunks = payload.get("chunks") or []
     if not isinstance(chunks, list):
         chunks = []
-    ent = inner.get("entities") or []
-    rel = inner.get("relationships") or []
+    ent = payload.get("entities") or []
+    rel = payload.get("relationships") or []
     if not isinstance(ent, list):
         ent = []
     if not isinstance(rel, list):
@@ -115,11 +121,23 @@ def _build_context_from_chunks(
     return "\n\n".join(parts).strip()
 
 
-def _openai_client_and_base(settings: Settings) -> tuple[AsyncOpenAI, str]:
+def _main_llm_client_and_base(settings: Settings) -> tuple[AsyncOpenAI, str]:
+    """純文字問答與多模態降級：頂層 ``OPENAI_*``，其次 ``LLM_*``。"""
     api_key = (settings.openai_api_key or settings.llm.api_key or "").strip()
     if not api_key:
         raise RuntimeError("回答需要 OPENAI_API_KEY / LLM_API_KEY")
     base = (settings.openai_base_url or settings.llm.base_url or "").strip().rstrip("/")
+    if not base:
+        base = "https://api.openai.com/v1"
+    return AsyncOpenAI(api_key=api_key, base_url=base), base
+
+
+def _multimodal_vision_client_and_base(settings: Settings) -> tuple[AsyncOpenAI, str]:
+    """``--multimodal`` 視覺請求：僅 ``MULTIMODAL_*``。"""
+    api_key = (settings.multimodal.api_key or "").strip()
+    if not api_key:
+        raise RuntimeError("多模態回答需要 MULTIMODAL_API_KEY")
+    base = (settings.multimodal.base_url or "").strip().rstrip("/")
     if not base:
         base = "https://api.openai.com/v1"
     return AsyncOpenAI(api_key=api_key, base_url=base), base
@@ -133,7 +151,7 @@ async def _chat_completion_text(
     history_messages: list[dict[str, str]] | None,
     system_prompt: str | None,
 ) -> str:
-    client, _ = _openai_client_and_base(settings)
+    client, base = _main_llm_client_and_base(settings)
     messages: list[dict[str, Any]] = []
     sp = (system_prompt or "").strip()
     if sp:
@@ -145,6 +163,7 @@ async def _chat_completion_text(
             if role in ("user", "assistant") and isinstance(content, str) and content.strip():
                 messages.append({"role": role, "content": content})
     messages.append({"role": "user", "content": user_text})
+    logger.debug("純文字 LLM：model=%s base=%s", model, base)
     resp = await client.chat.completions.create(
         model=model,
         temperature=float(settings.resolved_llm_temperature()),
@@ -278,7 +297,14 @@ async def answer_with_retrieved_images(
             history_messages=history_messages,
         )
 
-    vision_model = settings.resolved_vision_model_name()
+    vision_model = settings.resolved_multimodal_model_name()
+    resolved_paths = [str(p.resolve()) for p in image_paths]
+    logger.info(
+        "多模態 vision：model=%s 送入 %d 張圖片 -> %s",
+        vision_model,
+        len(resolved_paths),
+        resolved_paths,
+    )
     user_parts: list[dict[str, Any]] = [
         {
             "type": "text",
@@ -308,11 +334,12 @@ async def answer_with_retrieved_images(
                 messages.append({"role": role, "content": content})
     messages.append({"role": "user", "content": user_parts})
 
-    client, _ = _openai_client_and_base(settings)
+    client, vision_base = _multimodal_vision_client_and_base(settings)
+    logger.info("多模態 vision：base=%s", vision_base)
     try:
         resp = await client.chat.completions.create(
             model=vision_model,
-            temperature=float(settings.resolved_llm_temperature()),
+            temperature=float(settings.resolved_multimodal_temperature()),
             messages=messages,
         )
         choice = resp.choices[0].message.content

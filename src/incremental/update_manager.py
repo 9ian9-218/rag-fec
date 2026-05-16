@@ -176,7 +176,7 @@ class UpdateManager:
             md = markdown_path_for_pdf(path)
             if not md.is_file():
                 raise FileNotFoundError(
-                    f"兩階段模式須先轉檔 PDF：請執行 scripts/convert_documents.py，"
+                    f"兩階段模式須先轉檔 PDF：請執行 python scripts/convert.py incremental，"
                     f"預期 Markdown: {md}"
                 )
             return md

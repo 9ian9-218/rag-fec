@@ -1,0 +1,1341 @@
+# Recursive Projection-Aggregation Decoding of Reed-Muller Codes
+
+Min Ye $^{ID}$ and Emmanuel Abbe
+
+Abstract—We propose a new class of efficient decoding algorithms for Reed-Muller (RM) codes over binary-input memoryless channels. The algorithms are based on projecting the code on its cosets, recursively decoding the projected codes (which are lower-order RM codes), and aggregating the reconstructions (e.g., using majority votes). We further provide extensions of the algorithms using list-decoding. We run our algorithm for AWGN channels and Binary Symmetric Channels at the short code length ( $\leq 1024$ ) regime for a wide range of code rates. Simulation results show that in both low code rate and high code rate regimes, the new algorithm outperforms the widely used decoder for polar codes (SCL+CRC) with the same parameters. The performance of the new algorithm for RM codes in those regimes is in fact close to that of the maximal likelihood decoder. Finally, the new decoder naturally allows for parallel implementations.
+
+Index Terms—Reed-Muller codes, polar codes, RPA decoding, AWGN channels, binary symmetric channels.
+
+# I. INTRODUCTION
+
+REED-MULLER (RM) codes are among the oldest families of error-correcting codes [2]. The recent breakthrough of polar codes [3] has brought the attention back to RM codes, due to the closeness of the two codes. RM codes have in particular the advantage of having a simple and universal code construction, and promising performances were demonstrated in several works [4], [5], with a scaling law conjectured to be comparable of that of random codes.
+
+RM codes do not possess yet the generic analytical framework of polar codes (i.e., polarization theory). It was recently shown that RM codes achieve capacity on the Binary Erasure Channel (BEC) at constant rate [6], as well as for extremal rates for BEC and Binary Symmetric Channels (BSC) [7], but obtaining such results for a broader class of communication channels and rates remains open. Recent progress was made
+
+Manuscript received April 27, 2019; revised November 5, 2019; accepted February 22, 2020. Date of publication March 3, 2020; date of current version July 14, 2020. This article was presented in part at the 2019 IEEE International Symposium on Information Theory. (Corresponding author: Min Ye.)
+
+Min Ye is with the Data Science and Information Technology Research Center, Tsinghua–Berkeley Shenzhen Institute, Shenzhen 518055, China (e-mail: yeemmi@gmail.com).
+
+Emmanuel Abbe is with the School of Computer and Communication Sciences, Mathematics Institute, École Polytechnique Fédérale de Lausanne (EPFL), 1015 Lausanne, Switzerland, and also with the Program in Applied and Computational Mathematics, Department of Electrical Engineering, Princeton University, Princeton, NJ 08544 USA.
+
+Communicated by J. Kliewer, Associate Editor for Coding Techniques.
+
+Color versions of one or more of the figures in this article are available online at http://ieeexplore.ieee.org.
+
+Digital Object Identifier 10.1109/TIT.2020.2977917
+
+on these questions with a polarization approach to RM codes shown in [8]. See also [9] for a recent survey on RM codes.
+
+Various decoding algorithms have been proposed for RM codes, starting with Reed algorithm [2], [10], and four important more recent line of works including automorphism group based decoding [11]–[13], recursive list-decoding [14]–[16], a new Berlekamp-Welch type of algorithm [17], [18], and a new algorithm utilizing minimum-weight parity checks [19]. In particular, [11], [14]–[18] give fairly powerful theoretical guarantees for efficient decoding of RM codes in specific regimes. However, there is not a thorough comparison between the performance of RM codes under these decoders and the performance of the widely used CRC-aided polar codes under the Successive Cancellation List (SCL) decoders [20].
+
+In this paper, we propose a new class of decoding algorithms for Reed-Muller codes over any binary-input memoryless channels and compare its performance with polar codes. The new algorithms are based on recursive projections and aggregations of cosets decoding, exploiting the self-similarity of RM codes, and are extended with Chase list-decoding algorithms [21]. We run our new algorithms at the short code length ( $\leq$ 1024) regime for a wide range of code rates. Simulation results show that the new algorithms improve on the widely used decoding algorithm for polar codes [20] in both low code rate and high code rate regimes. These are the type of regimes where polar codes are planned to enter the 5G standards [22] as well as relevant regimes for applications in the Internet of Things (IoT).
+
+More specifically, we compare our new algorithm for RM codes with the Successive Cancellation List (SCL) decoder for CRC-aided polar codes [20], where we set the CRC size to take optimal values. $^{1}$ For AWGN channels, our new algorithm has about 0.5dB gain (more in some cases) over polar codes in various short code length ( $\leq$ 1024) and low code rate ( $\leq$ 0.5) regimes, and similar improvements are also obtained for BSC channels. Moreover, the performance of our new decoding algorithm is comparable to the best previously known algorithms for RM codes [16].
+
+In the above regimes, the decoding error probability of our new algorithm is in fact shown to be close to that of the Maximal Likelihood decoder on RM codes. Some extensions and variants to potentially further improve the performance are also discussed, as well as possible extensions of the projection-aggregation algorithms to other families of codes.
+
+$^{1}$ The optimal CRC size depends on the choice of code length and rate.
+
+In Section II, we give a high level description of the new type of algorithms. In Section III, we present decoding algorithm for BSC channels. In Section IV we generalize the algorithms to decode RM codes over any binary-input channel. Finally, in Section VI we present simulation results. In addition to the previously mentioned improvements over polar codes, we also empirically validate the improved scaling-law of RM codes over polar codes on BSC channels [23].
+
+# II. A HIGH-LEVEL DESCRIPTION OF THE NEW ALGORITHMS
+
+We begin with some notation and background on RM codes. In this paper, we use $\oplus$ to denote sums over $F_{2}$ . Let us consider the polynomial ring $F_{2}[Z_{1}, Z_{2}, \ldots, Z_{m}]$ of m variables. Since $Z^{2} = Z$ in $F_{2}$ , the following set of $2^{m}$ monomials forms a basis of $F_{2}[Z_{1}, Z_{2}, \ldots, Z_{m}]$ :
+
+$$
+\{\prod_ {i \in A} Z _ {i}: A \subseteq [ m ] \}, \text {   where   } \prod_ {i \in \emptyset} Z _ {i} := 1.
+$$
+
+Next we associate every subset $A \subseteq [m]$ with a row vector $\pmb{v}_m(A)$ of length $2^m$ , whose components are indexed by a binary vector $\pmb{z} = (z_1, z_2, \ldots, z_m) \in \{0, 1\}^m$ . The vector $\pmb{v}_m(A)$ is defined as follows:
+
+$$
+\boldsymbol {v} _ {m} (A, \boldsymbol {z}) = \prod_ {i \in A} z _ {i}, \tag {1}
+$$
+
+where $\boldsymbol{v}_{m}(A,\boldsymbol{z})$ is the component of $\boldsymbol{v}_{m}(A)$ indexed by z, i.e., $\boldsymbol{v}_{m}(A,\boldsymbol{z})$ is the evaluation of the monomial $\prod_{i\in A}Z_{i}$ at z. For $0 \leq r \leq m$ , the set of vectors
+
+$$
+\{\boldsymbol {\nu} _ {m} (A): A \subseteq [ m ], | A | \leq r \}
+$$
+
+forms a basis of the $r$ -th order Reed-Muller code $\mathcal{RM}(m,r)$ of length $n:=2^{m}$ and dimension $\sum_{i=0}^{r}\binom{m}{i}$ .
+
+Definition 1: The r-th order Reed-Muller code $\mathcal{RM}(m,r)$ code is defined as the following set of binary vectors
+
+$$
+\begin{array}{l} \mathcal {R M} (m, r) := \left\{\sum_ {A \subseteq [ m ], | A | \leq r} u (A) \boldsymbol {v} _ {m} (A): u (A) \in \{0, 1 \} \right. \\ \text {   for   all   } A \subseteq [ m ], | A | \leq r \Big \}. \\ \end{array}
+$$
+
+In other words, each vector $\nu_{m}(A)$ consists of all the evaluations of the monomial $\prod_{i\in A}Z_{i}$ at all the points in the vector space $E := F_{2}^{m}$ , and each codeword $c \in \mathcal{RM}(m, r)$ corresponds to an m-variate polynomial with degree at most r. The coordinates of the codeword c are also indexed by the binary vectors $z \in E$ , and we write $c = (c(z), z \in E)$ . Let B be an s-dimensional subspace of E, where $s \leq r$ . The quotient space E/B consists of all the cosets of B in E, where every coset T has form $T = z + B$ for some $z \in E$ . For a binary vector $y = (y(z), z \in E)$ , we define its projection on the cosets of B as
+
+$$
+y _ {/ \mathbb {B}} = \operatorname{Proj} (y, \mathbb {B}) := \left(y _ {/ \mathbb {B}} (T), T \in \mathbb {E} / \mathbb {B}\right), \tag {2}
+$$
+
+where $y_{/\mathbb{B}}(T):=\bigoplus_{z\in T}y(z)$ is the binary vector obtained by summing up all the coordinates of y in each coset $T\in E/B$ . Here the sum is over $F_{2}$ and the dimension of $y_{/B}$ is $n/|\mathbb{B}|$ .
+
+In the next section, we will show that if c is a codeword of $\mathcal{RM}(m,r)$ , then $c_{/B}$ is a codeword of $\mathcal{RM}(m-s,r-s)$ ,
+
+Algorithm 1 The RPA\_RM Decoding Function for BSC
+
+Input: The corrupted codeword $y = (y(z), z \in \mathbb{E})$ ; the parameters of the Reed-Muller code m and r; the maximal number of iterations $N_{max}$
+
+Output: The decoded codeword $\hat{c}$
+
+1: for $j = 1, 2, \ldots, N_{\max}$ do
+2: $y_{/\mathbb{B}_i} \leftarrow \text{Proj}(y, \mathbb{B}_i)$ for $i = 1, 2, \ldots, 2^m - 1$ 3: $\hat{y}_{/\mathbb{B}_i} \leftarrow \text{RPA\_RM}(y_{/\mathbb{B}_i}, m - 1, r - 1, N_{\max})$ for $i = 1, 2, \ldots, 2^m - 1$ 4: $\triangleright$ If r = 2, then we use the Fast Hadamard Transform to decode the first-order RM code [10]
+5: $\hat{y} \leftarrow \text{Aggregation}(y, \hat{y}_{/\mathbb{B}_1}, \hat{y}_{/\mathbb{B}_2}, \ldots, \hat{y}_{/\mathbb{B}_{n-1}})$ 6: if $y = \hat{y}$ then
+7: break $\triangleright y = \hat{y}$ means that the algorithm already converges to a fixed (stable) point
+8: end if
+9: $y \leftarrow \hat{y}$ 10: end for
+11: $\hat{c} \leftarrow \hat{y}$ 12: return $\hat{c}$
+
+where s is the dimension of B. Our new decoding algorithm makes use of the case s = 1, namely, the one-dimensional subspaces. More precisely, let $y = (y(z), z \in \mathbb{E})$ be the output vector of transmitting a codeword of $\mathcal{RM}(m, r)$ over some BSC channel. Our decoding algorithm is defined in a recursive way: For every one-dimensional subspace B, we first obtain the projection $y_{/B}$ , and then we use the decoding algorithm for $\mathcal{RM}(m - 1, r - 1)$ to decode $y_{/B}$ , where the decoding result is denoted as $\hat{y}_{/B}$ . Since every one-dimensional subspace of E consists of 0 and a non-zero element, there are n - 1 such subspaces in total. After the projection and recursive decoding steps, we obtain n - 1 decoding results $\hat{y}_{/B_{1}}, \hat{y}_{/B_{2}}, \ldots, \hat{y}_{/B_{n-1}}$ . Next we use a majority voting scheme to aggregate these decoding results together with y to obtain a new estimate $\hat{y}$ of the original codeword. Finally we update y as $\hat{y}$ , and iterate the whole procedure for up to $N_{max}$ rounds. Notice that if $y = \hat{y}$ (see line 6), then y is a fixed (stable) point of this algorithm and will remain unchanged for the next iterations. In this case we should exit the for loop on line 1 (see line 6–8). In practice we set the maximal number of iterations $N_{max} = \lceil m/2 \rceil$ to prevent the program from running into an infinite loop, and typically $\lceil m/2 \rceil$ iterations are enough for the algorithm to converge to a stable y. This high-level description is summarized in Fig. 1 and Algorithm 1. While this description focuses on the decoding algorithm over BSC, a natural extension of this algorithm bases on log-likelihood ratios (LLRs) allows us to decode RM codes over any binary-input memoryless channels, including the AWGN channel; see Section IV for details.
+
+# A. List Decoding Procedure [21]
+
+Here we recap (a version of) the list decoding procedure proposed by Chase [21] that can further decrease the decoding error probability. Suppose that we have a unique decoding algorithm decodeC for some code C over some binary-input memoryless channel $W : \{0,1\} \rightarrow W$ . Without loss of
+
+![](images/937ed05ab62a3f421e85e85054b7bdae5d0480858ccae797ef9f0b12dcc7fa5e.jpg)
+
+<details>
+<summary>flowchart</summary>
+
+```mermaid
+graph TD
+    A["Decode RM(m,3)"] --> B["y"]
+    B --> C["y/BB1"]
+    B --> D["y/BB2"]
+    B --> E["..."]
+    B --> F["y/BBn-1"]
+    C --> G["ŷ/BB1"]
+    D --> H["ŷ/BB2"]
+    F --> I["ŷ/BBn-1"]
+    G --> J["Aggregation"]
+    H --> J
+    I --> J
+    J --> K["ŷ"]
+    L["Decode RM(m-1,2)"] --> M["y/BBn-1"]
+    M --> N["FHT"]
+    M --> O["FHT"]
+    M --> P["..."]
+    M --> Q["FHT"]
+    Q --> R["ŷ/BBn-1"]
+    R --> K
+    S["Decode RM(m-2,1) with Fast Hadamard Transform"] --> R
+    style A fill:#f9f,stroke:#333
+    style L fill:#f9f,stroke:#333
+    style S fill:#f9f,stroke:#333
+```
+</details>
+
+Fig. 1. Recursive Projection-Aggregation decoding algorithm for third order RM codes.
+
+generality, assume that decodeC is based on the LLR vector of the channel output, where the LLR of an output symbol $x \in W$ is defined as
+
+$$
+\operatorname{LLR} (x) := \ln \left(\frac {W (x \mid 0)}{W (x \mid 1)}\right). \tag {3}
+$$
+
+Clearly, if $|\mathrm{LLR}(x)|$ is small, then $x$ is a noisy symbol, and if $|\mathrm{LLR}(x)|$ is large, then $x$ is relatively noiseless.
+
+The list decoding procedure works as follows. Suppose that $y = (y_{1}, y_{2}, \ldots, y_{n})$ is the output vector when we send a codeword of C over the channel W. We first sort $\left|\mathrm{LLR}(y_{i})\right|, i \in [n]$ from small to large. Without loss of generality, let us assume that $\left|\mathrm{LLR}(y_{1})\right|, \left|\mathrm{LLR}(y_{2})\right|, \left|\mathrm{LLR}(y_{3})\right|$ are the three smallest components in the LLR vector, meaning that $y_{1}, y_{2}$ and $y_{3}$ are the three most noisy symbols in the channel outputs (we take three arbitrarily). Next we enumerate all the possible cases of the first three bits of the codeword $c = (c_{1}, c_{2}, \ldots, c_{n})$ : The first three bits $(c_{1}, c_{2}, c_{3})$ can be any vector in $F_{2}^{3}$ , so there are 8 cases in total, and for each case we change the value of $\mathrm{LLR}(y_{1}), \mathrm{LLR}(y_{2}), \mathrm{LLR}(y_{3})$ according to the values of $c_{1}, c_{2}, c_{3}$ . More precisely, we set $\mathrm{LLR}(y_{i}) = (-1)^{c_{i}} L_{\max}$ for i = 1, 2, 3, where $L_{\max}$ is some large real number. In practice, we can choose $L_{\max} := \max(|\mathrm{LLR}(y_{i})|, i \in [n])$ or $L_{\max} := 2 \max(|\mathrm{LLR}(y_{i})|, i \in [n])$ . For each of these 8 cases, we use decodeC to obtain a decoded codeword, and we denote them as $\hat{c}^{(1)}, \hat{c}^{(2)}, \ldots, \hat{c}^{(8)}$ . Finally, we calculate the posterior probability of $W^{n}(y|\hat{c}^{(i)}), 1 \leq i \leq 8$ , and choose the largest one as the final decoding result, namely, we perform a maximal likelihood decoding among the 8 candidates in the list.
+
+When we apply this list decoding procedure together with Algorithm 1 to decode RM codes, the decoding error probability is typically close to that of the Maximal Likelihood decoder.
+
+# III. DECODING ALGORITHM FOR BSC
+
+We begin with the definition of the quotient code. Then we show that the quotient code of an RM code is also an RM code.
+
+Definition 2: Let $s \leq r \leq m$ be integers, and let B be an s-dimensional subspace of $E := F_{2}^{m}$ . We define the quotient code
+
+$$
+\mathcal {Q} (m, r, \mathbb {B}) := \left\{c _ {/ \mathbb {B}}: c \in \mathcal {R M} (m, r) \right\}.
+$$
+
+Lemma 1: Let $s \leq r \leq m$ be integers, and let $\mathbb{B}$ be an $s$ -dimensional subspace of $\mathbb{E} := \mathbb{F}_2^m$ . The code $\mathcal{Q}(m, r, \mathbb{B})$ is the Reed-Muller code $\mathcal{RM}(m - s, r - s)$ .
+
+This lemma is an immediate corollary of Theorem 12 in [10, Chapter 13]. For the sake of completeness, we give a proof of this lemma in Appendix A.
+
+Note that Reed's algorithm [2] relies on the special case of $s = r$ in Lemma 1, and our new decoding algorithm makes use of the case $s = 1$ in Lemma 1 (in addition to using all subspaces and adding an iterative process). The RPA\_RM decoding function is already presented in the previous section. Here we fill in the only missing component, namely the Aggregation function; see Algorithm 2 below. Both $y_{/\mathbb{B}_i} = (y_{/\mathbb{B}_i}(T), T \in \mathbb{E}/\mathbb{B})$ and $\hat{y}_{/\mathbb{B}_i} = (\hat{y}_{/\mathbb{B}_i}(T), T \in \mathbb{E}/\mathbb{B})$ are indexed by the cosets $T \in \mathbb{E}/\mathbb{B}$ , and we use $[z + \mathbb{B}]$ to denote the coset containing $z$ (see line 3).
+
+From line 3, we can see that the maximal possible value of $\text{changevote}(z)$ for each $z \in E$ is n - 1. Therefore the condition $\text{changevote}(z) > \frac{n - 1}{2}$ on line 4 can indeed be viewed as a majority vote. As discussed in Section III-A, this algorithm can be viewed as one step of the power iteration method to find the eigenvector of a matrix built from the quotient code decoding.
+
+In Algorithms 1–2, we write the pseudo codes in a mathematical fashion for the ease of understanding. In Appendix C,
+
+Algorithm 2 The Aggregation Function for BSC   
+Input: $y, \hat{y}/_{B_{1}}, \hat{y}/_{B_{2}} \ldots, \hat{y}/_{B_{n-1}}$ Output: y
+
+1: Initialize (changevote(z), $z \in \{0, 1\}^{m}$ ) as an all-zero vector indexed by $z \in \{0, 1\}^{m}$ 2: $n \leftarrow 2^{m}$ 3: changevote(z) $\leftarrow \sum_{i=1}^{n-1} 1[y_{/B_{i}}([z + B_{i}]) \neq \hat{y}/_{B_{i}}([z + B_{i}])]$ for each $z \in \{0, 1\}^{m}$ 4: $y(z) \leftarrow y(z) \oplus 1[\text{changevote}(z) > \frac{n-1}{2}]$ for each $z \in \{0, 1\}^{m}$ ▷ Here addition is over $F_{2}$ 5: return y
+
+we present another version of the RPA\_RM function in a program language fashion; see Algorithm 8.
+
+Proposition 1: The complexity of Algorithm 1 is $O(n^{r} \log n)$ in sequential implementation and $O(n^{2})$ in parallel implementation with $O(n^{r})$ processors.
+
+In Section VI-C, we further discuss options to reduce the computation time by using fewer subspaces in the projection step.
+
+Proof: We prove by the induction on the order of the RM code. To establish the base case, observe that the complexity of decoding first-order RM codes using Fast Hadamard Transform (FHT) [10], [24] is $O(n \log n)$ . Now we assume the proposition holds for decoding $(r - 1)$ -th order RM codes and prove the inductive step. Clearly, the complexity of Algorithm 1 is determined by the complexity of the recursive decoding step on line 3. By induction hypothesis, the complexity of decoding each $y_{/\mathbb{B}_{i}}$ is $O(n^{r-1} \log n)$ . Since there are n - 1 one-dimensional subspaces $B_{1}, B_{2}, \ldots, B_{n-1}$ , the complexity of Algorithm 1 is indeed $O(n^{r} \log n)$ . □
+
+In the next proposition, we show that whether Algorithm 1 outputs the correct codeword or not is independent of the transmitted codeword and only depends on the error pattern imposed by the BSC channel.
+
+Proposition 2: Let $c \in \mathcal{RM}(m, r)$ be a codeword of the RM code. Let $e = (e(\mathbf{z}), \mathbf{z} \in \mathbb{E})$ be the error vector imposed on c by the BSC channel, and the output vector of the BSC channel is $y = c + e$ . Denote the decoding result as $\hat{c} = \text{RPA\_RM}(y, m, r, N_{\text{max}})$ . Then the indicator function of decoding error $1[\hat{c} \neq c]$ is independent of the choice of c and only depends on the error vector e.
+
+Notice that we use maximal likelihood decoder for first-order RM code, and the proposition can be proved by induction on the order of the RM code. $^{2}$ This proposition is useful for simulations because we can simply transmit the all-zero codeword over the BSC channel to measure the decoding error probability.
+
+# A. Spectral Interpretations of Algorithm 2
+
+Algorithm 2 can be viewed as a one-step power iteration of a spectral algorithm. More precisely, observe that $\hat{y}_{/\mathbb{B}_{1}}, \hat{y}_{/\mathbb{B}_{2}} \ldots, \hat{y}_{/\mathbb{B}_{n-1}}$ contain the estimates of $c(\mathbf{z}) \oplus c(\mathbf{z}')$ for
+
+$^{2}$ See the proof of Proposition 4 for a rigorous argument. The ideas of the proofs of these two propositions are exactly the same.
+
+all $z \neq z'$ , where $c = (c(z), z \in \mathbb{E})$ is the transmitted (true) codeword. {We denote the estimate of $c(z) \oplus c(z')$ as $\hat{y}_{z,z'}$ . Suppose for the moment that we want to find a vector $\hat{y} = (\hat{y}(z), z \in \mathbb{E}) \in \{0, 1\}^n$ to agree with as many estimates of these sums as possible, i.e., we want to find a vector $\hat{y}$ to maximize
+
+$$
+\left. \left| \left\{\left(z, z ^ {\prime}\right): z \neq z ^ {\prime}, \hat {y} (z) \oplus \hat {y} \left(z ^ {\prime}\right) = \hat {y} _ {z, z ^ {\prime}} \right\} \right| \right..
+$$
+
+Notice that
+
+$$
+\begin{array}{l} \left. \left| \left\{\left(\boldsymbol {z}, \boldsymbol {z} ^ {\prime}\right): \boldsymbol {z} \neq \boldsymbol {z} ^ {\prime}, \hat {y} (\boldsymbol {z}) \oplus \hat {y} \left(\boldsymbol {z} ^ {\prime}\right) = \hat {y} _ {\boldsymbol {z}, \boldsymbol {z} ^ {\prime}} \right\} \right| \right. \\ + \left| \left\{\left(z, z ^ {\prime}\right): z \neq z ^ {\prime}, \hat {y} (z) \oplus \hat {y} \left(z ^ {\prime}\right) \neq \hat {y} _ {z, z ^ {\prime}} \right\} \right| = n (n - 1). \\ \end{array}
+$$
+
+Therefore,
+
+$$
+\begin{array}{l} \sum_ {z \neq z ^ {\prime}} (- 1) ^ {\hat {y} (z) + \hat {y} (z ^ {\prime}) + \hat {y} _ {z, z ^ {\prime}}} \\ = 2 \left| \left\{\left(z, z ^ {\prime}\right): z \neq z ^ {\prime}, \hat {y} (z) \oplus \hat {y} \left(z ^ {\prime}\right) = \hat {y} _ {z, z ^ {\prime}} \right\} \right| - n (n - 1). \\ \end{array}
+$$
+
+Thus our task is equivalent to find
+
+$$
+\operatorname{argmax} _ {\hat {y} \in \{0, 1 \} ^ {n}} \sum_ {z \neq z ^ {\prime}} (- 1) ^ {\hat {y} (z) + \hat {y} \left(z ^ {\prime}\right) + \hat {y} _ {z, z ^ {\prime}}}. \tag {4}
+$$
+
+Given a vector $\hat{y} \in \{0,1\}^n$ , we define another vector $\hat{u} \in \{-1,1\}^n$ by setting $\hat{u}(\mathbf{z}) := (-1)^{\hat{y}(z)}$ for all $\mathbf{z} \in \mathbb{E}$ . In order to find the maximizing vector $\hat{y}$ in (4), it suffices to find
+
+$$
+\operatorname{argmax} _ {\hat {u} \in \{- 1, 1 \} ^ {n}} \sum_ {z \neq z ^ {\prime}} (- 1) ^ {\hat {y} _ {z, z ^ {\prime}}} \hat {u} (z) \hat {u} (z ^ {\prime}). \tag {5}
+$$
+
+Now we build an $n \times n$ matrix $A$ from $\{\hat{y}_{z,z'} : z, z' \in \mathbb{E}, z \neq z'\}$ as follows: The rows and columns of $A$ are indexed by $z \in \mathbb{E}$ , and we set the entry
+
+$$
+A _ {z, z ^ {\prime}} := \left\{ \begin{array}{c l} (- 1) ^ {\hat {y} _ {z, z ^ {\prime}}} & \text { if } z \neq z ^ {\prime} \\ 0 & \text { if } z = z ^ {\prime} \end{array} \right.,
+$$
+
+i.e., for $z \neq z'$ we set $A_{z,z'} = 1$ if $\hat{y}_{z,z'} = 0$ , and $A_{z,z'} = -1$ if $\hat{y}_{z,z'} = 1$ . Under this definition, the optimization problem (5) becomes
+
+$$
+\begin{array}{l} \operatorname{argmax} _ {\hat {u} \in \{- 1, 1 \} ^ {n}} \sum_ {z \neq z ^ {\prime}} A _ {z, z ^ {\prime}} \hat {u} (z) \hat {u} (z ^ {\prime}) \\ = \operatorname{argmax} _ {\hat {u} \in \{1, - 1 \} ^ {n}} \hat {u} ^ {T} A \hat {u}. \tag {6} \\ \end{array}
+$$
+
+It is well known that this combinatorial optimization problem is NP-hard. In practice, people usually use the following spectral relaxation to obtain approximate solution:
+
+$$
+\operatorname{argmax} _ {\hat {u} \in \mathbb {R} ^ {n}, \| \hat {u} \| ^ {2} = n} \hat {u} ^ {T} A \hat {u}.
+$$
+
+It is well known that the solution to this relaxed optimization problem is the eigenvector corresponding to the largest eigenvalue of $A$ . One way to find this eigenvector is to use the power iteration method: pick some vector $v$ (e.g., at random), then $A^t v$ converges to this eigenvector when $t$ is large enough. $^3$ After rescaling $A^t v$ to make $\| A^t v \|^2 = n$ , we obtain the maximizing vector $\tilde{u} = A^t v$ in the relaxed optimization problem. In order to obtain the solution to the original optimization problem in (6), we only need to look at the sign of each coordinate of $\tilde{u}$ : If $\tilde{u}(z) > 0$ , then we set
+
+$^{3}$ Assume the largest eigenvalue has largest magnitude.
+
+$\hat{u}(z) = 1$ , and if $\tilde{u}(z) < 0$ , then we set $\hat{u}(z) = -1$ . In this way, we obtain the vector $\hat{u}$ that serves as our approximate solution to (6). To summarize, our approximate solution to (6) is $\hat{u} = \mathrm{sign}(A^t v)$ , where $v$ is some random vector and $t$ is some large enough integer.
+
+Let us denote the output vector of Algorithm 2 as $\overline{y}$ , and we define another vector $\overline{u}$ as $\overline{u}(z)=(-1)^{\overline{y}(z)}$ for all $z\in E$ . For the original received vector y, we also define a vector u as $u(z)=(-1)^{y(z)}$ for all $z\in E$ . The main observation in this subsection is that
+
+$$
+\overline {{u}} = \mathrm{sign} (A u), \tag {7}
+$$
+
+i.e., the output of Algorithm 2 is in fact the same as a one-step power iteration of the spectral algorithm with the original received vector u playing the role of vector v above. It is also easy to see why (7) holds: According to (7), $\overline{u}(z) = 1$ if $\sum_{z' \neq z} (-1)^{\hat{y}_{z,z'} \oplus y(z')} > 0$ and $\overline{u}(z) = -1$ otherwise. This is equivalent to saying that $\overline{y}(z) = 0$ if $|\{z' : z' \neq z, \hat{y}_{z,z'} \oplus y(z') = 0\}| > \frac{n-1}{2}$ and $\overline{u}(z) = 1$ otherwise. Clearly, the vector $\overline{y}$ given by this rule is exactly the same as the output vector of Algorithm 2.
+
+We tried to use the power-iteration method in the Aggregation function for more than one step. However, the performance does not improve over the current version of Aggregation function based on majority vote. This is because in the spectral method above we tried our best to agree with $\hat{y}/_{B_{1}}, \hat{y}/_{B_{2}}, \ldots, \hat{y}/_{B_{n-1}}$ , ignoring the original channel output y, and many of these are very noisy measurements.
+
+# IV. DECODING ALGORITHM FOR GENERAL BINARY-INPUT MEMORYLESS CHANNELS
+
+The decoding algorithm in the previous section only works for the BSC. In this section, we will present a natural extension of Algorithm 1 that works for any binary-input memoryless channels, and this new algorithm is based on LLRs (see (3)). Similarly to Algorithm 1, this new algorithm is also defined recursively, i.e., we first assume that we know how to decode $(r-1)$ -th order Reed-Muller code, and then we use it to decode the r-th order Reed-Muller code. To begin with, note that the soft-decision FHT decoder [25] allows us to decode the first order RM code efficiently for general binary-input channels. The soft-decision FHT decoder is based on LLR, and the complexity is also $O(n \log n)$ , the same as the hard-decision FHT decoder.
+
+For completeness, we recap the FHT decoder in [25] for first order RM codes. We still use $c = (c(z), z \in \mathbb{E})$ to denote the transmitted (true) codeword and $y = (y(z), z \in \mathbb{E})$ to denote the corresponding channel output. Given the output vector y, the ML decoder for first order RM codes aims to find $c \in \mathcal{RM}(m, 1)$ to maximize $\prod_{z \in \mathbb{E}} W(y(z) | c(z))$ . This is equivalent to maximizing the following quantity:
+
+$$
+\prod_ {z \in \mathbb {E}} \frac {W (y (z) | c (z))}{\sqrt {W (y (z) | 0) W (y (z) | 1)}},
+$$
+
+which is further equivalent to maximizing
+
+$$
+\sum_ {z \in \mathbb {E}} \ln \left(\frac {W (y (z) \mid c (z))}{\sqrt {W (y (z) \mid 0) W (y (z) \mid 1)}}\right). \tag {8}
+$$
+
+Notice that the codeword $c$ is a binary vector. Therefore,
+
+$$
+\ln \Big (\frac {W (y (z) | c (z))}{\sqrt {W (y (z) | 0) W (y (z) | 1)}} \Big)
+$$
+
+$$
+= \left\{ \begin{array}{c l} \frac {1}{2} \operatorname{LLR} (y (\boldsymbol {z})) & \text {if} c (\boldsymbol {z}) = 0 \\ - \frac {1}{2} \operatorname{LLR} (y (\boldsymbol {z})) & \text {if} c (\boldsymbol {z}) = 1 \end{array} \right..
+$$
+
+From now on we will use the shorthand notation
+
+$$
+L (\mathbf {z}) := \operatorname{LLR} (y (\mathbf {z})),
+$$
+
+and the formula in (8) can be written as
+
+$$
+\frac {1}{2} \sum_ {z \in \mathbb {E}} \left((- 1) ^ {c (z)} L (z)\right), \tag {9}
+$$
+
+so we want to find $c \in \mathcal{RM}(m,1)$ to maximize this quantity.
+
+By definition, every $c \in \mathcal{RM}(m,1)$ corresponds to a polynomial in $\mathbb{F}_{2}[Z_{1},Z_{2},\ldots,Z_{m}]$ of degree one, so we can write every codeword c as a polynomial $u_{0} + \sum_{i=1}^{m} u_{i} Z_{i}$ . In this way, we have $c(\mathbf{z}) = u_{0} + \sum_{i=1}^{m} u_{i} z_{i}$ , where $z_{1}, z_{2}, \ldots, z_{m}$ are the coordinates of the vector z. Now our task is to find $u_{0}, u_{1}, u_{2}, \ldots, u_{m} \in F_{2}$ to maximize
+
+$$
+\sum_ {z \in \mathbb {E}} \left((- 1) ^ {u _ {0} + \sum_ {i = 1} ^ {m} u _ {i} z _ {i}} L (\boldsymbol {z})\right)
+$$
+
+$$
+= (- 1) ^ {u _ {0}} \sum_ {\boldsymbol {z} \in \mathbb {E}} \left((- 1) ^ {\sum_ {i = 1} ^ {m} u _ {i} z _ {i}} L (\boldsymbol {z})\right). \tag {10}
+$$
+
+For a binary vector $\pmb{u} = (u_{1}, u_{2}, \ldots, u_{m}) \in \mathbb{E}$ , we define
+
+$$
+\hat {L} (\boldsymbol {u}) := \sum_ {\boldsymbol {z} \in \mathbb {E}} \left((- 1) ^ {\sum_ {i = 1} ^ {m} u _ {i} z _ {i}} L (\boldsymbol {z})\right).
+$$
+
+Clearly, to find the maximizer of (10), we only need to calculate $\hat{L}(\boldsymbol{u})$ for all $\boldsymbol{u} \in \mathbb{E}$ , but the vector $(\hat{L}(\boldsymbol{u}), \boldsymbol{u} \in \mathbb{E})$ is exactly the Hadamard Transform of the vector $(L(\boldsymbol{z}), \boldsymbol{z} \in \mathbb{E})$ , so it can be calculated using the Fast Hadamard Transform with complexity $O(n \log n)$ . Once we know the values of $(\hat{L}(\boldsymbol{u}), \boldsymbol{u} \in \mathbb{E})$ , we can find $\boldsymbol{u}^{*} = (u_{1}^{*}, u_{2}^{*}, \ldots, u_{m}^{*}) \in \mathbb{E}$ that maximizes $|\hat{L}(\boldsymbol{u})|$ . If $\hat{L}(\boldsymbol{u}^{*}) > 0$ , then the decoder outputs the codeword corresponding to $u_{0}^{*} = 0$ , $u_{1}^{*}, u_{2}^{*}, \ldots, u_{m}^{*}$ . Otherwise, the decoder outputs the codeword corresponding to $u_{0}^{*} = 1$ , $u_{1}^{*}, u_{2}^{*}, \ldots, u_{m}^{*}$ . This completes the description of how to decode the first order RM codes for general channels.
+
+The next problem is how to extend (2) in the general setting. The purpose of (2) is mapping two output symbols $(y(z), z \in T)$ whose indices are in the same coset $T \in E/B$ to one symbol. In this way, we reduce the r-th order RM code to an $(r - 1)$ -th order RM code. For BSC, this mapping is simply the addition in $F_{2}$ . The sum $y_{/\mathbb{B}}(T)$ can be interpreted as an estimate of $c_{/\mathbb{B}}(T)$ , where c is the transmitted (true) codeword. In other words,
+
+$$
+\mathbb {P} \big (Y _ {/ \mathbb {B}} (T) = c _ {/ \mathbb {B}} (T) \big) > \mathbb {P} \big (Y _ {/ \mathbb {B}} (T) = c _ {/ \mathbb {B}} (T) \oplus 1 \big),
+$$
+
+where Y is the channel output random vector.
+
+For general channels, we also want to estimate $c_{/\mathbb{B}}(T)$ based on the LLRs $(L(z), z \in T)$ . More precisely, given $(y(z), z \in T)$ , or equivalently given $(L(z), z \in T)$ , we would like to calculate the following LLR:
+
+$$
+L _ {/ \mathbb {B}} (T) := \ln \Big (\frac {\mathbb {P} \big (Y (\boldsymbol {z}) = y (\boldsymbol {z}) , \boldsymbol {z} \in T \big | c _ {/ \mathbb {B}} (T) = 0 \big)}{\mathbb {P} \big (Y (\boldsymbol {z}) = y (\boldsymbol {z}) , \boldsymbol {z} \in T \big | c _ {/ \mathbb {B}} (T) = 1 \big)} \Big).
+$$
+
+We will make use of the following simple property of RM codes to calculate this LLR.
+
+Lemma 2: Suppose that $r \geq 1$ . Let $C$ be a random codeword chosen uniformly from $\mathcal{RM}(m, r)$ , and let $z$ and $z'$ be two distinct vectors in $\mathbb{E}$ . Then the two coordinates $(C(z), C(z'))$ of the random codeword $C$ have i.i.d. Bernoulli-1/2 distribution.
+
+Proof: Define the following four sets
+
+$$
+\mathcal {A} (0, 0) := \{c \in \mathcal {R M} (m, r): c (\mathbf {z}) = c (\mathbf {z} ^ {\prime}) = 0 \},
+$$
+
+$$
+\mathcal {A} (0, 1) := \{c \in \mathcal {R M} (m, r): c (\mathbf {z}) = 0, c (\mathbf {z} ^ {\prime}) = 1 \},
+$$
+
+$$
+\mathcal {A} (1, 0) := \{c \in \mathcal {R M} (m, r): c (\mathbf {z}) = 1, c (\mathbf {z} ^ {\prime}) = 0 \},
+$$
+
+$$
+\mathcal {A} (1, 1) := \{c \in \mathcal {R M} (m, r): c (\mathbf {z}) = c (\mathbf {z} ^ {\prime}) = 1 \}.
+$$
+
+To prove this lemma, we only need to show that $|\mathcal{A}(0,0)| = |\mathcal{A}(0,1)| = |\mathcal{A}(1,0)| = |\mathcal{A}(1,1)|$ . Since RM code is linear and the all one vector is a codeword of RM codes, the marginal distribution of the coordinate $C(z)$ is Bernoulli-1/2 for every $z \in E$ . Thus we have
+
+$$
+| \mathcal {A} (0, 0) | + | \mathcal {A} (0, 1) | = | \mathcal {A} (1, 0) | + | \mathcal {A} (1, 1) |,
+$$
+
+$$
+| \mathcal {A} (0, 0) | + | \mathcal {A} (1, 0) | = | \mathcal {A} (0, 1) | + | \mathcal {A} (1, 1) |. \tag {11}
+$$
+
+Now take $z = (z_1, \ldots, z_m)$ and $z' = (z_1', \ldots, z_m')$ such that $z \neq z'$ . Then there exists $i \in [m]$ such that $z_i \neq z_i'$ . Since we assume that $r \geq 1$ , $\mathcal{RM}(m, r)$ contains the evaluation vector of the degree-1 monomial $Z_i$ . We denote this evaluation vector as $v$ , and we know that $v(z) \neq v(z')$ . Without loss of generality, assume that $v(z) = 0$ and $v(z') = 1$ . Then we have $^4 \mathcal{A}(0,0) + v \subseteq \mathcal{A}(0,1)$ , so $|\mathcal{A}(0,0)| \leq |\mathcal{A}(0,1)|$ . Conversely, we also have $\mathcal{A}(0,1) + v \subseteq \mathcal{A}(0,0)$ , so $|\mathcal{A}(0,1)| \leq |\mathcal{A}(0,0)|$ . Therefore, $|\mathcal{A}(0,1)| = |\mathcal{A}(0,0)|$ . Similarly, we can also show that $|\mathcal{A}(1,1)| = |\mathcal{A}(1,0)|$ . Taking these into (11), we obtain that $|\mathcal{A}(0,0)| = |\mathcal{A}(0,1)| = |\mathcal{A}(1,0)| = |\mathcal{A}(1,1)|$ , which completes the proof of the lemma.
+
+Now we can calculate $L_{/\mathbb{B}}(T)$ using the following model: Suppose that $S_{1}$ and $S_{2}$ are i.i.d. Bernoulli-1/2 random variables, and we transmit them over two independent copies of the channel $W : \{0, 1\} \to W$ . The corresponding channel output random variables are denoted as $X_{1}$ and $X_{2}$ , respectively. Then for $x_{1}, x_{2} \in W$ , we have (12), shown at the bottom of the page.
+
+$^{4}$ For a set A and a vector v, we define the set $A + v := \{a + v : a \in A\}$ .
+
+Lemma 2 above allows us to replace $x_{1}, x_{2}$ with $(y(z), z \in T)$ , and we obtain that
+
+$$
+L _ {/ \mathbb {B}} (T) = \ln \left(\exp \left(\sum_ {\mathbf {z} \in T} L (\mathbf {z})\right) + 1\right) - \ln \left(\sum_ {\mathbf {z} \in T} \exp (L (\mathbf {z}))\right). \tag {13}
+$$
+
+Now we are ready to present the decoding algorithm for general binary-input channels. In Algorithms 3–4 below, we still denote the decoding result of the $(r-1)$ -th order RM code as $\hat{y}_{/B}$ (see line 7 of Algorithm 3), where $\hat{y}_{/B} = (\hat{y}_{/B}(T), T \in \mathbb{E}/\mathbb{B})$ are indexed by the cosets $T \in E/B$ , and we use $[z + B]$ to denote the coset containing z (see line 3 of Algorithm 4).
+
+Algorithm 3 is very similar to Algorithm 1: From line 8 to line 10, we compare $\hat{L}(z)$ with the original $L(z)$ . If the relative difference between these two is below the threshold $\theta$ for every $z \in E$ , then the values of $L(z)$ , $z \in E$ change very little in this iteration, and the algorithm reaches a “stable” state, so we can exit the for loop on line 2. In practice, we find that $\theta = 0.05$ works fairly well, $^{5}$ and we still set the maximal number of iterations $N_{max} = m/2$ , which is the same as in Algorithm 1. On line 13, the algorithm simply produces the decoding result according to the LLR at each coordinate.
+
+A few explanations of Algorithm 4: On line 3, we set $\text{cumuLLR}(z) = \sum_{z' \neq z} \alpha(z, z') L(z')$ , where the coefficients $\alpha(z, z')$ can only be 1 or -1. More precisely, $\alpha(z, z')$ is 1 if the decoding result of the corresponding $(r - 1)$ th order RM code at the coset $\{z, z'\}$ is 0, and $\alpha(z, z')$ is -1 if the decoding result at the coset $\{z, z'\}$ is 1. The reason behind this assignment is simple: The decoding result at the coset $\{z, z'\}$ is an estimate of $c(z) \oplus c(z')$ . If $c(z) \oplus c(z')$ is more likely to be 0, then the sign of $L(z)$ and $L(z')$ should be the same. Here $\text{cumuLLR}(z)$ serves as an estimate of $L(z)$ based on all the other $L(z'), z' \neq z$ , so we assign the coefficient $\alpha(z, z')$ to be 1. Otherwise, if $c(z) \oplus c(z')$ is more likely to be 1, then the sign of $L(z)$ and $L(z')$ should be different, so we assign the coefficient $\alpha(z, z')$ to be -1.
+
+In Algorithms 3–4, we write the pseudo codes in a mathematical fashion for the ease of understanding. In Appendix C, we present another version of the RPA\_RM function in a program language fashion; see Algorithm 9.
+
+$^{5}$ The decoding error probability of this algorithm is non-increasing when we decrease the value of $\theta$ , and the running time of the algorithm increases when we decrease $\theta$ . Through simulations we find that the decoding error probability remains the same if we continue decreasing $\theta$ beyond 0.05. Therefore, $\theta = 0.05$ is a good choice in practice because smaller $\theta$ will only increase the running time and not decrease decoding error at all.
+
+$$
+\begin{array}{l} \ln \left(\frac {\mathbb {P} \left(X _ {1} = x _ {1} , X _ {2} = x _ {2} \mid S _ {1} + S _ {2} = 0\right)}{\mathbb {P} \left(X _ {1} = x _ {1} , X _ {2} = x _ {2} \mid S _ {1} + S _ {2} = 1\right)}\right) = \ln \left(\frac {\mathbb {P} \left(X _ {1} = x _ {1} , X _ {2} = x _ {2} , S _ {1} + S _ {2} = 0\right)}{\mathbb {P} \left(X _ {1} = x _ {1} , X _ {2} = x _ {2} , S _ {1} + S _ {2} = 1\right)}\right) \\ = \ln \left(\frac {\mathbb {P} \left(X _ {1} = x _ {1} , X _ {2} = x _ {2} , S _ {1} = 0 , S _ {2} = 0\right) + \mathbb {P} \left(X _ {1} = x _ {1} , X _ {2} = x _ {2} , S _ {1} = 1 , S _ {2} = 1\right)}{\mathbb {P} \left(X _ {1} = x _ {1} , X _ {2} = x _ {2} , S _ {1} = 0 , S _ {2} = 1\right) + \mathbb {P} \left(X _ {1} = x _ {1} , X _ {2} = x _ {2} , S _ {1} = 1 , S _ {2} = 0\right)}\right) \tag {12} \\ = \ln \Big (\frac {\frac {1}{4} W (x _ {1} | 0) W (x _ {2} | 0) + \frac {1}{4} W (x _ {1} | 1) W (x _ {2} | 1)}{\frac {1}{4} W (x _ {1} | 0) W (x _ {2} | 1) + \frac {1}{4} W (x _ {1} | 1) W (x _ {2} | 0)} \Big) = \ln \Big (\frac {\frac {W (x _ {1} | 0) W (x _ {2} | 0)}{W (x _ {1} | 1) W (x _ {2} | 1)} + 1}{\frac {W (x _ {1} | 0)}{W (x _ {1} | 1)} + \frac {W (x _ {2} | 0)}{W (x _ {2} | 1)}} \Big) \\ = \ln \Big (\exp \big (\operatorname{LLR} (x _ {1}) + \operatorname{LLR} (x _ {2}) \big) + 1 \Big) - \ln \Big (\exp (\operatorname{LLR} (x _ {1})) + \exp (\operatorname{LLR} (x _ {2})) \Big). \\ \end{array}
+$$
+
+Algorithm 3 The RPA\_RM Decoding Function for General Binary-Input Memoryless Channels
+
+Input: The LLR vector $(L(\mathbf{z}),\mathbf{z}\in\{0,1\}^{m})$ ; the parameters of the Reed-Muller code m and r; the maximal number of iterations $N_{max}$ ; the exiting threshold $\theta$
+
+Output: The decoded codeword $\hat{c}$
+
+1: $E := \{0, 1\}^{m}$   
+2: for $j = 1, 2, \ldots, N_{\max}$ do   
+3: $L_{/\mathbb{B}_{i}} \leftarrow (L_{/\mathbb{B}_{i}}(T), T \in \mathbb{E}/\mathbb{B}_{i})$ for $i = 1, 2, \ldots, 2^{m} - 1$   
+4: $\triangleright L_{/\mathbb{B}_i}(T)$ is calculated from $(L(\mathbf{z}),\mathbf{z}\in \mathbb{E})$ according to (13)   
+5: $\hat{y}_{/\mathbb{B}_{i}} \leftarrow \text{RPA\_RM}(L_{/\mathbb{B}_{i}}, m-1, r-1, N_{\max}, \theta)$ for $i = 1, 2, \ldots, 2^{m} - 1$   
+6: ▷ If r = 2, then we use the Fast Hadamard Transform to decode the first-order RM code   
+7: $\hat{L} \leftarrow \text{Aggregation}(L, \hat{y}_{/\mathbb{B}_{1}}, \hat{y}_{/\mathbb{B}_{2}} \ldots, \hat{y}_{/\mathbb{B}_{n-1}})$   
+8: if $|\hat{L}(z) - L(z)| \leq \theta |L(z)|$ for all $z \in E$ then ▷ The algorithm reaches a stable point   
+9: break   
+10: end if   
+11: $L \leftarrow \hat{L}$   
+12: end for   
+13: $\hat{c}(\mathbf{z}) \leftarrow \mathbb{1}[L(\mathbf{z}) < 0]$ for each $\mathbf{z} \in \mathbb{E}$   
+14: return $\hat{c}$
+
+Algorithm 4 The Aggregation Function for General Binary-Input Memoryless Channels   
+Input: $L, \hat{y}_{/\mathbb{B}_1}, \hat{y}_{/\mathbb{B}_2} \ldots, \hat{y}_{/\mathbb{B}_{n-1}}$ Output: $\hat{L}$ 1: Initialize $(\text{cumuLLR}(\mathbf{z}), \mathbf{z} \in \{0,1\}^m)$ as an all-zero vector indexed by $\mathbf{z} \in \{0,1\}^m$ 2: $n \leftarrow 2^m$ 3: $\text{cumuLLR}(\mathbf{z}) \leftarrow \sum_{i=1}^{n-1} \left((1-2\hat{y}_{/\mathbb{B}_i}([\mathbf{z}+\mathbb{B}_i]))L(\mathbf{z} \oplus \mathbf{z}_i)\right)$ for each $\mathbf{z} \in \{0,1\}^m$ 4: $\triangleright \mathbf{z}_i$ is the nonzero element in $\mathbb{B}_i$ 5: $\triangleright \hat{y}_{/\mathbb{B}_i}$ is the decoded codeword, so $\hat{y}_{/\mathbb{B}_i}([\mathbf{z}+\mathbb{B}_i])$ is either 0 or 1
+6: $\hat{L}(\mathbf{z}) \leftarrow \frac{\text{cumuLLR}(\mathbf{z})}{n-1}$ for each $\mathbf{z} \in \{0,1\}^m$ 7: return $\hat{L}$
+
+Following the same proof of Proposition 1, we have the following result:
+
+Proposition 3: The complexity of Algorithm 3 is $O(n^{r} \log n)$ in sequential implementation and $O(n^{2})$ in parallel implementation with $O(n^{r})$ processors.
+
+In Section V, we present an accelerated version of the RPA algorithm for high-rate RM codes, and in Section VI-C, we further discuss other possible options to reduce the computation time by using fewer subspaces in the projection step.
+
+Similarly to Proposition 2, we can also show that the decoding error probability of Algorithm 3 is independent of the transmitted codeword for binary-input memoryless symmetric (BMS) channels.
+
+Definition 3 (BMS channel): We say that a memoryless channel $W:\{0,1\}\to\mathcal{W}$ is a BMS channel if there is a permutation $\pi$ of the output alphabet $\mathcal{W}$ such that $\pi^{-1} = \pi$ and $W(x|1) = W(\pi(x)|0)$ for all $x \in \mathcal{W}$ .
+
+Proposition 4: Let $W : \{0,1\} \to W$ be a BMS channel. Let $c_{1}$ and $c_{2}$ be two codewords of $\mathcal{RM}(m,r)$ . Let $Y_{1}$ and $Y_{2}$ be the (random) channel outputs of transmitting $c_{1}$ and $c_{2}$ over $n = 2^{m}$ independent copies of W, respectively. Let $L^{(1)}$ and $L^{(2)}$ be the LLR vectors corresponding to $Y_{1}$ and $Y_{2}$ , respectively. $^{6}$ Then for any $c_{1}, c_{2} \in \mathcal{RM}(m,r)$ , we have
+
+$$
+\begin{array}{l} \mathbb {P} (\text { RPA\_RM } (L ^ {(1)}, m, r, N _ {\max}, \theta) \neq c _ {1}) \\ = \mathbb {P} (\text { RPA\_RM } (L ^ {(2)}, m, r, N _ {\max}, \theta) \neq c _ {2}). \\ \end{array}
+$$
+
+The proof is given in Appendix B. Similarly to Proposition 2, this proposition is also very useful for simulations because we can simply transmit the all-zero codeword over the BMS channel W to measure the decoding error probability.
+
+In the last part of this section, we present the list decoding version of the RPA\_RM function. The main idea is already explained in Section II-A. Here we only write down the pseudo code of the list decoding version. Note that the purpose of line 8 is to make sure that $\hat{c}^{(u)}$ is a codeword of RM code, which is not always true for the decoding result of the RPA\_RM function.
+
+Finally, we present the following proposition on the memory requirement for sequential implementation of RPA decoder. A remarkable thing here is that the memory requirement for the list decoding version of RPA algorithm is 5n, which is independent of the list size, in contrast to SCL decoder of polar codes.
+
+Proposition 5: The memory needed for sequential implementation of the RPA decoder without list decoding is no more than 4n, and the memory needed for sequential implementation of the RPA decoder with list decoding is no more than 5n, where n is the code length. Note that the memory requirement for list decoding version does not depend on the list size.
+
+Proof: As we mentioned above, Algorithm 3 is written in compact fashion for the ease of understanding, but it is not space-efficient in practical implementation. The version that we really implemented in practice and used for simulations is Algorithm 9 in Appendix C, and our analysis of space complexity is based on Algorithm 9.
+
+The most important difference between Algorithm 9 and Algorithm 3 is that in Algorithm 3 we first finish all the recursive decoding and then perform the aggregation step; while in Algorithm 9 the recursive decoding step and the aggregation step are interleaved together, and in this way we can save huge amount of memory compared to Algorithm 3.
+
+We start with RPA decoder without list decoding, and we prove by induction on r, the order of the RM code. For the base case of r = 1, the claim clearly holds. Now assume that the claim holds for all RM codes with order < r and we prove it for order r. In Algorithm 9, we need n floating number positions to store the LLR vector and another n floating number positions to store the cumuLLR vector. Then we project onto the cosets of each one-dimensional subspace sequentially. For each projected codeword, we need to decode
+
+$^{6}Y_{1}$ and $Y_{2}$ are random vectors, and the randomness comes from the channel noise. As a result, $L^{(1)}$ and $L^{(2)}$ are also random vectors.
+
+Algorithm 5 The RPA\_LIST Decoding Function for General Binary-Input Memoryless Channels
+
+Input: The LLR vector $(L(\mathbf{z}),\mathbf{z}\in\{0,1\}^{m})$ ; the parameters of the Reed-Muller code m and r; the maximal number of iterations $N_{max}$ ; the exiting threshold $\theta$ ; the list size $2^{t}$
+
+Output: The decoded codeword $\hat{c}$
+
+1: $\tilde{L} \leftarrow L$   
+2: $(z_{1}, z_{2}, \ldots, z_{t}) \leftarrow$ indices of the t smallest entries in $(|L(z)|, z \in \{0, 1\}^{m})$   
+3: $\triangleright z_{i} \in \{0, 1\}^{m}$ for all $i = 1, 2, \ldots, t$   
+4: $L_{\max} \leftarrow 2 \max(|L(z)|, z \in \{0, 1\}^{m})$   
+5: for each $u \in \{L_{\max}, -L_{\max}\}^{t}$ do   
+6: $(L(\mathbf{z}_{1}), L(\mathbf{z}_{2}), \ldots, L(\mathbf{z}_{t})) \leftarrow \mathbf{u}$   
+7: $\hat{c}^{(\boldsymbol{u})} \leftarrow \text{RPA\_RM}(L, m, r, N_{\max}, \theta)$   
+8: $\hat{c}^{(\boldsymbol{u})} \leftarrow \text{Reedsdecoder}(\hat{c}^{(\boldsymbol{u})}) \triangleright \text{Reedsdecoder is the classical decoding algorithm in [2]}$   
+9: end for   
+10: $\pmb{u}^{*}\gets \mathrm{argmax}_{\pmb{u}}\sum_{\pmb{z}\in \{0,1\}^{m}}\left((-1)^{\hat{c}^{(u)}(\pmb{z})}\tilde{L} (\pmb {z})\right)$   
+11: ▷ This follows from (9). Maximization is over   
+12: $\hat{c}\gets \hat{c}^{(\boldsymbol{u}^{*})}$   
+13: return $\hat{c}$
+
+$$
+\boldsymbol {u} \in \left\{L _ {\max}, - L _ {\max} \right\} ^ {t}
+$$
+
+a RM code with length n/2 and order r - 1. By induction hypothesis, this take $4 * n/2 = 2n$ floating number positions. Therefore in total we need $n + n + 2n = 4n$ floating number positions. This establishes the inductive step and completes the proof for the non-list-decoding version.
+
+The memory requirement for list decoding version follows directly from that of the vanilla version: Since we perform list decoding sequentially, i.e., we only decode one list at a time, the only extra memory we need in the list decoding version is the n floating number positions that is used to store currently best known decoding result. Therefore, the space complexity for the list decoding version is 5n. □
+
+# V. SIMPLIFIED RPA ALGORITHM FOR HIGH RATE RM CODES
+
+In this section, we provide some simplified versions of the RPA decoder, which significantly accelerate the decoding process while maintaining the same (nearly optimal) decoding error probability for certain RM codes with rate > 0.5.
+
+As mentioned in the previous section, we can accelerate the decoding algorithm by using fewer subspaces in the projection step. Moreover, instead of using one-dimensional subspaces, in this section we propose to use a selected subsets of two-dimensional subspaces in the projection step. In particular, we only project onto the $\binom{m}{2}$ two-dimensional subspaces spanned by two standard basis vectors of E. The standard basis vector of E are $\boldsymbol{e}^{(1)},\ldots,\boldsymbol{e}^{(m)}$ , where $\boldsymbol{e}^{(i)}$ is defined as the vector with 1 in the ith position and 0 everywhere else. Then we write the $\binom{m}{2}$ two-dimensional subspaces as $\{B_{i,j}:1\leq i<j\leq m\}$ , where
+
+$$
+\mathbb {B} _ {i, j} := \operatorname{span} \left(\boldsymbol {e} ^ {(i)}, \boldsymbol {e} ^ {(j)}\right).
+$$
+
+Note that projection onto cosets of two-dimensional subspaces is different from onto that of one-dimensional subspaces: In the one-dimensional case, each coset only contains two coordinates, and we only need to combine the LLR of two coordinates to obtain the LLR of the coset, as we did in (13). In the two-dimensional case, each coset contains four coordinates, and we need to combine the LLR of four coordinates to obtain the LLR of the coset. Fortunately, for any RM code with order $r \geq 2$ , we can use exactly the same idea in the proof of Lemma 2 to show that any four coordinates in a coset of a two-dimensional subspace are also independent; see the explanation in Remark 1 below. Therefore, we obtain the following counterpart of (13) for a coset T of two-dimensional subspace assuming that $T = \{z^{(1)}, z^{(2)}, z^{(3)}, z^{(4)}\}$ :
+
+$$
+\begin{array}{l} L _ {/ \mathbb {B}} (T) = \ln \left(\exp \left(\sum_ {i = 1} ^ {4} L \left(\boldsymbol {z} ^ {(i)}\right)\right) \right. \\ \left. + \sum_ {1 \leq i <   j \leq 4} \exp \left(L \left(\boldsymbol {z} ^ {(i)}\right) + L \left(\boldsymbol {z} ^ {(j)}\right)\right) + 1\right) \\ - \ln \left(\sum_ {i = 1} ^ {4} \exp \left(L \left(\boldsymbol {z} ^ {(i)}\right)\right) + \sum_ {i = 1} ^ {4} \exp \left(\sum_ {j \in [ 4 ] \backslash \{i \}} L \left(\boldsymbol {z} ^ {(j)}\right)\right)\right). \tag {14} \\ \end{array}
+$$
+
+Remark 1: It is well known that for a linear code, if there is a codeword taking value 1 at a certain coordinate, then the number of codewords taking value 1 at this coordinate is the same as the number of codewords taking value 0 at this coordinate. This follows directly from the linearity of the code. The proof of Lemma 2 follows from the same idea: By the linearity of code, we only need to show that for two distinct coordinates, there are different codewords in RM codes that take all four possible values $(0,0)$ , $(0,1)$ , $(1,0)$ , $(1,1)$ at these two coordinates, and this follows by noting that (i) any two distinct coordinates form a coset of a one-dimensional subspace; (ii) by definition of RM codes, restricting RM codes with order $r \geq 1$ on such cosets gives us $\mathcal{RM}(1,1)$ , which contains all 4 binary vectors of length 2. Now in the case of two-dimensional subspace, we still use the same reasoning: By linearity of the code, we only need to show that for any 4 coordinates that form a coset of a 2-dimensional subspace, there are different codewords in RM codes with order $r \geq 2$ that take all $2^{4}$ possible values $\{0,1\}^{4}$ at these four coordinates. This again follows by noting that restricting RM codes with order $r \geq 2$ on such cosets gives us $\mathcal{RM}(2,2)$ , which contains all 16 binary vectors of length 4.
+
+After projecting $\mathcal{RM}(m,r)$ onto the cosets of these two-dimensional subspaces, we will obtain RM codes with parameters $m - 2$ and $r - 2$ , as proved in Lemma 1. After decoding these $\binom{m}{2}$ projected codes $\mathcal{RM}(m - 2,r - 2)$ , we obtain $\{\hat{y}_{/\mathbb{B}_{i,j}}:1\leq i < j\leq m\}$ , where $\hat{y}_{/\mathbb{B}_{i,j}} = (\hat{y}_{/\mathbb{B}_{i,j}}(T),T\in \mathbb{E}/\mathbb{B}_{i,j})$ . Now we are ready to go to the aggregation step using both the recursive decoding result $\{\hat{y}_{/\mathbb{B}_{i,j}}:1\leq i < j\leq m\}$ and the original LLR vector $L$ . In particular, when decoding $c(\mathbf{z})$ , the relevant coordinate in $\hat{y}_{/\mathbb{B}_{i,j}}$ is $\hat{y}_{/\mathbb{B}_{i,j}}([z + \mathbb{B}_{i,j}])$ , where $[z + \mathbb{B}_{i,j}]$ is the coset of $\mathbb{B}_{i,j}$ that contains $\mathbf{z}$ . Now suppose that the other three vectors in $[z + \mathbb{B}_{i,j}]$ apart from $\mathbf{z}$ itself are $z^{(1)},z^{(2)},z^{(3)}$ . Then from $\hat{y}_{/\mathbb{B}_{i,j}}([z + \mathbb{B}_{i,j}])$ and $L(z^{(1)}),L(z^{(2)}),L(z^{(3)})$ , we obtain the
+
+following estimate of the LLR of c(z):
+
+$$
+\operatorname{Est} _ {i, j} (\boldsymbol {z}) = \ln \Big (\exp \big (\sum_ {i = 1} ^ {3} L (\boldsymbol {z} ^ {(i)}) \big) + \sum_ {i = 1} ^ {3} \exp (L (\boldsymbol {z} ^ {(i)})) \Big)
+$$
+
+$$
+- \ln \Big (\sum_ {i = 1} ^ {3} \exp (\sum_ {j \in [ 3 ] \setminus \{i \}} L (\boldsymbol {z} ^ {(j)})) + 1 \Big)
+$$
+
+$$
+\text { if } \hat {y} _ {/ \mathbb {B} _ {i, j}} ([ \mathbf {z} + \mathbb {B} _ {i, j} ]) = 0,
+$$
+
+$$
+\operatorname{Est} _ {i, j} (\boldsymbol {z}) = - \ln \Big (\exp \big (\sum_ {i = 1} ^ {3} L (\boldsymbol {z} ^ {(i)}) \big) + \sum_ {i = 1} ^ {3} \exp (L (\boldsymbol {z} ^ {(i)})) \Big)
+$$
+
+$$
++ \ln \Big (\sum_ {i = 1} ^ {3} \exp (\sum_ {j \in [ 3 ] \setminus \{i \}} L (\boldsymbol {z} ^ {(j)})) + 1 \Big)
+$$
+
+$$
+\text { if } \hat {y} _ {/ \mathbb {B} _ {i, j}} ([ \mathbf {z} + \mathbb {B} _ {i, j} ]) = 1. \tag {15}
+$$
+
+We calculate such an estimate for all pairs of $(i,j)$ such that $1 \leq i < j \leq m$ . Then finally we update the LLR of $c(z)$ as the average of these $\binom{m}{2}$ estimates, as follows:
+
+$$
+\hat {L} (\boldsymbol {z}) = \frac {1}{\binom {m} {2}} \sum_ {1 \leq i <   j \leq m} \operatorname{Est} _ {i, j} (\boldsymbol {z}).
+$$
+
+Finally, as in all the previous sections, we iterate this decoding procedure a few times for the LLR vector to converge to a stable value.
+
+We call the decoding algorithm proposed in this section the Simplified\_RPA algorithm, as opposed to the normal RPA algorithm proposed in the previous section. Note here that in the recursive decoding procedure, i.e., when we decode $\mathcal{RM}(m - 2,r - 2)$ , we still use this simplified version of RPA algorithm instead of doing full projection step. Since each time we reduce $r$ by 2, if the original $r$ is even then we will not reach the first-order RM codes. In this case, we use the normal RPA decoder when we reach the second-order RM codes. In Algorithm 6 and Algorithm 7 we provide pseudo-codes for the Simplified\_RPA algorithm. Note that in line 7-8 of Algorithm 6, we distinguish between the cases of $r$ being even and $r$ being odd: For even $r$ , eventually we will need to decode a second-order RM code using the normal RPA decoder while for odd $r$ , we only need to decode first-order RM code in the final recursive step. As we will show in Section VI (see Fig. 2), by applying the list decoding version of the Simplified\_RPA algorithm, we can decode $\mathcal{RM}(7,4)$ and $\mathcal{RM}(8,5)$ with list size no larger than 8 such that the decoding error probability is the same as that of ML decoder. Moreover, it runs even faster than decoding lower rate codes such as $\mathcal{RM}(8,3)$ ; see Table I.
+
+# VI. SIMULATION RESULTS
+
+# A. Comparison With Polar Codes
+
+We run our decoding algorithm for second and third order Reed-Muller codes with code length 256, 512 and 1024 over AWGN channels and BSCs, and we compare its performance with the recent algorithms for polar codes with the same length and dimension. We compare to two versions of polar codes: Polar codes with optimal CRC size and polar codes without
+
+Algorithm 6 The Simplified\_RPA Decoding Function Input: The LLR vector $(L(\mathbf{z}),\mathbf{z}\in\{0,1\}^{m})$ ; the parameters of the Reed-Muller code m and r; the maximal number of iterations $N_{max}$ ; the exiting threshold $\theta$
+
+Output: The decoded codeword $\hat{c}$
+
+1: $E := \{0, 1\}^{m}$   
+2: for $j = 1, 2, \ldots, N_{\max}$ do   
+3: $L_{/\mathbb{B}_{i,j}} \leftarrow (L_{/\mathbb{B}_{i,j}}(T), T \in \mathbb{E}/\mathbb{B}_{i,j})$ for $1 \leq i < j \leq m$   
+4: $\triangleright L_{/\mathbb{B}_{i,j}}(T)$ is calculated according to (14)   
+5: $\hat{y}_{/\mathbb{B}_{i,j}} \leftarrow \text{Simplified\_RPA}(L_{/\mathbb{B}_{i,j}}, m - 2, r - 2, N_{\max}, \theta)$ for $1 \leq i < j \leq m$   
+6: ▷ If r = 3, then we use the Fast Hadamard Transform to decode the first-order RM code
+
+7: ▷ If r = 4, then we use the normal RPA algorithm to decode the second-order RM code
+
+8: $\hat{L} \leftarrow \text{Simp\_Aggregation}(L, \{\hat{y}_{\mathbb{B}_{i,j}} : 1 \leq i < j \leq m\})$
+
+9: if $|\hat{L}(z) - L(z)| \leq \theta |L(z)|$ for all $z \in E$ then ▷ The algorithm reaches a stable point
+
+10: break
+
+11: end if
+
+12: $L \leftarrow \hat{L}$
+
+13: end for
+
+14: $\hat{c}(\mathbf{z}) \leftarrow \mathbb{1}[L(\mathbf{z}) < 0]$ for each $\mathbf{z} \in \mathbb{E}$
+
+15: return $\hat{c}$
+
+Algorithm 7 The Simp\_Aggregation Function in the Simplified\_RPA Algorithm
+
+Input: $L, \{\hat{y}_{/\mathbb{B}_{i,j}} : 1 \leq i < j \leq m\}$
+
+Output: $\hat{L}$
+
+1: Calculate $\operatorname{Est}_{i,j}(\mathbf{z})$ from $L$ and $\{\hat{y}_{/\mathbb{B}_{i,j}}:1\leq i < j\leq m\}$ according to (15)   
+2: $\hat{L}(\mathbf{z}) \leftarrow \frac{1}{\binom{m}{2}} \sum_{1 \leq i < j \leq m} \operatorname{Est}_{i,j}(\mathbf{z}) \text{ for each } \mathbf{z} \in \{0,1\}^m$   
+3: return $\hat{L}$
+
+# TABLE I
+
+COMPARISON OF DECODING TIME BETWEEN RM CODES AND POLAR CODES. $P(m,r)$ DENOTES POLAR CODES WITH THE SAME LENGTH AND DIMENSION AS $\mathcal{RM}(m,r)$
+
+<table><tr><td> $\mathcal{RM}(7,2)$ </td><td> $P(7,2)$ </td><td> $\mathcal{RM}(7,3)$ </td><td> $P(7,3)$ </td><td> $\mathcal{RM}(7,4)$ </td><td> $P(7,4)$ </td></tr><tr><td>1ms</td><td>7ms</td><td>26ms</td><td>15ms</td><td>6ms</td><td>23ms</td></tr></table>
+
+<table><tr><td> $\mathcal{RM}(8,2)$ </td><td> $P(8,2)$ </td><td> $\mathcal{RM}(8,3)$ </td><td> $P(8,3)$ </td><td> $\mathcal{RM}(8,4)$ </td><td> $P(8,4)$ </td></tr><tr><td>4.3ms</td><td>17ms</td><td>236ms</td><td>40ms</td><td>5.9s</td><td>64ms</td></tr></table>
+
+<table><tr><td> $\mathcal{RM}(8,5)$ </td><td> $P(8,5)$ </td><td> $\mathcal{RM}(9,2)$ </td><td> $P(9,2)$ </td><td> $\mathcal{RM}(10,2)$ </td><td> $P(10,2)$ </td></tr><tr><td>14ms</td><td>82ms</td><td>18.2ms</td><td>41ms</td><td>76.7ms</td><td>95ms</td></tr></table>
+
+CRC, and we use the Successive Cancellation List (SCL) decoder introduced by Tal and Vardy [20] as the decoder, where we set list size to be 32. Note that SCL decoder with list size 32 is one of the most widely used decoders for polar codes.
+
+The simulation results for AWGN channels are plotted in Figure 2, where the number of Monte Carlo
+
+![](images/5b46857d45d1160d3ccc59d26c0801a3425adbd664fbbaaf80a16ddd0d70e0f5.jpg)
+
+<details>
+<summary>line</summary>
+
+| Eb/N0 [dB] | Polar     | Polar-CRC (8) | RM-RPA without list | RM-RPA list size 16 | RM-ML lower bound |
+| ---------- | --------- | ------------- | ------------------- | ------------------- | ----------------- |
+| 1.5        | 0.1       | 0.03          | 0.02                | 0.015               | 0.01              |
+| 2.0        | 0.05      | 0.01          | 0.008               | 0.006               | 0.004             |
+| 2.5        | 0.02      | 0.005         | 0.004               | 0.003               | 0.002             |
+| 3.0        | 0.01      | 0.002         | 0.0015              | 0.001               | 0.0005            |
+</details>
+
+(a) $\mathcal{RM}(7,2)$ v.s. polar codes
+
+![](images/ca84245cbb1178cfcbfc9432ce396b1bec1a1d514e0940d1a36e95ba0f58f96d.jpg)
+
+<details>
+<summary>line</summary>
+
+| E_b/N_0 [dB] | Polar     | Polar-CRC (6) | RM-RPA list size 16 | RM-ML lower bound |
+| ------------ | --------- | ------------- | ------------------- | ----------------- |
+| 2.0          | 0.1       | 0.03          | 0.02                | 0.01              |
+| 2.2          | 0.08      | 0.02          | 0.015               | 0.008             |
+| 2.4          | 0.06      | 0.015         | 0.01                | 0.005             |
+| 2.6          | 0.04      | 0.01          | 0.008               | 0.003             |
+| 2.8          | 0.03      | 0.008         | 0.006               | 0.002             |
+| 3.0          | 0.02      | 0.006         | 0.004               | 0.001             |
+| 3.2          | 0.015     | 0.004         | 0.003               | 0.0008            |
+| 3.4          | 0.01      | 0.003         | 0.002               | 0.0005            |
+| 3.5          | 0.008     | 0.002         | 0.001               | 0.0003            |
+</details>
+
+(b) $\mathcal{RM}(7,3)$ v.s. polar codes
+
+![](images/1edb9ff1e124471435a882aebc78ca2af8e9f424dbb2ac9e76fe8a07741b8838.jpg)
+
+<details>
+<summary>line</summary>
+
+| Eb/N0 [dB] | Polar     | Polar-CRC (6) | RM-RPA list size 8 | RM-ML lower bound |
+| ---------- | --------- | ------------- | ------------------ | ----------------- |
+| 3.5        | 0.01      | 0.01          | 0.01               | 0.01              |
+| 4.0        | 0.005     | 0.005         | 0.005              | 0.005             |
+| 4.5        | 0.002     | 0.002         | 0.002              | 0.002             |
+| 5.0        | 0.001     | 0.001         | 0.001              | 0.001             |
+</details>
+
+(c) $\mathcal{RM}(7,4)$ v.s. polar codes
+
+![](images/5aa39c8c7453a9c5396e1f071d48bb6c358ce4ad98ac03866896cb472920c951.jpg)
+
+<details>
+<summary>line</summary>
+
+| E_b/N_0 [dB] | Polar     | Polar-CRC (6) | RM-RPA without list | RM-RPA list size 16 | RM-ML lower bound |
+| ------------ | --------- | ------------- | ------------------- | ------------------- | ----------------- |
+| 1.0          | 0.1       | 0.05          | 0.03                | 0.02                | 0.01              |
+| 1.5          | 0.05      | 0.02          | 0.01                | 0.005               | 0.003             |
+| 2.0          | 0.02      | 0.01          | 0.005               | 0.002               | 0.001             |
+| 2.5          | 0.01      | 0.005         | 0.002               | 0.001               | 0.0005            |
+| 3.0          | 0.005     | 0.002         | 0.001               | 0.0005              | 0.0002            |
+</details>
+
+(d) $\mathcal{RM}(8,2)$ v.s. polar codes
+
+![](images/2436f930d0e0a8be425c979d491ec4a8354c561f2eac27d39115438120e8657f.jpg)
+
+<details>
+<summary>line</summary>
+
+| E_b/N_0 [dB] | Polar     | Polar-CRC (8) | RM-RPA list size 16 | RM-ML lower bound |
+| ------------ | --------- | ------------- | ------------------- | ----------------- |
+| 1.0          | 0.1       | 0.08          | 0.06                | 0.02              |
+| 1.2          | 0.08      | 0.06          | 0.04                | 0.01              |
+| 1.4          | 0.06      | 0.04          | 0.02                | 0.005             |
+| 1.6          | 0.04      | 0.02          | 0.01                | 0.002             |
+| 1.8          | 0.02      | 0.01          | 0.005               | 0.001             |
+| 2.0          | 0.01      | 0.005         | 0.002               | 0.0005            |
+| 2.2          | 0.005     | 0.002         | 0.001               | 0.0002            |
+| 2.4          | 0.002     | 0.001         | 0.0005              | 0.0001            |
+| 2.5          | 0.001     | 0.0005        | 0.0002              | 0.00005           |
+</details>
+
+(e) $\mathcal{RM}(8,3)$ v.s. polar codes
+
+![](images/df684a329a98d8e290bb82b73c06ca4cb9ea7c0da825580d790eaa0a6b8a8db4.jpg)
+
+<details>
+<summary>line</summary>
+
+| E_b/N_0 [dB] | Polar     | Polar-CRC (6) | RM-RPA list size 16 | RM-ML lower bound |
+| ------------ | --------- | ------------- | ------------------- | ----------------- |
+| 2.0          | 0.1       | 0.05          | 0.05                | 0.01              |
+| 2.5          | 0.05      | 0.01          | 0.01                | 0.001             |
+| 3.0          | 0.01      | 0.001         | 0.001               | 0.0001            |
+| 3.5          | 0.001     | 0.0001        | 0.0001              | 0.00001           |
+</details>
+
+(f) $\mathcal{RM}(8,4)$ v.s. polar codes
+
+![](images/1d3125b3a5f32771147fc563ddbaa5a8e401cbe47402a2cf8874bdca8aab0071.jpg)
+
+<details>
+<summary>line</summary>
+
+| E_b/N_0 [dB] | Polar     | Polar-CRC (6) | RM-RPA list size 8 | RM-ML lower bound |
+| ------------ | --------- | ------------- | ------------------ | ----------------- |
+| 3.5          | 0.1       | 0.05          | 0.03               | 0.02              |
+| 4.0          | 0.03      | 0.01          | 0.005              | 0.003             |
+| 4.5          | 0.01      | 0.003         | 0.001              | 0.0005            |
+| 5.0          | 0.003     | 0.0005        | 0.0001             | 0.00005           |
+</details>
+
+(g) $\mathcal{RM}(8,5)$ v.s. polar codes
+
+![](images/eceeed5b230a33849531e113c7fb673c8d45a4bb84fa04f3fafbd2f81b21b3ee.jpg)
+
+<details>
+<summary>line</summary>
+
+| Eb/N0 [dB] | Polar     | Polar-CRC (8) | RM-RPA without list | RM-RPA list size 16 | RM-ML lower bound |
+| ---------- | --------- | ------------- | ------------------- | -------------------- | ----------------- |
+| 1.0        | 0.1       | 0.03          | 0.01                | 0.008                | 0.005             |
+| 1.5        | 0.05      | 0.01          | 0.005               | 0.003                | 0.001             |
+| 2.0        | 0.02      | 0.005         | 0.002               | 0.001                | 0.0005            |
+| 2.5        | 0.01      | 0.002         | 0.001               | 0.0005               | 0.0001            |
+</details>
+
+(h) $\mathcal{RM}(9,2)$ v.s. polar codes
+
+![](images/602211ce4d18c33ab76c1644bd351ee3dc5c09222968257ac0410a6dd218ea3f.jpg)
+
+<details>
+<summary>line</summary>
+
+| Eb/N0 [dB] | Polar     | Polar-CRC (4) | RM-RPA without list | RM-RPA list size 16 | RM-ML lower bound |
+| ---------- | --------- | ------------- | ------------------- | -------------------- | ----------------- |
+| 0.5        | 0.1       | 0.08          | 0.02                | 0.015                | 0.01              |
+| 1.0        | 0.05      | 0.03          | 0.005               | 0.003                | 0.002             |
+| 1.5        | 0.02      | 0.01          | 0.001               | 0.0005               | 0.0003            |
+| 2.0        | 0.01      | 0.005         | 0.0005              | 0.0002               | 0.0001            |
+</details>
+
+(i) $\mathcal{RM}(10,2)$ v.s. polar codes   
+Fig. 2. Comparison between Reed-Muller codes and polar codes over AWGN channels. For $\mathcal{RM}(7,4)$ and $\mathcal{RM}(8,5)$ , we use the Simplified\_RPA algorithm proposed in Section V, and for all the other RM codes, we use the normal RPA algorithm proposed in Section IV. For polar codes with or without CRC, we always use SCL decoder with list size 32. For polar codes with CRC, we test various choices of CRC length and choose the optimal one that gives the best performance. The number in the bracket after “Polar-CRC” is the optimal CRC length that we use.
+
+trials is $10^{5}$ . We provide the simulation results for all RM codes with length 128 and 256, including $\mathcal{RM}(7,2)$ , $\mathcal{RM}(7,3)$ , $\mathcal{RM}(7,4)$ , $\mathcal{RM}(8,2)$ , $\mathcal{RM}(8,3)$ , [4] $\mathcal{RM}(8,4)$ , $\mathcal{RM}(8,5)$ . This should give a complete picture of the performance of our decoder for all code rates. Note that we skipped $\mathcal{RM}(7,5)$ and $\mathcal{RM}(8,6)$ because they are extended Hamming codes, and optimal decoders are well known for these two codes. Moreover, for certain cases the list decoding version of RPA decoding algorithm has almost the same performance as the Maximal Likelihood (ML) decoder for RM codes. $^{7}$ The performance improvement is thus in agreement with the advantages of RM codes over polar codes
+
+$^{7}$ We use the method in [14], [16] to measure the ML lower bound: Whenever our decoder outputs a wrong codeword, we compare the posterior probability of the decoded word and that of the correct codeword. Most of the time the posterior probability of the decoded word is larger, which means that even an ML decoder will make a mistake in this case. Note that this method was also used in [20].
+
+![](images/08e638a7edfb1b4df680510bd9b208966e0d84066b4a999bfc030b4508aa4348.jpg)
+
+<details>
+<summary>line</summary>
+
+| Channel crossover probability | Polar       | Polar-CRC (6) | RM-RPA without list |
+| ----------------------------- | ----------- | ------------- | ------------------- |
+| 0.18                          | 0.01        | 0.001         | 0.00001             |
+| 0.185                         | 0.015       | 0.002         | 0.00002             |
+| 0.19                          | 0.02        | 0.003         | 0.00005             |
+| 0.195                         | 0.025       | 0.004         | 0.0001              |
+| 0.2                           | 0.03        | 0.005         | 0.0002              |
+| 0.205                         | 0.035       | 0.006         | 0.0003              |
+| 0.21                          | 0.04        | 0.007         | 0.0004              |
+</details>
+
+(a) $\mathcal{RM}(8,2)$ vs Polar codes
+
+![](images/89c83eda77dc6862376fbca550fb4de1e594702b1b542f955c3072a4ec50c826.jpg)
+
+<details>
+<summary>line</summary>
+
+| Channel crossover probability | Polar | Polar-CRC (6) | RM-RPA without list |
+| ----------------------------- | ----- | ------------- | ------------------- |
+| 0.085                         | 0.02  | 0.002         | 0.00001             |
+| 0.09                          | 0.03  | 0.005         | 0.0001              |
+| 0.095                         | 0.05  | 0.01          | 0.001               |
+| 0.1                           | 0.07  | 0.02          | 0.005               |
+| 0.105                         | 0.09  | 0.03          | 0.01                |
+| 0.11                          | 0.1   | 0.05          | 0.02                |
+</details>
+
+(b) $\mathcal{RM}(8,3)$ vs Polar codes
+
+![](images/1367532a2ad40e309965f9e9e92a7f508fe5c715b39396dc3820db487cd3205f.jpg)
+
+<details>
+<summary>line</summary>
+
+| Channel crossover probability | Polar | Polar-CRC (6) | RM-RPA without list |
+| ----------------------------- | ----- | ------------- | ------------------- |
+| 0.245                         | 0.01  | 0.001         | 0.00001             |
+| 0.25                          | 0.015 | 0.0015        | 0.00002             |
+| 0.255                         | 0.02  | 0.002         | 0.00003             |
+| 0.26                          | 0.025 | 0.0025        | 0.00004             |
+| 0.265                         | 0.03  | 0.003         | 0.00005             |
+| 0.27                          | 0.035 | 0.0035        | 0.00006             |
+| 0.275                         | 0.04  | 0.004         | 0.00007             |
+| 0.28                          | 0.045 | 0.0045        | 0.00008             |
+</details>
+
+(c) $\mathcal{RM}(9,2)$ vs Polar codes   
+Fig. 3. Comparison between Reed-Muller codes and polar codes over BSC channels. For RM codes we use the RPA decoder in Algorithm 1 without list decoding. For polar codes, no matter with or without CRC, we always use SCL decoder with list size 32.
+
+under ML decoding [5]. See Section VI-B for comparisons with Dumer's recursive decoding algorithm [14]–[16], which is the best known decoder in the literature for RM codes over AWGN channels. Note also that the algorithm in [19] only applies to codes with very short code length (no larger than 128) due to complexity constraints.
+
+For the BSC channel, the simulation results are plotted in Figure 3. The number of Monte Carlo trials is $10^{5}$ . We also tested in this case all the previous decoding algorithms known for RM codes, including Reed's algorithm [2] and the algorithm from Saptharishi-Shpilka-Volk [17]. For these two algorithms, the decoding error probability exceeds 0.1 for the tested parameters, so we did not include them in Figure 3 as they would not fit. See Section VI-B for comparisons with the Sidel'nikov-Pershakov algorithm [11] and its variations [12], [13]. From Figure 3, we can clearly see that the new decoding algorithm for RM codes significantly outperforms the SCL decoder for CRC-aided polar codes.
+
+We also compare the running time of our decoder and the SCL decoder for polar codes. For polar codes, we use techniques from two accelerated version [26], [27] of the SCL decoder (in particular the “min-sum approximation” in [26]) so that we can achieve a much smaller running time than the original version of SCL decoder while maintaining almost the same decoding error probability. The results are listed in Table I. We can see that for second order RM codes as well as the high-rate RM codes where we use the Simplified\_RPA algorithm to decode, our decoder is always faster than the SCL decoder for polar codes with the same parameters. However, for third order RM codes, our decoder is slower than the SCL decoder; see Fig 2 for decoding error probability and Table I for running time.
+
+# B. Comparison With Previous Decoding Algorithms of RM Codes
+
+We first compare with the decoding algorithm proposed by Sidel'nikov and Pershakov [11], which was later improved/modified in [12], [13]. When decoding the second-order RM codes, the RPA decoding algorithm has some high-level similarity with the decoding algorithms in [11]–[13] in the sense that the first step in all these algorithms is to project the received word y onto the cosets of all the n-1 one-dimensional subspaces and decode the projected first-order RM codewords to obtain $\hat{y}/_{B_{1}}, \hat{y}/_{B_{2}}, \ldots, \hat{y}/_{B_{n-1}}$ . However, the next steps in [11]–[13] are quite different from the RPA decoding algorithm and result in a worse performance than the RPA algorithm. More precisely, the main differences are:
+
+\- The decoding algorithms in [12], [13] only work for the second order RM codes. For higher-order RM codes, the decoding algorithm proposed in [11] is completely different from the RPA algorithm, and their performance is much worse than the RPA algorithm; see Fig. 4(c).
+
+\- For second order RM codes, after the projection step, the RPA algorithm make use of both the decoding results of the projected codewords $\hat{y}_{/\mathbb{B}_1},\hat{y}_{/\mathbb{B}_2},\ldots ,\hat{y}_{/\mathbb{B}_{n - 1}}$ and the original received word $y$ to obtain the final decoding results while the algorithms in [11]-[13] only make use of $\hat{y}_{/\mathbb{B}_1},\hat{y}_{/\mathbb{B}_2},\ldots ,\hat{y}_{/\mathbb{B}_{n - 1}}$ to obtain the coefficients of all the degree-2 monomials in the final decoding results. As discussed above, the projected codewords are more noisy than the original received words $y$ . As a consequence, the performance of the algorithms in [11]-[13] is worse than that of the RPA algorithm; see Fig. 4(a),(b).
+
+\- The RPA algorithm uses $\hat{y}_{/\mathbb{B}_1}, \hat{y}_{/\mathbb{B}_2}, \ldots, \hat{y}_{/\mathbb{B}_{n-1}}$ together with the original received word $y$ to correct errors bitwise in the original received word $y$ while the algorithms in [11]-[13] use $\hat{y}_{/\mathbb{B}_1}, \hat{y}_{/\mathbb{B}_2}, \ldots, \hat{y}_{/\mathbb{B}_{n-1}}$ to correct errors wordwise among themselves.
+
+In Fig. 4, we compare the RPA algorithm with the algorithms in [11]–[13] for decoding Reed-Muller codes over AWGN and BSC channels. Note that there are two parameters s and h in the Sidelnikov-Pershakov algorithm, where s is the list size of decoding each projected codeword, and h is the number of iterations when decoding the projected codewords. In our simulations, we set s = 4 and h = 3 since larger values of s and h will not further improve the performance.
+
+$^{8}$ Recall Definition 1 and the discussion following it.
+
+![](images/7ea3e91894ecd529f4b934958d29a6bdccff926dcf33e2bf94af9b8212c4d030.jpg)
+
+<details>
+<summary>line</summary>
+
+| Signal to noise ratio (E_b/N_0) [dB] | RM-RPA list (size 16) decoder | Sakkour |
+| ------------------------------------ | ------------------------------ | ------- |
+| 1.0                                  | 0.01                           | 0.01    |
+| 1.2                                  | 0.005                          | 0.008   |
+| 1.4                                  | 0.002                          | 0.005   |
+| 1.6                                  | 0.001                          | 0.003   |
+| 1.8                                  | 0.0005                         | 0.002   |
+| 2.0                                  | 0.0001                         | 0.001   |
+</details>
+
+(a) $\mathcal{RM}(9,2)$ over AWGN
+
+![](images/32d2e8115e743f337266b163454a54b9ccb6c270f1c2acb07546ad1804970ccc.jpg)
+
+<details>
+<summary>line</summary>
+
+| Channel crossover probability | RM-RPA decoder | Sidelnikov-Pershakov |
+| ----------------------------- | -------------- | -------------------- |
+| 0.255                         | 0.0001         | 0.01                 |
+| 0.26                          | 0.0003         | 0.015                |
+| 0.265                         | 0.001          | 0.02                 |
+| 0.27                          | 0.003          | 0.03                 |
+| 0.275                         | 0.006          | 0.05                 |
+| 0.28                          | 0.01           | 0.1                  |
+</details>
+
+(b) $\mathcal{RM}(9,2)$ over BSC
+
+![](images/3242884cffb9213f66e78cde44197395a7f7e76afa83112a5590dc1ba1b1a79d.jpg)
+
+<details>
+<summary>line</summary>
+
+| Channel crossover probability | RM-RPA decoder | Sidelnikov-Pershakov |
+| ----------------------------- | -------------- | -------------------- |
+| 0.085                         | 0.00001        | 0.1                  |
+| 0.09                          | 0.0001         | 0.2                  |
+| 0.095                         | 0.001          | 0.3                  |
+| 0.1                           | 0.003          | 0.4                  |
+| 0.105                         | 0.005          | 0.5                  |
+| 0.11                          | 0.01           | 0.6                  |
+</details>
+
+(c) $\mathcal{RM}(8,3)$ over BSC
+
+Fig. 4. Comparison between the RPA algorithm and the algorithms in [11]–[13] for decoding Reed-Muller codes over AWGN and BSC channels. The curve with legend “Sakkour” is the performance of the algorithm in [12], [13], and the curves with legend “Sidelnikov-Pershakov” represent the performance of the algorithms in [11].   
+![](images/36fa8d98ce5c03bc5352effcb815e47de9637dff528be6820378686e7795e478.jpg)
+
+<details>
+<summary>line</summary>
+
+| Signal to noise ratio (Eb/N0) [dB] | RM-RPA without list | Dumer (list size 128) | ML lower bound for RM codes |
+| ---------------------------------- | ------------------- | --------------------- | --------------------------- |
+| 1.0                                | 0.02                | 0.02                  | 0.02                        |
+| 1.5                                | 0.008               | 0.009                 | 0.007                       |
+| 2.0                                | 0.003               | 0.004                 | 0.002                       |
+| 2.5                                | 0.001               | 0.002                 | 0.0008                      |
+| 3.0                                | 0.0005              | 0.0007                | 0.0003                      |
+</details>
+
+(a) $\mathcal{RM}(8,2)$
+
+![](images/2feed8f0b0b63738999d0ea2308d5d08ff579d0c89af602644215f35a86c8d31.jpg)
+
+<details>
+<summary>line</summary>
+
+| Signal to noise ratio (E_b/N_0) [dB] | RM-RPA decoder | Dumer (list size 4096) |
+| ------------------------------------ | -------------- | ---------------------- |
+| 0.8                                  | 0.03           | 0.07                   |
+| 1.0                                  | 0.01           | 0.03                   |
+| 1.2                                  | 0.003          | 0.01                   |
+| 1.5                                  | 0.001          | 0.003                  |
+| 1.8                                  | 0.0003         | 0.001                  |
+| 2.0                                  | 0.0001         | 0.0003                 |
+</details>
+
+(b) $\mathcal{RM}(9,3)$   
+Fig. 5. Comparison between the RPA decoding algorithm without list and Dumer's recursive list decoding algorithm (the algorithm described in Section III of [16]) for decoding Reed-Muller codes over AWGN channels.
+
+Next we compare the RPA algorithm with Dumer's recursive list decoding algorithm [14]–[16]. Dumer's list decoding algorithm provides a tradeoff between the decoding error probability and the decoding time. More precisely, if we set the list size to be large enough (e.g., exponential in n), then we can achieve the same performance as the maximal likelihood decoder, but we will also need exponential running time. If we choose small list size, then the algorithm runs fast but the decoding error will deteriorate.
+
+In our simulations, we use the RPA algorithm and Dumer's algorithm to decode RM codes over AWGN channels, and we find that the decoding error probability of RPA is slightly better (smaller) than Dumer's algorithm, but the running time of RPA is typically larger. We have tested two cases $\mathcal{RM}(8,2)$ and $\mathcal{RM}(9,3)$ , and the performance is given in Fig. 5. For $\mathcal{RM}(8,2)$ , the running time of our algorithm is 4.3ms, and the running time of Dumer's algorithm is 0.85ms. For $\mathcal{RM}(9,3)$ , the running time of our algorithm is 3s, and the running time of Dumer's algorithm is 0.14s.
+
+In [19], simulation results are presented for $\mathcal{RM}(7,3)$ . Their results are based on applying belief propagation to all minimum weight parity checks. This does seem indirectly related to using all first-order RM subcodes to decode. For $\mathcal{RM}(7,3)$ , the decoding complexities of these two approaches are also similar. For RPA, each of $127*63$ projections takes roughly $32*5$ operations to decode, giving 1.2M operations per iteration. For the algorithm in [19], there are 94448 minimum weight parity checks of weight 16 giving roughly 1.5M
+
+operations per iteration. It turns out that for $\mathcal{RM}(7,3)$ , both the performance and the running time of RPA decoder are similar to the algorithm in [19].
+
+We also note that in [28], an algorithm with near-ML performance was also provided for $\mathcal{RM}(7,3)$ .
+
+# C. Parallelization and Acceleration
+
+Another important advantage of the new decoding algorithm for RM codes over the SCL decoder for polar codes is that our algorithm naturally allows parallel implementation while the SCL decoder is not parallelizable. The key step in our algorithm for decoding a codeword of RM(r, m) is to decode the quotient space codes which are in RM(r - 1, m - 1) codes, and each of these can be decoded in parallel. Such a parallel structure is crucial to achieving high throughput and low latency.
+
+Another way to accelerate the algorithm is to use only certain “voting sets”: In the projection step, we can take a subset of one-dimensional subspaces instead of all the one-dimensional subspaces. Then we still use recursive decoding followed by the aggregation step. In this way, we decode fewer $\mathrm{RM}(r-1,m-1)$ codes, and if the voting sets were chosen properly, we would obtain a similar decoding error probability with shorter running time. Note that in Section V we already gave a concrete choice of voting set in Algorithm 6, which indeed accelerates the decoding of high-rate RM codes with nearly-ML decoding error probability. At the same time, there might be other good voting sets to explore.
+
+# D. Comparison With the Meta Converse Bound for Optimal Codes [29], [30]
+
+We compared with upper bound from Corollary 39 and lower bound from Theorem 40 in [30]. More precisely, we provide the target error probability, the noise parameter of the channel, and the code dimension, then Corollary 39 and Theorem 40 in [30] give us upper and lower bound on the (optimal) code length. We found that $\mathcal{RM}(8,2)$ is nearly optimal in terms of code length in the sense that the lower bound of code length given by [30, Theorem 40] is 251, which differs from the actual code length of RM codes by only 5. Then $\mathcal{RM}(9,2)$ is also close to optimal, where the lower bound on code length is 500. However, for RM codes with larger order (dimension) and larger code length, the lower bound differs from the actual code length by at least 50, e.g., for $\mathcal{RM}(9,3)$ , the lower bound becomes 464.
+
+# E. Optimal Scaling and Sharp Threshold of Reed-Muller Codes Over BSC Channels
+
+Recently, Hassani et al. gave theoretical results backing the conjecture that RM codes have an almost optimal scaling-law over BSC channels under ML decoding [23], where optimal scaling-law means that for a fixed linear code, the decoding error probability of ML decoder transitions from 0 to 1 as a function of the crossover probability of the BSC channel in the sharpest manner (i.e., comparable to random codes). In particular, this implies that RM codes have sharper transition than polar codes under ML decoding (if capacity achieving). In this section we give simulation results that show that for BSC channels, Reed-Muller codes under the RPA decoder also have sharper transition than polar codes under SCL+list decoder.
+
+In Figure 6, we plot the decoding error probability of RM codes and polar codes over BSC channels as a function of the channel crossover probability, where for RM codes we use the RPA decoder in Algorithm 1, and for polar codes we use SCL decoder with list size 32. We can see that in all 4 cases, the transition in the curve of RM codes is sharper than the transition in the curve of polar codes. To further quantify the transition width, we introduce the following common notation: Let us denote the channel crossover probability as $\epsilon$ . For a given code and a corresponding decoding algorithm, we write its decoding error probability over $\mathrm{BSC}(\epsilon)$ as $P_{e}(\epsilon)$ . For $0 < \delta < 1/2$ , we define the transition width $^{9}$
+
+$$
+w (\delta) := P _ {e} ^ {- 1} (1 - \delta) - P _ {e} ^ {- 1} (\delta).
+$$
+
+Clearly, $w(\delta)$ is a decreasing function. For a fixed value of $\delta$ , smaller $w(\delta)$ means sharper transition and better scaling of the code and the corresponding decoder.
+
+In Figure 7, we compare $w(0.1)$ and $w(0.01)$ between RM codes and polar codes with the same parameters, where we use the same decoders as above. We can see that RM codes always have smaller transition width than polar codes. Moreover, within the same code family, the transition width $w(0.1)$ and $w(0.01)$ both decrease with the code length, meaning that the transition becomes sharper as the code length increases. This phenomena has already been proved for ML decoders in [31] and [23].
+
+# VII. EXTENSIONS
+
+Here we mention a few possible extensions of the decoding algorithms.
+
+1. The “voting sets” idea to further accelerate the RPA decoding, as employed in Section V and discussed in Section VI-C.
+
+2. Our new algorithms make use of one-dimensional subspace reduction. In practice, we can change the $B_{1},\ldots,B_{n-1}$ in the RPA decoding algorithms to any of the s-dimensional subspaces, with different combinations possible. Note that in Section V, we already made use of this idea, where we chose s=2.
+
+3. The RPA decoding algorithms can also be used to decode other codes that are supported on a vector space, or any code that has a well-defined notion of “code projection” that can be iteratively applied to produce eventually a trivial code (that can be decoded efficiently). In the case of RM codes, the quotient space projection has the specificity of producing again RM codes, and the trivial code is the Hadamard code that can be decoded using the FHT.
+
+4. As discussed in Section III-A, we can use spectral decompositions or other relaxations in the Aggregation step instead of the majority voting, and depending on the regimes, one may take multiple iteration of the power-iteration method.
+
+$^{9}$ Typically $P_{e}(\epsilon)$ is an increasing function of $\epsilon$ , so the inverse function exists.
+
+![](images/bc99e6f6dae0079af996b8849f833f5250776eecb0c420a66a5eaeaa08389ecb.jpg)
+
+<details>
+<summary>line</summary>
+
+| Channel crossover probability | Reed-Muller codes | Polar codes |
+| ----------------------------- | ----------------- | ----------- |
+| 0.0                           | 0.0               | 0.0         |
+| 0.1                           | 0.0               | 0.0         |
+| 0.2                           | 0.0               | 0.0         |
+| 0.25                          | 0.1               | 0.3         |
+| 0.3                           | 0.7               | 0.9         |
+| 0.35                          | 0.9               | 0.95        |
+| 0.4                           | 0.95              | 0.98        |
+| 0.5                           | 0.98              | 0.99        |
+</details>
+
+(a) $\mathcal{RM}(8,2)$ vs Polar codes with the same parameters
+
+![](images/fa335b1983698f901a228f80ef39032c20cd708c65f547d00b2ec33bbdeb2659.jpg)
+
+<details>
+<summary>line</summary>
+
+| Channel crossover probability | Reed-Muller codes | Polar codes |
+| ----------------------------- | ----------------- | ----------- |
+| 0.0                           | 0.0               | 0.0         |
+| 0.1                           | 0.0               | 0.1         |
+| 0.15                          | 0.3               | 0.7         |
+| 0.2                           | 0.9               | 0.95        |
+| 0.25                          | 0.95              | 0.98        |
+| 0.3                           | 0.98              | 0.99        |
+| 0.35                          | 0.99              | 0.995       |
+| 0.4                           | 0.995             | 0.998       |
+| 0.45                          | 0.998             | 0.999       |
+| 0.5                           | 0.999             | 0.9995      |
+</details>
+
+(b) $\mathcal{RM}(8,3)$ vs Polar codes with the same parameters
+
+![](images/ade65e658af6dc9248e08e3668e6a3c30fd5e8a3b306dc13810ec4a5b046114d.jpg)
+
+<details>
+<summary>line</summary>
+
+| Channel crossover probability | Reed-Muller codes | Polar codes |
+| ----------------------------- | ----------------- | ----------- |
+| 0.0                           | 0.0               | 0.0         |
+| 0.25                          | 0.0               | 0.0         |
+| 0.3                           | 0.2               | 0.3         |
+| 0.35                          | 0.9               | 0.95        |
+| 0.4                           | 1.0               | 1.0         |
+| 0.5                           | 1.0               | 1.0         |
+</details>
+
+(c) $\mathcal{RM}(9,2)$ vs Polar codes with the same parameters
+
+![](images/4037d1c40aa98935a3607c351129e13bdd6d96d82adfaa6e6c7a6d4583ff01ec.jpg)
+
+<details>
+<summary>line</summary>
+
+| Channel crossover probability | Reed-Muller codes | Polar codes |
+| ----------------------------- | ----------------- | ----------- |
+| 0.0                           | 0.0               | 0.0         |
+| 0.1                           | 0.0               | 0.0         |
+| 0.2                           | 0.0               | 0.0         |
+| 0.3                           | 0.0               | 0.0         |
+| 0.35                          | 0.5               | 0.5         |
+| 0.4                           | 0.9               | 0.9         |
+| 0.45                          | 1.0               | 1.0         |
+| 0.5                           | 1.0               | 1.0         |
+</details>
+
+(d) $\mathcal{RM}(10,2)$ vs Polar codes with the same parameters
+
+Fig. 6. Decoding error probability over BSC channels as a function of the channel crossover probability.   
+![](images/089f79266a82f41e4943fdb9fb325317a359378b858b75ca8e504ccf3829326a.jpg)
+
+<details>
+<summary>bar</summary>
+
+| Category | w(0,1) |
+|---|---|
+| R(8,2) | 0.078 |
+| P(8,2) | 0.090 |
+| R(8,3) | 0.059 |
+| P(8,3) | 0.080 |
+| R(9,2) | 0.056 |
+| P(9,2) | 0.068 |
+| R(10,2) | 0.041 |
+| P(10,2) | 0.049 |
+</details>
+
+![](images/341959686392cfc1b1ab100bb1c7db3ec25ce1d97ba12d5c254ac4e29b451af3.jpg)
+
+<details>
+<summary>bar</summary>
+
+| Category | w(0.01) |
+|---|---|
+| R(8,2) | 0.145 |
+| P(8,2) | 0.175 |
+| R(8,3) | 0.108 |
+| P(8,3) | 0.138 |
+| R(9,2) | 0.102 |
+| P(9,2) | 0.132 |
+| R(10,2) | 0.075 |
+| P(10,2) | 0.093 |
+</details>
+
+Fig. 7. Comparison of transition width $w(0.1)$ and $w(0.01)$ between different codes. $R(m,r)$ refers to Reed-Muller codes, and $P(m,r)$ refers to polar codes with the same length and dimension as $R(m,r)$ .
+
+# APPENDIX A PROOF OF LEMMA 1
+
+Let $b_{1}, b_{2}, \ldots, b_{m}$ be a basis of E over $F_{2}$ such that the first s vectors $b_{1}, b_{2}, \ldots, b_{s}$ form a basis of B. Let $e_{1}, e_{2}, \ldots, e_{m}$ be the standard basis of E, i.e., all but the i-th coordinate of $e_{i}$ are 0. Then there is an $m \times m$ invertible matrix M such that
+
+$$
+\left(\boldsymbol {b} _ {1}, \boldsymbol {b} _ {2}, \dots , \boldsymbol {b} _ {m}\right) ^ {T} = M \left(\boldsymbol {e} _ {1}, \boldsymbol {e} _ {2}, \dots , \boldsymbol {e} _ {m}\right) ^ {T}.
+$$
+
+Let $(z_{1},z_{2},\ldots,z_{m})$ be the coordinates of a point in E under the standard basis $(\boldsymbol{e}_{1},\boldsymbol{e}_{2},\ldots,\boldsymbol{e}_{m})$ , and let $(z_{1}^{\prime},z_{2}^{\prime},\ldots,z_{m}^{\prime})$
+
+be the coordinates of the same point under the basis $(\pmb{b}_1, \pmb{b}_2, \dots, \pmb{b}_m)$ . Then
+
+$$
+(z _ {1} ^ {\prime}, z _ {2} ^ {\prime}, \dots , z _ {m} ^ {\prime}) = (z _ {1}, z _ {2}, \dots , z _ {m}) M ^ {- 1}.
+$$
+
+Notice that $\mathbb{B} = \{\mathbf{z} : (z_1', z_2', \ldots, z_s') \in \mathbb{F}_2^s, z_{s+1}' = z_{s+2}' = \cdots = z_m' = 0\}$ . Therefore for every coset $T \in \mathbb{E}/\mathbb{B}$ , the last $m - s$ coordinates under the basis $(\mathbf{b}_1, \mathbf{b}_2, \ldots, \mathbf{b}_m)$ are the same for all the points in $T$ . As a result, we can use binary vectors of length $m - s$ to label the cosets, i.e.,
+
+$$
+\begin{array}{l} \left[ a _ {1}, a _ {2}, \dots , a _ {m - s} \right] := \\ \left\{\boldsymbol {z}: \left(z _ {1} ^ {\prime}, z _ {2} ^ {\prime}, \dots , z _ {s} ^ {\prime}\right) \in \mathbb {F} _ {2} ^ {s}, \right. \\ z _ {s + 1} ^ {\prime} = a _ {1}, z _ {s + 2} ^ {\prime} = a _ {2}, \dots , z _ {m} ^ {\prime} = a _ {m - s} \}. \\ \end{array}
+$$
+
+Next we associate every subset $A \subseteq [m]$ with another row vector $\pmb{v}_{m}^{\prime}(A)$ of length $2^{m}$ , whose components are indexed by $\pmb{z} = (z_{1}, z_{2}, \ldots, z_{m}) \in \mathbb{E}$ . The vector $\pmb{v}_{m}^{\prime}(A)$ is defined as follows:
+
+$$
+\boldsymbol {v} _ {m} ^ {\prime} (A, \boldsymbol {z}) = \prod_ {i \in A} z _ {i} ^ {\prime},
+$$
+
+where $\boldsymbol{v}_{m}^{\prime}(A,\boldsymbol{z})$ is the component of $\boldsymbol{v}_{m}^{\prime}(A)$ indexed by z, i.e., $\boldsymbol{v}_{m}^{\prime}(A,\boldsymbol{z})$ is the evaluation of the polynomial $\prod_{i\in A}Z_{i}^{\prime}$ at z, where $(Z_{1}^{\prime},Z_{2}^{\prime},\ldots,Z_{m}^{\prime})=(Z_{1},Z_{2},\ldots,Z_{m})M^{-1}$ . Since all the invertible linear transforms belong to the automorphism group of Reed-Muller codes [10], we have the following alternative characterization of RM codes
+
+$$
+\mathcal {R M} (m, r) := \Big \{\sum_ {A \subseteq [ m ], | A | \leq r} u ^ {\prime} (A) \mathfrak {v} _ {m} ^ {\prime} (A): u ^ {\prime} (A) \in \{0, 1 \}
+$$
+
+for all $A \subseteq [m]$ , $|A| \leq r$ .
+
+It is easy to check that for every coset $T = [z_{s+1}', z_{s+2}', \ldots, z_m'] \in \mathbb{E}/\mathbb{B}$ , if $[s] \subseteq A$ then $\sum_{z \in T} \boldsymbol{v}_m'(A, z) = \prod_{i \in (A \setminus [s])} z_i'$ , and if $[s] \not\subseteq A$ then $\sum_{z \in T} \boldsymbol{v}_m'(A, z) = 0$ . Now let $c$ be a codeword of $\mathcal{RM}(m, r)$ , then it can be written as $c = \sum_{A \subseteq [m], |A| \leq r} u'(A) \boldsymbol{v}_m'(A)$ , and for every coset $T = [z_{s+1}', z_{s+2}', \ldots, z_m'] \in \mathbb{E}/\mathbb{B}$ , we have
+
+$$
+\begin{array}{l} \sum_ {\boldsymbol {z} \in T} c (\boldsymbol {z}) = \sum_ {A \supseteq [ s ], | A | \leq r} u ^ {\prime} (A) \prod_ {i \in (A \setminus [ s ])} z _ {i} ^ {\prime} \\ = \sum_ {A \subseteq ([ m ] \backslash [ s ]), | A | \leq r - s} u ^ {\prime} (A) \prod_ {i \in A} z _ {i} ^ {\prime}. \\ \end{array}
+$$
+
+Therefore every codeword in $\mathcal{Q}(m,r,\mathbb{B})$ corresponds to an $(m - s)$ -variate polynomial in $\mathbb{F}_2[Z_{s + 1}',Z_{s + 2}',\ldots ,Z_m']$ with degree at most $r - s$ , and this is exactly the definition of the $(r - s)$ -th order Reed-Muller code $\mathcal{RM}(m - s,r - s)$ .
+
+# APPENDIX B PROOF OF PROPOSITION 4
+
+We need the following technical lemma to prove Proposition 4.
+
+Lemma 3: Let $c_{0} = (c_{0}(\mathbf{z}), \mathbf{z} \in \mathbb{E})$ be a codeword of $\mathcal{RM}(m, r)$ . Let $L^{(1)} = (L^{(1)}(\mathbf{z}), \mathbf{z} \in \mathbb{E})$ and $L^{(2)} = (L^{(2)}(\mathbf{z}), \mathbf{z} \in \mathbb{E})$ be two LLR vectors such that
+
+$$
+L ^ {(2)} (\boldsymbol {z}) = (- 1) ^ {c _ {0} (\boldsymbol {z})} L ^ {(1)} (\boldsymbol {z}) \quad \forall \boldsymbol {z} \in \mathbb {E}. \tag {16}
+$$
+
+Denote $\hat{c}_1 = \text{RPA\_RM}(L^{(1)}, m, r, N_{\max}, \theta)$ and $\hat{c}_2 = \text{RPA\_RM}(L^{(2)}, m, r, N_{\max}, \theta)$ . Then $\hat{c}_1 = \hat{c}_2 + c_0$ .
+
+Proof: We prove by induction on r. For the base case r = 1, we use the ML decoder as described at the beginning of this section. More precisely, according to (9), $\hat{c}_{2} = \text{RPA\_RM}(L^{(2)}, m, 1, N_{\text{max}}, \theta)$ is the codeword in $\mathcal{RM}(m, 1)$ that maximizes
+
+$$
+\sum_ {\boldsymbol {z} \in \mathbb {E}} \left((- 1) ^ {c (\boldsymbol {z})} L ^ {(2)} (\boldsymbol {z})\right),
+$$
+
+i.e., for all $c \in \mathcal{RM}(m, 1)$ , we have
+
+$$
+\sum_ {\boldsymbol {z} \in \mathbb {E}} \left((- 1) ^ {\hat {c} _ {2} (\boldsymbol {z})} L ^ {(2)} (\boldsymbol {z})\right) \geq \sum_ {\boldsymbol {z} \in \mathbb {E}} \left((- 1) ^ {c (\boldsymbol {z})} L ^ {(2)} (\boldsymbol {z})\right).
+$$
+
+By (16), for all $c \in \mathcal{RM}(m,1)$ , we have
+
+$$
+\sum_ {\boldsymbol {z} \in \mathbb {E}} \Big ((- 1) ^ {\hat {c} _ {2} (\boldsymbol {z}) \oplus c _ {0} (\boldsymbol {z})} L ^ {(1)} (\boldsymbol {z}) \Big) \geq \sum_ {\boldsymbol {z} \in \mathbb {E}} \Big ((- 1) ^ {c (\boldsymbol {z}) \oplus c _ {0} (\boldsymbol {z})} L ^ {(1)} (\boldsymbol {z}) \Big).
+$$
+
+Since $c_0$ is a codeword of $\mathcal{RM}(m,1)$ , we have: $c_0 + \mathcal{RM}(m,1) = \mathcal{RM}(m,1)$ . As a result, for all $c \in \mathcal{RM}(m,1)$ , we have
+
+$$
+\sum_ {\boldsymbol {z} \in \mathbb {E}} \left((- 1) ^ {\hat {c} _ {2} (\boldsymbol {z}) \oplus c _ {0} (\boldsymbol {z})} L ^ {(1)} (\boldsymbol {z})\right) \geq \sum_ {\boldsymbol {z} \in \mathbb {E}} \left((- 1) ^ {c (\boldsymbol {z})} L ^ {(1)} (\boldsymbol {z})\right).
+$$
+
+Therefore, $\hat{c}_2 \oplus c_0$ is the codeword in $\mathcal{RM}(m,1)$ that maximizes
+
+$$
+\sum_ {\boldsymbol {z} \in \mathbb {E}} \left((- 1) ^ {c (\boldsymbol {z})} L ^ {(1)} (\boldsymbol {z})\right).
+$$
+
+Thus we conclude that $\hat{c}_1 = \hat{c}_2 \oplus c_0$ . This establishes the base case.
+
+For the inductive step, let us assume that the lemma holds for $r - 1$ and prove it for $r$ . Notice that in Algorithm 3, $\hat{c}(\mathbf{z})$ is simply determined by the sign of $L(\mathbf{z})$ . It is easy to see that if in Algorithm 4, the updated LLR vectors $\hat{L}^{(1)}$ and $\hat{L}^{(2)}$ always satisfy (16), then $\hat{c}_1 = \hat{c}_2 \oplus c_0$ . Therefore, we only need to prove (16) for the updated LLR vectors $\hat{L}^{(1)}$ and $\hat{L}^{(2)}$ .
+
+Assuming that $L^{(1)}$ and $L^{(2)}$ satisfy (16), our task is to show that $\hat{L}^{(2)}(z)=(-1)^{c_{0}(z)}\hat{L}^{(1)}(z)$ for all $z\in E$ . From the analysis in Section IV, we know that
+
+$$
+\hat {L} ^ {(i)} (\boldsymbol {z}) = \frac {1}{n - 1} \sum_ {\boldsymbol {z} ^ {\prime} \neq \boldsymbol {z}} \alpha_ {i} \left(\boldsymbol {z}, \boldsymbol {z} ^ {\prime}\right) L ^ {(i)} \left(\boldsymbol {z} ^ {\prime}\right) \text {   for   } i = 1, 2. \tag {17}
+$$
+
+The coefficient $\alpha_{i}(z,z^{\prime})$ is 1 if the decoding result of the corresponding $(r - 1)$ th order RM code at the coset $\{z,z^{\prime}\}$ is 0, and $\alpha_{i}(z,z^{\prime})$ is $-1$ if the decoding result at the coset $\{z,z^{\prime}\}$ is 1 (see line 3 of Algorithm 4).
+
+Next we will show that $\alpha_{2}(\boldsymbol{z},\boldsymbol{z}^{\prime}) = (-1)^{c_{0}(z)\oplus c_{0}(z^{\prime})}\alpha_{1}(\boldsymbol{z},\boldsymbol{z}^{\prime})$ . Note that $\alpha_{i}(\boldsymbol{z},\boldsymbol{z}^{\prime})$ is determined by the decoding result $\hat{y}_{/\mathbb{B}}^{(i)} = \mathrm{RPA\_RM}(L_{/\mathbb{B}}^{(i)},m - 1,r - 1,N_{\max},\theta)$ , where $\mathbb{B} = \{0,\boldsymbol {z}\oplus \boldsymbol{z}^{\prime}\}$ .
+
+By (13), we have
+
+$$
+\begin{array}{l} L _ {/ \mathbb {B}} ^ {(2)} (T) \\ = \ln \left(\exp \left(\sum_ {\mathbf {z} \in T} L ^ {(2)} (\mathbf {z})\right) + 1\right) - \ln \left(\sum_ {\mathbf {z} \in T} \exp (L ^ {(2)} (\mathbf {z}))\right) \\ = \ln \left(\exp \left(\sum_ {z \in T} (- 1) ^ {c _ {0} (z)} L ^ {(1)} (z)\right) + 1\right) \\ - \ln \left(\sum_ {z \in T} \exp \left((- 1) ^ {c _ {0} (z)} L ^ {(1)} (z)\right)\right) \\ = (- 1) ^ {\bigoplus_ {z \in T} c _ {0} (z)} \left(\ln \left(\exp \left(\sum_ {z \in T} L ^ {(1)} (z)\right) + 1\right) \right. \\ \left. - \ln \left(\sum_ {\mathbf {z} \in T} \exp \left(L ^ {(1)} (\mathbf {z})\right)\right)\right) \\ = (- 1) ^ {\bigoplus_ {z \in T} c _ {0} (z)} L _ {/ \mathbb {B}} ^ {(1)} (T). \\ \end{array}
+$$
+
+Let us write $c_{0}(T) := \bigoplus_{z \in T} c_{0}(z)$ . Then $L_{/\mathbb{B}}^{(2)}(T) = (-1)^{c_{0}(T)} L_{/\mathbb{B}}^{(1)}(T)$ for all $T \in E/B$ . Moreover, since $c_{0}$ is a codeword of $\mathcal{RM}(m, r)$ and B is a one-dimensional subspace of E, by Lemma 1 we know that $(c_{0}(T), T \in \mathbb{E}/\mathbb{B})$ is a codeword of $\mathcal{RM}(m - 1, r - 1)$ . Therefore, the codeword $(c_{0}(T), T \in \mathbb{E}/\mathbb{B})$ and the two LLR vectors $(L_{/\mathbb{B}}^{(1)}(T), T \in \mathbb{E}/\mathbb{B})$ and $(L_{/\mathbb{B}}^{(2)}(T), T \in \mathbb{E}/\mathbb{B})$ satisfy the conditions of this lemma. By the induction hypothesis, $\hat{y}_{/\mathbb{B}}^{(2)}(T) = \hat{y}_{/\mathbb{B}}^{(1)}(T) \oplus c_{0}(T)$ for all $T \in E/B$ . As a result, we have $\alpha_{2}(z, z') = (-1)^{c_{0}(z) \oplus c_{0}(z')} \alpha_{1}(z, z')$ . Taking this into (17), we conclude that for all $z \in E$ ,
+
+$$
+\begin{array}{l} \hat {L} ^ {(2)} (\mathfrak {z}) \\ = \frac {1}{n - 1} \sum_ {z ^ {\prime} \neq z} \alpha_ {2} \left(\boldsymbol {z}, \boldsymbol {z} ^ {\prime}\right) L ^ {(2)} \left(\boldsymbol {z} ^ {\prime}\right) \\ = \frac {1}{n - 1} \sum_ {z ^ {\prime} \neq z} \left((- 1) ^ {c _ {0} (z) \oplus c _ {0} (z ^ {\prime})} \alpha_ {1} (z, z ^ {\prime}) (- 1) ^ {c _ {0} (z ^ {\prime})} L ^ {(1)} (z ^ {\prime})\right) \\ = (- 1) ^ {c _ {0} (z)} \frac {1}{n - 1} \sum_ {\boldsymbol {z} ^ {\prime} \neq \boldsymbol {z}} \alpha_ {1} (\boldsymbol {z}, \boldsymbol {z} ^ {\prime}) L ^ {(1)} (\boldsymbol {z} ^ {\prime}) = (- 1) ^ {c _ {0} (z)} \hat {L} ^ {(1)} (\boldsymbol {z}). \\ \end{array}
+$$
+
+This completes the proof of the inductive step and establishes the lemma.
+
+Proof of Proposition 4: Since W is a BMS channel, there is a permutation $\pi$ of the output alphabet W satisfying the two conditions in Definition 3. Since both $c_{1}$ and $c_{2}$ are codewords of $\mathcal{RM}(m,r)$ , $c_{0} := c_{1} + c_{2}$ is also a codeword of $\mathcal{RM}(m,r)$ . Clearly, both channel output vectors $Y_{1}$ and $Y_{2}$ belong to $W^{n}$ . Now we define a permutation $\pi^{c_{0}}$ on $W^{n}$ : For any $y = (y(z), z \in \mathbb{E}) \in \mathcal{W}^{n}$ ,
+
+$$
+\pi^ {c _ {0}} (y) := \left(\pi^ {c _ {0} (z)} (y (z)), z \in \mathbb {E}\right).
+$$
+
+Notice that $c_{0}(z)$ is either 0 or 1, and $\pi^{0}$ is the identity map. Since $\pi$ is a permutation on W, $\pi^{c_{0}}$ is clearly a permutation on $W^{n}$ . For a given $y = (y(z), z \in \mathbb{E}) \in \mathcal{W}^{n}$ , we denote the LLR vector corresponding to y as $L_{y}^{(1)} := (L_{y}^{(1)}(z), z \in \mathbb{E})$ ,
+
+Algorithm 8 The RPA\_RM Decoding Function for BSC
+
+Input: The corrupted codeword $y = (y(z), z \in \{0, 1\}^{m})$ ; the parameters of the Reed-Muller code m and r; the maximal number of iterations $N_{max}$
+
+Output: The decoded codeword $\hat{c}$
+
+1: for $i = 1, 2, \ldots, N_{\max}$ do
+2: Initialize (changevote( $z$ ), $z \in \{0, 1\}^m$ ) as an all-zero vector indexed by $z \in \{0, 1\}^m$ 3: for each non-zero $z_0 \in \{0, 1\}^m$ do
+4: Set $\mathbb{B} = \{0, z_0\}$ 5: $\hat{y}_{/\mathbb{B}} \leftarrow \text{RPA\_RM}(y_{/\mathbb{B}}, m - 1, r - 1, N_{\max})$ 6: ▷ If $r = 2$ , then we use the Fast Hadamard Transform to decode the first-order RM code [10]
+7: for each $z \in \{0, 1\}^m$ do
+8: if $y_{/\mathbb{B}}([z + \mathbb{B}]) \neq \hat{y}_{/\mathbb{B}}([z + \mathbb{B}])$ then
+9: changevote( $z$ ) ← changevote( $z$ ) + 1 ▷
+Here addition is between real numbers
+
+10: end if
+11: end for
+12: end for
+13: numofchange ← 0
+14: n ← 2^m
+15: for each z ∈ {0,1}^m do
+16: if changevote(z) > n-1/2 then
+17: y(z) ← y(z) ⊕ 1 ▷ Here addition is over F2
+18: numofchange ← numofchange + 1 ▷ Here addition is between real numbers
+
+19: end if
+20: end for
+21: if numofchange = 0 then
+22: break ▷ Exit the first for loop of this function
+23: end if
+
+24: end for
+
+25: $\hat{c} \leftarrow y$
+
+26: return $\hat{c}$
+
+i.e., $L_{y}^{(1)}(\mathbf{z}) = \text{LLR}(y(\mathbf{z}))$ for all $z \in E$ , and we denote the LLR vector corresponding to $\pi^{c_{0}}(y)$ as $L_{y}^{(2)} := (L_{y}^{(2)}(\mathbf{z}), \mathbf{z} \in \mathbb{E})$ , i.e., $L_{y}^{(2)}(\mathbf{z}) = \text{LLR}(\pi^{c_{0}(\mathbf{z})}(y(\mathbf{z})))$ for all $z \in E$ . By the property of $\pi$ (see Definition 3), we have
+
+$$
+L _ {y} ^ {(2)} (\mathbf {z}) = (- 1) ^ {c _ {0} (z)} L _ {y} ^ {(1)} (\mathbf {z}) \quad \forall \mathbf {z} \in \mathbb {E}.
+$$
+
+Since $c_{0}\in \mathcal{RM}(m,r)$ , by Lemma 3 we know that
+
+$$
+\begin{array}{l} \mathrm {RPA\_RM} (L _ {y} ^ {(1)}, m, r, N _ {\max}, \theta) \\ = \text { RPA\_RM } (L _ {y} ^ {(2)}, m, r, N _ {\max}, \theta) + c _ {0}. \\ \end{array}
+$$
+
+As a result, $\mathrm{RPA\_RM}(L_y^{(1)},m,r,N_{\max},\theta)\neq c_1$ if and only if $\mathrm{RPA\_RM}(L_y^{(2)},m,r,N_{\max},\theta)\neq c_2$ .
+
+For a vector $y \in W^{n}$ and a codeword $c \in \mathcal{RM}(m, r)$ , we use $W^{n}(y|c)$ to denote the probability of outputting y when the transmitted codeword is c. Again by the property of $\pi$ , it is easy to see that
+
+$$
+W ^ {n} (y | c _ {1}) = W ^ {n} \left(\pi^ {c _ {0}} (y) \mid c _ {2}\right) \quad \forall y \in \mathcal {W} ^ {n}.
+$$
+
+Algorithm 9 The RPA\_RM Decoding Function for General Binary-Input Memoryless Channels
+
+Input: The LLR vector $(L(\mathbf{z}),\mathbf{z}\in\{0,1\}^{m})$ ; the parameters of the Reed-Muller code m and r; the maximal number of iterations $N_{max}$ ; the exiting threshold $\theta$
+
+Output: The decoded codeword $\hat{c} = (\hat{c}(z), z \in \{0, 1\}^{m})$
+
+1: E := {0, 1}^m
+2: for i = 1, 2, ..., N_max do
+3: Initialize (cumuLLR(z), z ∈ E) as an all-zero vector indexed by z ∈ E
+4: for each non-zero z0 ∈ E do
+5: Set B = {0, z0}
+6: L/B ← (L/B(T), T ∈ E/B) ▷ L/B(T) is calculated from (L(z), z ∈ E) according to (13)
+7: ŷ/B ← RPA_RM(L/B, m - 1, r - 1, N_max, θ)
+8: ▷ If r = 2, then we use the Fast Hadamard Transform to decode the first-order RM code
+9: for each z ∈ E do
+10: if ŷ/B([z + B]) = 0 then
+11: cumuLLR(z) ← cumuLLR(z) + L(z ⊕ z0)
+12: else ▷ ŷ/B is the decoded codeword, so ŷ/B([z + B]) is either 0 or 1
+13: cumuLLR(z) ← cumuLLR(z) - L(z ⊕ z0)
+14: end if
+15: end for
+16: end for
+17: numofchange ← 0
+18: n ← 2^m
+19: for each z ∈ E do
+20: cumuLLR(z) ← cumuLLR(z) / n - 1
+21: if |cumuLLR(z) - L(z)| > θ |L(z)| then
+22: numofchange ← numofchange + 1
+23: ▷ Here addition is between real numbers
+24: end if
+25: L(z) ← cumuLLR(z)
+26: end for
+27: if numofchange = 0 then
+28: break ▷ Exit the first for loop of this function
+29: end if
+30: end for
+31: for each z ∈ E do
+32: if L(z) > 0 then
+33: ĝ(z) ← 0
+34: else
+35: ĝ(z) ← 1
+36: end if
+37: end for
+38: return ĝ
+
+Recall that in Proposition 4, we use $L^{(1)}$ and $L^{(2)}$ to denote the random LLR vectors corresponding to the random channel outputs when transmitting $c_{1}$ and $c_{2}$ , respectively. Therefore,
+
+$$
+\begin{array}{l} \mathbb {P} (\mathrm {RPA\_RM} (L ^ {(1)}, m, r, N _ {\max}, \theta) \neq c _ {1}) \\ = \sum_ {y \in \mathcal {W} ^ {n}} W ^ {n} (y | c _ {1}) \mathbb {1} \left[ \mathrm{RPA} _ {-} \mathrm{RM} \left(L _ {y} ^ {(1)}, m, r, N _ {\max}, \theta\right) \neq c _ {1} \right] \\ \end{array}
+$$
+
+$$
+\begin{array}{l} = \sum_ {y \in \mathcal {W} ^ {n}} W ^ {n} (\pi^ {c _ {0}} (y) | c _ {2}) \mathbb {1} [ \mathrm {RPA\_RM} (L _ {y} ^ {(2)}, m, r, N _ {\max}, \theta) \neq c _ {2} ] \\ = \mathbb {P} (\mathrm {RPA\_RM} (L ^ {(2)}, m, r, N _ {\max}, \theta) \neq c _ {2}). \\ \end{array}
+$$
+
+This completes the proof of Proposition 4.
+
+![](images/51482530b501cde63714dcfd3cf1a1ec9033bdefb0162da2a6dfc68975e2ff55.jpg)
+
+# APPENDIX C ANOTHER VERSION OF ALGORITHMS 1–4
+
+See Algorithms 8 and 9.
+
+# ACKNOWLEDGMENT
+
+The authors would like to thank Alexander Barg and Ilya Dumer for pointing out several references and giving useful feedback. They also thank Kirill Ivanov for useful discussions and feedback.
+
+# REFERENCES
+
+[1] M. Ye and E. Abbe, “Recursive projection-aggregation decoding of Reed–Muller codes,” in Proc. IEEE Int. Symp. Inf. Theory (ISIT), Jul. 2019, pp. 2064–2068.   
+[2] I. Reed, “A class of multiple-error-correcting codes and the decoding scheme,” Trans. IRE Prof. Group Inf. Theory, vol. 4, no. 4, pp. 38–49, Sep. 1954.   
+[3] E. Arikan, “Channel polarization: A method for constructing capacity-achieving codes for symmetric binary-input memoryless channels,” IEEE Trans. Inf. Theory, vol. 55, no. 7, pp. 3051–3073, Jul. 2009.   
+[4] E. Arkan, “A performance comparison of polar codes and Reed–Muller codes,” IEEE Commun. Lett., vol. 12, no. 6, pp. 447–449, Jun. 2008.   
+[5] M. Mondelli, S. H. Hassani, and R. L. Urbanke, “From polar to Reed–Muller codes: A technique to improve the finite-length performance,” IEEE Trans. Commun., vol. 62, no. 9, pp. 3084–3091, Sep. 2014.   
+[6] S. Kudekar, S. Kumar, M. Mondelli, H. D. Pfister, E. Shaşoglu, and R. L. Urbanke, “Reed–Muller codes achieve capacity on erasure channels,” IEEE Trans. Inf. Theory, vol. 63, no. 7, pp. 4298–4316, Jul. 2017.   
+[7] E. Abbe, A. Shpilka, and A. Wigderson, “Reed–Muller codes for random erasures and errors,” IEEE Trans. Inf. Theory, vol. 61, no. 10, pp. 5229–5252, Oct. 2015.   
+[8] E. Abbe and M. Ye, “Reed–Muller codes polarize,” in Proc. IEEE 60th Annu. Symp. Found. Comput. Sci. (FOCS), Nov. 2019, pp. 273–286.   
+[9] E. Abbe, A. Shpilka, and M. Ye, “Reed–Muller codes: Theory and algorithms,” 2020, arXiv:2002.03317. [Online]. Available: http://arxiv.org/abs/2002.03317   
+[10] F. J. MacWilliams and N. J. A. Sloane, The Theory of Error-Correcting Codes. Amsterdam, The Netherlands: Elsevier, 1977.   
+[11] V. M. Sidel'nikov and A. S. Pershakov, "Decoding of Reed–Muller codes with a large number of errors," Probl. Peredachi Inf., vol. 28, no. 3, pp. 80–94, 1992.   
+[12] P. Loidreau and B. Sakkour, “Modified version of Sidel’nikov-Pershakov decoding algorithm for binary second order Reed–Muller codes,” in Proc. 9th Int. Workshop Algebraic Combinat. Coding Theory (ACCT), Kranevo, Bulgaria, 2004, pp. 266–271.   
+[13] B. Sakkour, “Decoding of second order Reed–Muller codes with a large number of errors,” in Proc. IEEE Inf. Theory Workshop, Sep. 2005, pp. 176–178.   
+[14] I. Dumer, “Recursive decoding and its performance for low-rate Reed–Muller codes,” IEEE Trans. Inf. Theory, vol. 50, no. 5, pp. 811–823, May 2004.   
+[15] I. Dumer, “Soft-decision decoding of Reed–Muller codes: A simplified algorithm,” IEEE Trans. Inf. Theory, vol. 52, no. 3, pp. 954–963, Mar. 2006.   
+[16] I. Dumer and K. Shabunov, “Soft-decision decoding of Reed–Muller codes: Recursive lists,” IEEE Trans. Inf. Theory, vol. 52, no. 3, pp. 1260–1266, Mar. 2006.   
+[17] R. Saptharishi, A. Shpilka, and B. L. Volk, “Efficiently decoding Reed–Muller codes from random errors,” IEEE Trans. Inf. Theory, vol. 63, no. 4, pp. 1954–1960, Apr. 2016.   
+[18] O. Sberlo and A. Shpilka, “On the performance of Reed–Muller codes with respect to random errors and erasures,” Proc. 14th Annu. ACM-SIAM Symp. Discrete Algorithms, Dec. 2020, pp. 1357–1376.
+
+[19] E. Santi, C. Hager, and H. D. Pfister, “Decoding Reed–Muller codes using minimum-weight parity checks,” in Proc. IEEE Int. Symp. Inf. Theory (ISIT), Jun. 2018, pp. 1296–1300.   
+[20] I. Tal and A. Vardy, “List decoding of polar codes,” IEEE Trans. Inf. Theory, vol. 61, no. 5, pp. 2213–2226, May 2015.   
+[21] D. Chase, “Class of algorithms for decoding block codes with channel measurement information,” IEEE Trans. Inf. Theory, vol. IT-18, no. 1, pp. 170–182, Jan. 1972.   
+[22] Final Report of 3 GPP TSG RAN WG1 #87 v1.0.0. Accessed: Feb. 8, 2017. [Online]. Available: http://www.3gpp.org/ftp/tsg\_ran/WG1\_RL1/TSGR1\_87/Report/   
+[23] H. Hassani, S. Kudekar, O. Ordentlich, Y. Polyanskiy, and R. Urbanke, "Almost optimal scaling of Reed–Muller codes on BEC and BSC channels," in Proc. IEEE Int. Symp. Inf. Theory (ISIT), Jun. 2018, pp. 311–315.   
+[24] R. R. Green, “A serial orthogonal decoder,” JPL Space Programs Summary, vol. IV, nos. 37–39, pp. 247–253, 1966.   
+[25] Y. Be'ery and J. Snyders, "Optimal soft decision block decoders based on fast Hadamard transform," IEEE Trans. Inf. Theory, vol. IT-32, no. 3, pp. 355-364, May 1986.   
+[26] A. Balatsoukas-Stimming, M. Bastani Parizi, and A. Burg, “LLR-based successive cancellation list decoding of polar codes,” IEEE Trans. Signal Process., vol. 63, no. 19, pp. 5165–5179, Oct. 2015.   
+[27] G. Sarkis, P. Giard, A. Vardy, C. Thibeault, and W. J. Gross, “Fast list decoders for polar codes,” IEEE J. Sel. Areas Commun., vol. 34, no. 2, pp. 318–328, Feb. 2016.   
+[28] S. A. Hashemi, N. Doan, M. Mondelli, and W. J. Gross, “Decoding Reed–Muller and polar codes by successive factor graph permutations,” in Proc. IEEE 10th Int. Symp. Turbo Codes Iterative Inf. Process. (ISTC), Dec. 2018, pp. 1–5.   
+[29] Y. Polyanskiy, H. V. Poor, and S. Verdu, “Channel coding rate in the finite blocklength regime,” IEEE Trans. Inf. Theory, vol. 56, no. 5, pp. 2307–2359, May 2010.
+
+[30] Y. Polyanskiy, Channel Coding: Non-Asymptotic Fundamental Limits. Princeton, NJ, USA: Princeton Univ., 2010.   
+[31] J.-P. Tillich and G. Zémor, “Discrete isoperimetric inequalities and the probability of a decoding error,” Combinat. Probab. Comput., vol. 9, no. 5, pp. 465–479, Sep. 2000.
+
+Min Ye received the B.S. degree in electrical engineering from Peking University, Beijing, China, in 2012, and the Ph.D. degree from the Department of Electrical and Computer Engineering, University of Maryland, College Park, MA, USA, in 2017. He then spent two years as a Postdoctoral Researcher at Princeton University. Since 2019, he has been an Assistant Professor with the Data Science and Information Technology Research Center, Tsinghua-Berkeley Shenzhen Institute, Shenzhen, China. His research interests include coding theory, information theory, differential privacy, and machine learning. He received the 2017 IEEE Data Storage Best Paper Award.
+
+Emmanuel Abbe received the Ph.D. degree from the Department of Electrical Engineering and Computer Science, Massachusetts Institute of Technology, in 2008, and the M.S. degree from the Department of Mathematics, Ecole Polytechnique Fédérale de Lausanne (EPFL), Switzerland, in 2003. In 2012, he joined Princeton University as an Assistant Professor and became an Associate Professor in 2016, jointly in the Program for Applied and Computational Mathematics and the Department of Electrical Engineering. He has been an Associate Faculty with the Department of Mathematics, Princeton University, since 2016. He is also a Professor with the Mathematics Institute, School of Computer and Communication Sciences, EPFL. He is a recipient of the Foundation Latsis International Prize, the Bell Labs Prize, the NSF CAREER Award, the Google Faculty Research Award, the Walter Curtis Johnson Prize, and the von Neumann Fellowship from the Institute for Advanced Study.

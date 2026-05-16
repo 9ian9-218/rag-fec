@@ -344,3 +344,57 @@ subprocess.CalledProcessError: Command '['/home/z9ian9/miniconda3/envs/rag/bin/m
 2026-05-16 15:50:44 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
 2026-05-16 15:53:51 | INFO | graph_rag_project.incremental.document_manifest | document_manifest 已登記 doc_id=doc-8c265c0e55db1ee795344f3f5df9c346 側車 15 個路徑
 2026-05-16 15:53:51 | INFO | graph_rag_project.incremental.update_manager | 增量更新完成: {'added': 1, 'modified': 0, 'removed': 0, 'errors': 0}
+2026-05-16 16:07:39 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-16 16:08:16 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-16 16:08:17 | INFO | graph_rag_project.storage.lightrag_init | Rerank enabled: model=BAAI/bge-reranker-v2-m3 load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3 min_score=0.0
+2026-05-16 16:08:18 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-16 16:08:19 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-16 16:08:24 | INFO | graph_rag_project.incremental.cascade_cleaner | cascade_delete_document doc_id=doc-8c265c0e55db1ee795344f3f5df9c346 status=success
+2026-05-16 16:08:24 | INFO | graph_rag_project.incremental.document_manifest | document_manifest 已清理 doc_id=doc-8c265c0e55db1ee795344f3f5df9c346 刪除 0 項 err=0
+2026-05-16 16:08:24 | INFO | graph_rag_project.incremental.update_manager | 增量更新完成: {'added': 0, 'modified': 0, 'removed': 1, 'errors': 0}
+2026-05-16 16:16:36 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-16 16:16:42 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-16 16:16:42 | INFO | graph_rag_project.storage.lightrag_init | Rerank enabled: model=BAAI/bge-reranker-v2-m3 load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3 min_score=0.0
+2026-05-16 16:16:42 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-16 16:16:43 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-16 16:16:48 | INFO | graph_rag_project.incremental.cascade_cleaner | cascade_delete_document doc_id=doc-0f78da8d62102a9a83a98730e0e9150f status=success
+2026-05-16 16:16:48 | INFO | graph_rag_project.incremental.document_manifest | document_manifest 已清理 doc_id=doc-0f78da8d62102a9a83a98730e0e9150f 刪除 0 項 err=0
+2026-05-16 16:16:48 | INFO | graph_rag_project.incremental.update_manager | 增量更新完成: {'added': 0, 'modified': 0, 'removed': 1, 'errors': 0}
+2026-05-16 17:18:38 | INFO | graph_rag_project.data_processing.mineru_convert | 執行 MinerU（vlm-auto-engine）: A_performance_comparison_of_polar_codes_and_Reed-Muller_codes.pdf
+2026-05-16 17:19:23 | INFO | graph_rag_project.data_processing.mineru_convert | MinerU 產物已寫入源檔同目錄: /home/z9ian9/myproject/rag-fec/data/raw/A_performance_comparison_of_polar_codes_and_Reed-Muller_codes.md (+ images/)
+2026-05-16 17:19:23 | INFO | graph_rag_project.incremental.conversion_manager | 已轉檔: A_performance_comparison_of_polar_codes_and_Reed-Muller_codes.pdf → A_performance_comparison_of_polar_codes_and_Reed-Muller_codes.md
+2026-05-16 17:19:23 | INFO | graph_rag_project.data_processing.mineru_convert | 執行 MinerU（vlm-auto-engine）: Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf
+2026-05-16 17:20:44 | INFO | graph_rag_project.data_processing.mineru_convert | MinerU 產物已寫入源檔同目錄: /home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.md (+ images/)
+2026-05-16 17:20:44 | INFO | graph_rag_project.incremental.conversion_manager | 已轉檔: Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf → Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.md
+2026-05-16 17:20:44 | INFO | graph_rag_project.incremental.conversion_manager | PDF 轉檔增量完成: {'converted': 2, 'removed': 0, 'errors': 0}
+2026-05-16 17:20:53 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-16 17:20:56 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-16 17:20:57 | INFO | graph_rag_project.storage.lightrag_init | Rerank enabled: model=BAAI/bge-reranker-v2-m3 load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3 min_score=0.0
+2026-05-16 17:20:57 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-16 17:20:59 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-16 17:24:14 | INFO | graph_rag_project.incremental.document_manifest | document_manifest 已登記 doc_id=doc-8c265c0e55db1ee795344f3f5df9c346 側車 111 個路徑
+2026-05-16 17:40:01 | INFO | graph_rag_project.incremental.document_manifest | document_manifest 已登記 doc_id=doc-b5515cd71622f7b6d62f979b2cde9c40 側車 111 個路徑
+2026-05-16 17:40:01 | INFO | graph_rag_project.incremental.update_manager | 增量更新完成: {'added': 2, 'modified': 0, 'removed': 0, 'errors': 0}
+2026-05-16 17:46:43 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-16 17:47:07 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-16 17:47:08 | INFO | graph_rag_project.storage.lightrag_init | Rerank enabled: model=BAAI/bge-reranker-v2-m3 load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3 min_score=0.2
+2026-05-16 17:47:08 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-16 17:47:09 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-16 17:47:30 | INFO | graph_rag_project.storage.bge_rerank | Loading CrossEncoder reranker: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3
+2026-05-16 17:47:51 | INFO | graph_rag_project.retrieval.multimodal_answer | 多模態抽圖：於最終 chunks 12 中截為 6 條後再正則取圖（每查詢最多 3 張）
+2026-05-16 17:52:06 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-16 17:52:09 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-16 17:52:09 | INFO | graph_rag_project.storage.lightrag_init | Rerank enabled: model=BAAI/bge-reranker-v2-m3 load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3 min_score=0.2
+2026-05-16 17:52:10 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-16 17:52:10 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-16 17:52:11 | INFO | graph_rag_project.storage.bge_rerank | Loading CrossEncoder reranker: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3
+2026-05-16 17:52:16 | INFO | graph_rag_project.retrieval.multimodal_answer | 多模態抽圖：於最終 chunks 12 中截為 6 條後再正則取圖（每查詢最多 3 張）
+2026-05-16 18:00:41 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-16 18:00:52 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-16 18:00:53 | INFO | graph_rag_project.storage.lightrag_init | Rerank enabled: model=BAAI/bge-reranker-v2-m3 load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3 min_score=0.0
+2026-05-16 18:00:54 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-16 18:00:54 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-16 18:00:56 | INFO | graph_rag_project.storage.bge_rerank | Loading CrossEncoder reranker: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3
+2026-05-16 18:01:05 | INFO | graph_rag_project.retrieval.multimodal_answer | 多模態抽圖：於最終 chunks 12 中截為 6 條後再正則取圖（每查詢最多 3 張）
+2026-05-16 18:01:05 | INFO | graph_rag_project.retrieval.multimodal_answer | 多模態 vision：model=Qwen3.5-9B 送入 3 張圖片 -> ['/home/z9ian9/myproject/rag-fec/data/raw/images/1367532a2ad40e309965f9e9e92a7f508fe5c715b39396dc3820db487cd3205f.jpg', '/home/z9ian9/myproject/rag-fec/data/raw/images/08e638a7edfb1b4df680510bd9b208966e0d84066b4a999bfc030b4508aa4348.jpg', '/home/z9ian9/myproject/rag-fec/data/raw/images/89c83eda77dc6862376fbca550fb4de1e594702b1b542f955c3072a4ec50c826.jpg']
+2026-05-16 18:01:05 | INFO | graph_rag_project.retrieval.multimodal_answer | 多模態 vision：base=http://127.0.0.1:8080/v1

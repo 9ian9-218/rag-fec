@@ -42,7 +42,9 @@ def _wait_milvus_tcp(*, max_wait_sec: float = 180.0) -> None:
 
 
 async def _main() -> None:
-    p = argparse.ArgumentParser(description="索引增量（two_stage 下不處理 PDF，請先 convert_documents）")
+    p = argparse.ArgumentParser(
+        description="索引增量（two_stage 下不處理 PDF，请先 scripts/convert.py incremental）"
+    )
     p.add_argument(
         "--convert-first",
         action="store_true",

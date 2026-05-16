@@ -7,7 +7,7 @@ import httpx
 import pytest
 from openai import BadRequestError
 
-from config.settings import LLMSettings, ModelsSettings, MultimodalSettings, PathsSettings, Settings
+from config.settings import LLMSettings, ModelsSettings, MultimodalSettings, PathsSettings, Settings, get_settings
 
 
 def _minimal_settings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Settings:
@@ -19,15 +19,31 @@ def _minimal_settings(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Settin
         "LLM_MODEL_NAME",
         "LLM_API_KEY",
         "LLM_BASE_URL",
+        "MULTIMODAL_API_KEY",
+        "MULTIMODAL_BASE_URL",
+        "MULTIMODAL_MODEL_NAME",
+        "MULTIMODAL_TEMPERATURE",
     ):
         monkeypatch.delenv(k, raising=False)
+    monkeypatch.setenv("OPENAI_MODEL", "cloud-text-model")
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setenv("OPENAI_API_BASE", "http://127.0.0.1:9/v1")
+    monkeypatch.setenv("MULTIMODAL_API_KEY", "mm-key")
+    monkeypatch.setenv("MULTIMODAL_BASE_URL", "http://127.0.0.1:8080/v1")
+    monkeypatch.setenv("MULTIMODAL_MODEL_NAME", "vision-model")
+    get_settings.cache_clear()
     return Settings(
         paths=PathsSettings(project_root=str(tmp_path), data_raw="data/raw"),
         models=ModelsSettings(dir="models", offline=True),
         llm=LLMSettings(api_key="sk-test", base_url="http://127.0.0.1:9/v1", model_name="text-model"),
-        multimodal=MultimodalSettings(vision_model="vision-model"),
+        multimodal=MultimodalSettings(
+            api_key="mm-key",
+            base_url="http://127.0.0.1:8080/v1",
+            model_name="vision-model",
+        ),
         openai_api_key="sk-test",
         openai_base_url="http://127.0.0.1:9/v1",
+        openai_model="cloud-text-model",
     )
 
 
@@ -53,7 +69,7 @@ async def test_no_local_images_warns_and_text_only(tmp_path: Path, monkeypatch: 
         calls.append("text")
         st = kwargs.get("settings")
         m = kwargs.get("model")
-        assert m == st.resolved_llm_model_name()  # type: ignore[union-attr]
+        assert m == "cloud-text-model"  # type: ignore[union-attr]
         return "text-ok"
 
     with patch(
@@ -107,7 +123,10 @@ async def test_vision_bad_request_falls_back_text(tmp_path: Path, monkeypatch: p
         return "fallback"
 
     with (
-        patch("src.retrieval.multimodal_answer._openai_client_and_base", return_value=(fake_client, "http://x")),
+        patch(
+            "src.retrieval.multimodal_answer._multimodal_vision_client_and_base",
+            return_value=(fake_client, "http://127.0.0.1:8080/v1"),
+        ),
         patch(
             "src.retrieval.multimodal_answer._chat_completion_text",
             new=AsyncMock(side_effect=fake_text),

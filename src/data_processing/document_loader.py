@@ -50,7 +50,7 @@ def _extract_pdf(path: Path) -> tuple[str, dict[str, Any], Path | None]:
         out_md, _, _ = mineru_sidecar_paths(path)
         if not out_md.is_file():
             raise FileNotFoundError(
-                f"兩階段模式請先轉檔 PDF（scripts/convert_documents.py）：{out_md}"
+                f"兩階段模式請先轉檔 PDF（python scripts/convert.py incremental 或 one）：{out_md}"
             )
         text = _read_text(out_md)
         meta_extra = {

@@ -214,7 +214,10 @@ class DocumentConversionSettings(BaseSettings):
         default=True,
         description="轉檔步驟（或 coupled 入庫）是否使用 MinerU",
     )
-    mineru_infer_backend: str = Field(default="pipeline", description="MinerU -b 推論後端")
+    mineru_infer_backend: str = Field(
+        default="vlm-auto-engine",
+        description="MinerU -b 推論後端",
+    )
     mineru_force_refresh: bool = Field(default=False, description="忽略 MinerU 緩存強制重轉")
 
     def is_two_stage(self) -> bool:
@@ -227,13 +230,20 @@ class DocumentConversionSettings(BaseSettings):
 
 
 class MultimodalSettings(BaseSettings):
-    """檢索後結合圖片的多模態回答（OpenAI 相容 vision）。"""
+    """檢索後結合圖片的多模態回答（OpenAI 相容 vision）。
+
+    ``--multimodal`` 時使用本組 ``MULTIMODAL_*``；純文字問答與 LightRAG 圖譜抽取仍用頂層 ``OPENAI_*``。
+    """
 
     model_config = SettingsConfigDict(env_prefix="MULTIMODAL_", env_file=".env", extra="ignore")
 
+    api_key: str = Field(default="", description="多模態 API Key（如本機可填 none）")
+    base_url: str | None = Field(default=None, description="多模態 OpenAI 相容端點")
+    model_name: str = Field(default="", description="視覺模型名，如 Qwen3.5-9B")
+    temperature: float = Field(default=0.2, ge=0.0, le=2.0)
     vision_model: str | None = Field(
         default=None,
-        description="視覺模型名；未設則沿用 OPENAI_MODEL / LLM_MODEL_NAME",
+        description="已廢止別名，請用 MULTIMODAL_MODEL_NAME；未設 model_name 時才讀此欄",
     )
     max_images_per_query: int = Field(
         default=3,
@@ -330,10 +340,20 @@ class Settings(BaseSettings):
             return float(self.openai_temperature)
         return self.llm.temperature
 
-    def resolved_vision_model_name(self) -> str:
-        """多模態視覺模型；未單獨指定時與主 LLM 相同。"""
+    def resolved_multimodal_model_name(self) -> str:
+        """``--multimodal`` 專用視覺模型（MULTIMODAL_MODEL_NAME / 舊版 VISION_MODEL）。"""
+        m = (self.multimodal.model_name or "").strip()
+        if m:
+            return m
         v = (self.multimodal.vision_model or "").strip()
         return v if v else self.resolved_llm_model_name()
+
+    def resolved_multimodal_temperature(self) -> float:
+        return float(self.multimodal.temperature)
+
+    def resolved_vision_model_name(self) -> str:
+        """向後相容別名。"""
+        return self.resolved_multimodal_model_name()
 
     def rerank_runtime_available(self) -> bool:
         """本機 rerank 是否應開啟（關閉開關、離線且無快照時為 False）。"""

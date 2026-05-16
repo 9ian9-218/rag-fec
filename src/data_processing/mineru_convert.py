@@ -3,18 +3,17 @@
 from __future__ import annotations
 
 import json
-import os
 import shutil
-import subprocess
-import tempfile
+import sys
 from pathlib import Path
 from typing import Sequence
 
-from config.model_paths import apply_models_to_environ, mineru_subprocess_environ
 from src.utils.hash_utils import md5_file
 from src.utils.logger import get_logger
 
 logger = get_logger("data_processing.mineru_convert")
+
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def mineru_sidecar_paths(pdf_path: Path) -> tuple[Path, Path, Path]:
@@ -33,25 +32,6 @@ def mineru_sidecar_paths(pdf_path: Path) -> tuple[Path, Path, Path]:
 
 def mineru_executable() -> str | None:
     return shutil.which("mineru")
-
-
-def _pick_largest_markdown(root: Path) -> Path:
-    mds = [p for p in root.rglob("*.md") if p.is_file()]
-    if not mds:
-        raise RuntimeError(f"MinerU 輸出目錄中未找到 .md 文件: {root}")
-    return max(mds, key=lambda p: p.stat().st_size)
-
-
-def _sync_mineru_assets(mineru_md: Path, out_md: Path) -> None:
-    """將 MinerU 輸出目錄中的 ``images/`` 同步到 ``out_md`` 所在目錄。"""
-    src_root = mineru_md.parent.resolve()
-    dst_root = out_md.parent.resolve()
-    dst_root.mkdir(parents=True, exist_ok=True)
-    src = src_root / "images"
-    if not src.is_dir():
-        return
-    dst = dst_root / "images"
-    shutil.copytree(src, dst, dirs_exist_ok=True)
 
 
 def _speed_args_to_cli(
@@ -80,7 +60,7 @@ def convert_pdf_to_markdown(
     pdf_path: Path,
     out_md: Path | None = None,
     *,
-    infer_backend: str = "pipeline",
+    infer_backend: str = "vlm-auto-engine",
     start_page: int | None = None,
     end_page: int | None = None,
     pdf_method: str | None = None,
@@ -88,59 +68,42 @@ def convert_pdf_to_markdown(
     table: bool | None = None,
     extra_args: Sequence[str] | None = None,
 ) -> Path:
-    """調用 ``mineru``；預設輸出與 PDF 同目錄的 ``<stem>.md`` + ``images/``。"""
-    mineru = mineru_executable()
-    if not mineru:
-        raise RuntimeError('未找到 mineru 命令。請安裝 MinerU，例如: pip install -U "mineru[all]"')
-
-    pdf_path = pdf_path.resolve()
-    if not pdf_path.is_file():
-        raise FileNotFoundError(pdf_path)
-    if pdf_path.suffix.lower() != ".pdf":
-        raise ValueError(f"需要 .pdf 文件: {pdf_path}")
+    """調用 ``scripts.convert.convert_pdf``；預設輸出與 PDF 同目錄 ``<stem>.md`` + ``images/``。"""
+    if str(_PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(_PROJECT_ROOT))
+    from scripts.convert import convert_pdf
 
     if out_md is None:
         out_md, _, _ = mineru_sidecar_paths(pdf_path)
-    out_md = out_md.resolve()
-    out_md.parent.mkdir(parents=True, exist_ok=True)
-
-    apply_models_to_environ()
-
-    with tempfile.TemporaryDirectory() as tmp:
-        tmp_path = Path(tmp)
-        cmd: list[str] = [
-            mineru,
-            "-p",
-            str(pdf_path),
-            "-o",
-            str(tmp_path),
-            "-b",
-            infer_backend,
-        ]
-        cmd.extend(
-            _speed_args_to_cli(
-                start_page=start_page,
-                end_page=end_page,
-                pdf_method=pdf_method,
-                formula=formula,
-                table=table,
-            )
-        )
-        if extra_args:
-            cmd.extend(list(extra_args))
-        logger.info("執行 MinerU: %s", " ".join(cmd))
-        subprocess.run(cmd, check=True, env=mineru_subprocess_environ())
-        produced = _pick_largest_markdown(tmp_path)
-        out_md.write_bytes(produced.read_bytes())
-        _sync_mineru_assets(produced, out_md)
-
-    return out_md
+    cli_extra = _speed_args_to_cli(
+        start_page=None,
+        end_page=None,
+        pdf_method=pdf_method,
+        formula=formula,
+        table=table,
+    )
+    merged: list[str] = list(cli_extra)
+    if extra_args:
+        merged.extend(list(extra_args))
+    logger.info(
+        "執行 MinerU（%s）: %s",
+        infer_backend,
+        pdf_path.name,
+    )
+    return convert_pdf(
+        pdf_path,
+        out_md,
+        infer_backend=infer_backend,
+        start_page=start_page,
+        end_page=end_page,
+        extra_args=merged or None,
+    )
 
 
 def ensure_pdf_markdown_beside_source(
     pdf_path: Path,
     *,
-    infer_backend: str = "pipeline",
+    infer_backend: str = "vlm-auto-engine",
     force: bool = False,
 ) -> Path:
     """
@@ -315,7 +278,7 @@ def ensure_pdf_markdown_cached(
     *,
     project_root: Path | None = None,
     data_processed: Path | None = None,
-    infer_backend: str = "pipeline",
+    infer_backend: str = "vlm-auto-engine",
     force: bool = False,
 ) -> Path:
     del project_root, data_processed
@@ -323,6 +286,10 @@ def ensure_pdf_markdown_cached(
 
 
 def hf_project_cache_env(project_root: Path | None = None) -> dict[str, str]:
-    """向後相容：等同 ``mineru_subprocess_environ()``。"""
+    """向後相容：等同 ``scripts.convert.mineru_subprocess_env()``。"""
     del project_root
-    return mineru_subprocess_environ()
+    if str(_PROJECT_ROOT) not in sys.path:
+        sys.path.insert(0, str(_PROJECT_ROOT))
+    from scripts.convert import mineru_subprocess_env
+
+    return mineru_subprocess_env()
