@@ -174,11 +174,30 @@ def _build_embedding_func(settings: Settings):
     return _embed
 
 
+def _keyword_json_from_lists(prompt: str, hl: list, ll: list, settings: Settings) -> str:
+    import json
+
+    from src.retrieval.relation_keywords import enhance_keywords_for_retrieval
+
+    hl2, ll2 = enhance_keywords_for_retrieval(prompt, list(hl or []), list(ll or []))
+    return json.dumps(
+        {"high_level_keywords": hl2, "low_level_keywords": ll2},
+        ensure_ascii=False,
+    )
+
+
+def _keyword_fallback_json(prompt: str, settings: Settings) -> str:
+    from src.retrieval.keyword_fallback import fec_keyword_fallback
+
+    hl, ll = fec_keyword_fallback(prompt)
+    return _keyword_json_from_lists(prompt, hl, ll, settings)
+
+
 def _build_llm_func(settings: Settings):
     from lightrag.llm.openai import openai_complete
 
     async def _llm(prompt, system_prompt=None, history_messages=None, **kwargs):
-        if kwargs.get("keyword_extraction") and _keyword_extraction_via_json_object():
+        if kwargs.get("keyword_extraction"):
             hashing_kv = kwargs.get("hashing_kv")
             if hashing_kv is None:
                 raise RuntimeError("LightRAG LLM 呼叫缺少 hashing_kv，無法取得 llm_model_name")
@@ -193,17 +212,55 @@ def _build_llm_func(settings: Settings):
             http_timeout = _effective_openai_http_timeout_seconds(**kwargs)
             client_cfgs = kwargs.get("openai_client_configs")
             safe_kw = {k: v for k, v in kwargs.items() if k in _CREATE_EXTRA_KEYS}
-            return await _openai_keyword_extraction_compat(
-                model=model,
-                prompt=prompt,
-                system_prompt=system_prompt,
-                history_messages=list(history_messages or []),
-                base_url=base_raw,
-                api_key=api_key,
-                http_timeout=http_timeout,
-                client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
-                safe_kw=safe_kw,
-            )
+
+            async def _call_keyword_llm() -> str:
+                if _keyword_extraction_via_json_object():
+                    return await _openai_keyword_extraction_compat(
+                        model=model,
+                        prompt=prompt,
+                        system_prompt=system_prompt,
+                        history_messages=list(history_messages or []),
+                        base_url=base_raw,
+                        api_key=api_key,
+                        http_timeout=http_timeout,
+                        client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
+                        safe_kw=safe_kw,
+                    )
+                return await openai_complete(
+                    prompt,
+                    system_prompt=system_prompt,
+                    history_messages=history_messages or [],
+                    **kwargs,
+                )
+
+            if settings.lightrag.keyword_fallback_enabled:
+                try:
+                    from lightrag.utils import remove_think_tags
+                    import json_repair
+
+                    raw = await _call_keyword_llm()
+                    parsed = json_repair.loads(remove_think_tags(raw))
+                    hl = (parsed or {}).get("high_level_keywords") or []
+                    ll = (parsed or {}).get("low_level_keywords") or []
+                    if hl or ll:
+                        return _keyword_json_from_lists(prompt, hl, ll, settings)
+                    logger.warning("關鍵詞抽取為空，使用 FEC 啟發式回退")
+                except Exception as e:
+                    logger.warning("關鍵詞抽取失敗，使用 FEC 啟發式回退: %s", e)
+                return _keyword_fallback_json(prompt, settings)
+
+            if _keyword_extraction_via_json_object():
+                return await _openai_keyword_extraction_compat(
+                    model=model,
+                    prompt=prompt,
+                    system_prompt=system_prompt,
+                    history_messages=list(history_messages or []),
+                    base_url=base_raw,
+                    api_key=api_key,
+                    http_timeout=http_timeout,
+                    client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
+                    safe_kw=safe_kw,
+                )
 
         return await openai_complete(
             prompt,
@@ -219,9 +276,11 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
     """依設定建立 ``LightRAG``（尚未 ``initialize_storages``）。"""
     s = settings or get_settings()
     apply_settings_to_environ(s)
+    from src.storage.lightrag_patches import apply_lightrag_relation_patches
     from src.storage.pymilvus_timeout_patch import ensure_pymilvus_connection_timeout
 
     ensure_pymilvus_connection_timeout()
+    apply_lightrag_relation_patches()
     from lightrag import LightRAG
 
     root = _project_root()
@@ -256,12 +315,16 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
             s.rerank_runtime_available(),
         )
 
-    max_graph_nodes = min(1000, max(64, s.retrieval.max_hop * 48))
+    lr = s.lightrag
+    max_graph_nodes = min(1000, max(64, int(lr.max_graph_nodes)))
+    chunk_top_k = lr.chunk_top_k if lr.chunk_top_k is not None else s.retrieval.top_k
 
     entity_types = s.fec.resolve_entity_types()
     addon_params = {
         "language": s.fec.summary_language,
         "entity_types": entity_types,
+        "relation_top_k": lr.relation_top_k,
+        "related_relation_chunk_number": lr.related_relation_chunk_number,
     }
 
     rag = LightRAG(
@@ -278,9 +341,15 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
         chunk_token_size=s.chunk.chunk_size,
         chunk_overlap_token_size=s.chunk.chunk_overlap,
         top_k=s.retrieval.top_k,
-        chunk_top_k=s.retrieval.top_k,
+        chunk_top_k=chunk_top_k,
+        max_entity_tokens=lr.max_entity_tokens,
+        max_relation_tokens=lr.max_relation_tokens,
+        max_total_tokens=lr.max_total_tokens,
+        related_chunk_number=lr.related_entity_chunk_number,
+        kg_chunk_pick_method=lr.kg_chunk_pick_method.strip().upper(),
         max_graph_nodes=max_graph_nodes,
-        cosine_better_than_threshold=0.2,
+        cosine_better_than_threshold=float(lr.cosine_better_than_threshold),
+        entity_extract_max_gleaning=lr.entity_extract_max_gleaning,
         embedding_batch_num=s.embedding.batch_size,
         default_embedding_timeout=s.embedding.lightrag_embedding_timeout,
         embedding_func_max_async=s.embedding.max_async,
@@ -289,9 +358,26 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
         min_rerank_score=s.retrieval.rerank_min_score,
     )
     logger.info(
-        "LightRAG FEC addon_params: language=%s entity_types=%d kinds",
+        "LightRAG runtime: top_k=%s chunk_top_k=%s max_total_tokens=%s "
+        "max_entity_tokens=%s max_relation_tokens=%s related_chunk_number=%s "
+        "kg_chunk_pick=%s max_graph_nodes=%s min_rerank=%s ref_ctx_chars=%s",
+        s.retrieval.top_k,
+        chunk_top_k,
+        lr.max_total_tokens,
+        lr.max_entity_tokens,
+        lr.max_relation_tokens,
+        lr.related_entity_chunk_number,
+        lr.related_relation_chunk_number,
+        lr.kg_chunk_pick_method,
+        max_graph_nodes,
+        s.retrieval.rerank_min_score,
+        s.multimodal.reference_context_max_chars,
+    )
+    logger.info(
+        "LightRAG FEC addon_params: language=%s entity_types=%d kinds gleaning=%s",
         addon_params["language"],
         len(entity_types),
+        lr.entity_extract_max_gleaning,
     )
     return rag
 

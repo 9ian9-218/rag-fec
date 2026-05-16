@@ -1,82 +1,366 @@
-# Graph RAG（LightRAG + Neo4j + Milvus）
+# RAG-FEC：面向 FEC 领域的生产级 Graph RAG 系统
 
-生產導向的圖 RAG 專案：文件解析與分塊、LightRAG 管線、Neo4j 圖儲存、Milvus 向量儲存、應用層 SQLite 元資料、增量更新與 FastAPI 服務；Docker Compose 僅用於啟動 Neo4j 與 Milvus（及 Milvus 依賴的 etcd、minio），應用在本機執行。
+本项目聚焦于 **LightRAG + Neo4j + Milvus** 的知识图谱增强检索（KG-RAG），面向 **前向纠错编码（FEC）** 领域文献与教材，提供文档解析、图谱构建、多模式检索、智能路由、增量更新、离线/在线评估与 FastAPI 服务，适合科研文献问答与领域知识库构建。
 
-## 技術要點
+> 灵感来源于 GraphRAG 与 LightRAG 的轻量图谱方案，在 FEC 专业语料上做了实体类型、关系优化与评估体系的领域化落地。
 
-- **LightRAG**（`lightrag-hku`）：`Neo4JStorage` + `MilvusVectorDBStorage`；KV 使用 **`JsonKVStorage`**（持久化於 `data/lightrag_workdir`）。應用層 **`src/storage/kv_client.py`** 使用 **SQLite** 管理文件註冊與斷點，對應需求中的「元資料 / 註冊表入 SQLite」。
-- **FEC 領域實體**：預設使用與 `rag-fec` 的 `FEC_ENTITY_KIND_TYPES` 一致的 12 類（見 `config/fec_defaults.py`），經 `LightRAG.addon_params["entity_types"]` 與環境變數 `ENTITY_TYPES`（JSON 陣列）注入；摘要語言預設 **`FEC_SUMMARY_LANGUAGE=Chinese`**（對應 `SUMMARY_LANGUAGE`）。可用 **`FEC_ENTITY_TYPES_JSON`** 覆寫類型列表。
-- **增量更新**：`data/hash_cache.json` 比對 MD5；變更時呼叫 LightRAG `adelete_by_doc_id` 再 `ainsert`；路徑穩定 `doc_id` 見 `src/incremental/doc_registry.py`。
-- **嵌入**：本機 **sentence-transformers**（預設 **BAAI/bge-m3**，1024 維）；權重從專案 **`models/hub/`** 載入（見 `MODELS_*`）。
-- **PDF 解析（可選）**：MinerU 將 **`data/raw/foo.pdf`** 轉為同目錄 **`foo.md`** + **`images/`**，chunk 內保留 `![](images/...)`，增量更新與刪除 PDF 時會同步處理側車檔案。
-- **編排**：檢索鏈可選 LangChain `RunnableLambda`（見 `src/retrieval/retriever.py`）。
+## 系统架构
 
-## 本地開發
+```mermaid
+flowchart TB
+    subgraph Input["文档输入"]
+        PDF["PDF / MD / DOCX / TXT"]
+        MinerU["MinerU 转档（可选）"]
+    end
 
-1. Python 3.11+，建議虛擬環境或 Conda。
-2. 安裝依賴：`pip install -r requirements.txt`
-3. 複製環境變數：`cp .env.example .env`，至少填入 **`OPENAI_API_KEY`**（DeepSeek）。
-4. 啟動本機 Neo4j、Milvus（或僅跑單元測試，見下）。
-5. 啟動 API：`python main.py` 或 `uvicorn src.service.api:app --reload`
+    subgraph Pipeline["数据处理与索引"]
+        Loader["document_loader + text_splitter"]
+        LightRAG["LightRAG 管线"]
+        Extract["实体/关系抽取（FEC 12 类）"]
+    end
 
-常用腳本：
+    subgraph Storage["存储层"]
+        Neo4j["Neo4j 图存储"]
+        Milvus["Milvus 向量存储"]
+        JsonKV["JsonKV（lightrag_workdir）"]
+        SQLite["SQLite 元数据/注册表"]
+    end
 
-- 全量建索引：`python scripts/build_index.py --mode full --raw data/raw`
-- 增量更新：`python scripts/incremental_update.py`
-- 清空索引：`python scripts/clear_index.py --all`（會清空 Neo4j 圖、LightRAG 工作目錄檔案與 SQLite；請謹慎）
-- 評估：`python scripts/evaluate.py --input data/test/eval_sample_full.jsonl --out data/test/eval_report.json`
-- PDF→Markdown（MinerU，与索引分离）：`python scripts/convert.py one data/raw/your.pdf`；增量转档：`python scripts/convert.py incremental`
-- 本地問答：`python scripts/query.py "問題"`；多模態：`python scripts/query.py "問題" --multimodal`（需配置 `MULTIMODAL_*`）
+    subgraph Retrieval["检索与生成"]
+        Router["LLM 模式路由"]
+        Modes["naive / local / global / hybrid / mix"]
+        Rerank["BGE CrossEncoder 重排"]
+        LLM["DeepSeek 等 OpenAI 兼容 LLM"]
+    end
 
-## Docker Compose（僅資料庫依賴）
+    subgraph Service["服务与评估"]
+        API["FastAPI"]
+        Eval["离线评估 + 在线遥测"]
+    end
 
-1. `cp .env.example .env`，至少設定 **`OPENAI_API_KEY`**（DeepSeek）。
-2. 在專案根目錄執行：`docker compose up -d`（**不構建**應用映像；僅拉取官方映像）。
-3. 埠對應：`neo4j`（7474 / 7687）、`milvus`（19530），以及 Milvus standalone 依賴的 `etcd`、`minio`。
-4. API 在本機啟動：`python main.py` 或 `uvicorn src.service.api:app --reload`（`.env` 中 **`NEO4J_URI`**、**`MILVUS_URI`** 預設已指向 `127.0.0.1`）。
+    PDF --> MinerU --> Loader --> LightRAG --> Extract
+    LightRAG --> Neo4j
+    LightRAG --> Milvus
+    LightRAG --> JsonKV
+    Loader --> SQLite
+    API --> Router --> Modes --> Rerank --> LLM
+    Modes --> Neo4j
+    Modes --> Milvus
+    API --> Eval
+```
 
-**注意**：本機進程若要連容器內服務以外的本機 Ollama / vLLM，**`LLM_BASE_URL`** 維持 `http://127.0.0.1:11434/v1` 即可；僅在「應用跑在另一個容器裡」時才需要 `http://host.docker.internal:...`（Linux 可能需 `extra_hosts`）。
 
-## 增量更新說明
 
-- 將 PDF / Markdown / Word / TXT 放入 `data/raw`（可子目錄）。
-- **兩階段（預設）**：先 `python scripts/convert.py incremental`（PDF→同目錄 `.md` + `images/`），再 `python scripts/incremental_update.py`（僅索引文字檔）；或一步 `python scripts/incremental_update.py --convert-first`。
-- 索引增量：`POST /api/rag/incremental-update` 或 `python scripts/incremental_update.py`（`two_stage` 下不直接解析 PDF）。
-- `data/hash_cache.json` 記錄路徑 → MD5；**修改**會先刪除舊 `doc_id` 再寫入；**刪除**會從索引與快取移除。
-- **`data/meta/document_manifest.json`**（可 `PATHS_DOCUMENT_MANIFEST_PATH` 覆寫）：每次成功入庫後登記該 `doc_id` 的 MinerU 元數據、**`images/` 下實際檔案**等路徑；從磁碟刪除文檔或呼叫 API 刪除索引後，會依清單刪除側車檔案（**不刪除**你放在 `data/raw` 的主 `.md`/`.pdf` 本體，除非你自己刪）。
+**技术栈概要**
 
-## API 摘要
 
-| 方法 | 路徑 | 說明 |
-|------|------|------|
-| GET | `/api/rag/health` | 健康檢查 |
-| POST | `/api/rag/query` | 問答（JSON：`question`, `mode`, `stream`） |
-| POST | `/api/rag/documents` | 上傳單檔 |
-| POST | `/api/rag/documents/batch` | 多檔上傳 |
-| PUT | `/api/rag/documents/{doc_id}` | 依 `doc_id` 覆寫原路徑檔案並重建索引 |
-| DELETE | `/api/rag/documents/{doc_id}` | 刪除索引 |
-| GET | `/api/rag/documents` | 文件列表 |
-| GET | `/api/rag/documents/{doc_id}` | 文件詳情 |
-| POST | `/api/rag/incremental-update` | 觸發增量掃描 |
+| 组件        | 选型                                            | 说明                                       |
+| --------- | --------------------------------------------- | ---------------------------------------- |
+| 图谱 RAG 框架 | [LightRAG](https://github.com/HKUDS/LightRAG) | `Neo4JStorage` + `MilvusVectorDBStorage` |
+| 图数据库      | Neo4j 5.x                                     | 实体与关系存储                                  |
+| 向量库       | Milvus 2.4                                    | Chunk / 实体 / 关系向量                        |
+| 应用元数据     | SQLite                                        | 文档注册、断点、清单                               |
+| 嵌入        | BAAI/bge-m3（1024 维）                           | 本机 sentence-transformers                 |
+| 重排        | BAAI/bge-reranker-v2-m3                       | CrossEncoder，可离线                         |
+| LLM       | DeepSeek 等                                    | OpenAI 兼容 API                            |
+| PDF 解析    | MinerU（可选）                                    | PDF → Markdown + images                  |
+| 服务        | FastAPI + Uvicorn                             | REST API，Swagger `/docs`                 |
 
-OpenAPI：`/docs`、`/redoc`。
 
-## 測試
+## 项目结构
+
+```
+rag-fec/
+├── config/                     # 全局配置
+│   ├── settings.py             # pydantic-settings，.env 驱动
+│   ├── fec_defaults.py         # FEC 领域 12 类实体类型
+│   └── model_paths.py          # 本机模型路径（models/hub）
+├── data/
+│   ├── raw/                    # 原始文档（PDF/MD/…）
+│   ├── processed/              # 处理中间产物、增量断点
+│   ├── lightrag_workdir/       # LightRAG JsonKV 持久化
+│   ├── meta/                   # SQLite、document_manifest
+│   ├── test/                   # 评估金标、预测、报告
+│   └── logs/                   # 应用日志、query_metrics.jsonl
+├── models/hub/                 # HuggingFace 快照（嵌入、重排、MinerU）
+├── scripts/                    # 运维与评估脚本
+│   ├── build_index.py          # 全量建索引
+│   ├── incremental_update.py   # 增量更新
+│   ├── convert.py              # MinerU PDF→MD
+│   ├── query.py                # 命令行问答
+│   ├── evaluate.py             # 离线评估
+│   ├── collect_eval_predictions.py
+│   ├── metrics_summary.py      # 离线+在线指标汇总
+│   └── clear_index.py          # 清空索引（慎用）
+├── src/
+│   ├── data_processing/        # 文档加载、分块、MinerU
+│   ├── storage/                # LightRAG 初始化、Neo4j/Milvus/KV
+│   ├── incremental/            # 哈希增量、清单、级联清理
+│   ├── retrieval/              # 检索、模式路由、关系优化、多模态
+│   ├── evaluation/             # RAGAS、多跳、排序指标、在线监控
+│   ├── service/                # RAGService + FastAPI
+│   └── utils/                  # 日志、哈希等工具
+├── tests/                      # pytest 单元测试
+├── docker-compose.yml          # 仅 Neo4j + Milvus（及 etcd/minio）
+├── main.py                     # API 入口
+├── requirements.txt
+└── .env.example
+```
+
+## 项目亮点
+
+- **生产导向的 KG-RAG**：LightRAG 图谱 + 向量双路召回，默认 `mix` 模式融合图与 Chunk 证据
+- **FEC 领域实体体系**：12 类实体（码型、编解码、信道模型等），摘要语言默认中文
+- **LLM 智能检索路由**：按问题复杂度与难度实现LightRAG的模式路由，适配不同query
+- **关系检索优化**：关键词回退、CrossEncoder 关系重排、关系描述过滤，降低图谱噪声
+- **两阶段文档管线**：MinerU 转档与 LightRAG 索引解耦，支持 `convert-first` 一步执行
+- **稳健增量更新**：MD5 哈希比对、`doc_id` 稳定映射、删除级联清理侧车文件
+- **完整评估体系**：实体/关系/Chunk 排序指标、RAGAS v2、在线 query 遥测
+- **本机模型离线**：嵌入与重排权重统一放在 `models/hub/`，支持 `MODELS_OFFLINE=true`
+
+## 快速开始
+
+### 环境要求
+
+- Python **3.11+**
+- Docker（用于 Neo4j、Milvus）
+- 建议 16GB+ 内存（首次加载 bge-m3 / MinerU 时）
+
+### 1. 安装依赖
+
+```bash
+cd rag-fec
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 2. 配置环境变量
+
+```bash
+cp .env.example .env
+# 至少填写 OPENAI_API_KEY（DeepSeek 等 OpenAI 兼容接口）
+```
+
+### 3. 启动数据库（Docker Compose）
+
+```bash
+docker compose up -d
+# Neo4j: http://127.0.0.1:7474  bolt://127.0.0.1:7687
+# Milvus: http://127.0.0.1:19530
+```
+
+### 4. 准备文档并建索引
+
+```bash
+# 将 PDF / Markdown 等放入 data/raw
+export PYTHONPATH=.
+
+# 推荐两阶段：先转档再索引
+python scripts/convert.py incremental
+python scripts/incremental_update.py
+
+# 或全量建索引
+python scripts/build_index.py --mode full --raw data/raw
+```
+
+### 5. 启动 API 或命令行问答
+
+```bash
+# HTTP 服务
+python main.py
+# 或: uvicorn src.service.api:app --reload
+
+# 命令行（默认 LLM 智能路由）
+python scripts/query.py "什么是循环码？"
+python scripts/query.py "问题" --mode mix --show-mode
+python scripts/query.py --interactive
+```
+
+浏览器访问 `**http://127.0.0.1:8000/docs**` 查看 OpenAPI。
+
+## 功能模块
+
+### 文档处理与索引
+
+- **多格式支持**：PDF、Markdown、Word、TXT（`data/raw` 可含子目录）
+- **MinerU PDF 解析**：`data/raw/foo.pdf` → 同目录 `foo.md` + `images/`，Chunk 保留 `![](images/...)`
+- **两阶段管线**（默认 `two_stage`）：
+  - 阶段一：`scripts/convert.py` — 仅 PDF 转 Markdown
+  - 阶段二：`scripts/incremental_update.py` — 仅对文本建 LightRAG 索引
+- **FEC 实体类型**：经 `LightRAG.addon_params["entity_types"]` 注入，可用 `FEC_ENTITY_TYPES_JSON` 覆盖
+- **增量更新**：`data/hash_cache.json` 记录路径 MD5；变更时 `adelete_by_doc_id` 再 `ainsert`
+
+### 检索模式
+
+
+| 模式       | 说明                         | 适用场景            |
+| -------- | -------------------------- | --------------- |
+| `naive`  | 仅向量 Chunk                  | 简单事实、局部段落即可     |
+| `local`  | 低层关键词 + 实体邻域               | 具体概念、定义、单点事实    |
+| `global` | 高层关键词 + 关系/社群              | 总结、宏观对比         |
+| `hybrid` | local + global 图结果合并       | 需实体细节与关系结构      |
+| `mix`    | 图谱 + 向量 Chunk 双路融合（**推荐**） | 中等以上复杂度、需原文+图证据 |
+
+
+智能路由由 `src/retrieval/mode_router.py` 实现，环境变量 `RETRIEVAL_LLM_MODE_ROUTER_ENABLED=true` 控制开关；CLI 可用 `--no-auto-mode` 关闭。
+
+### 关系检索增强
+
+- **关系关键词评分**（`relation_keywords.py`）
+- **CrossEncoder 关系重排**（`bge_rerank.py`）
+- **关键词回退**（`keyword_fallback.py`）：向量召回不足时补充
+- **检索后精炼**（`relation_optimizer.py`）：打包过滤低质量关系
+
+### 多模态回答（可选）
+
+对含 `![](images/...)` 的检索上下文，可调用视觉 LLM 生成图文答案：
+
+```bash
+python scripts/query.py "解释该译码结构图" --multimodal
+```
+
+需在 `.env` 配置 `MULTIMODAL_*`（与主 LLM 分离）。
+
+### 评估与监控
+
+**离线评估流程**
+
+```bash
+# 1. 准备金标 data/test/eval_gold.jsonl
+# 2. 批量生成预测
+python scripts/collect_eval_predictions.py \
+  --input data/test/eval_gold.jsonl \
+  --out data/test/eval_predictions.jsonl
+
+# 3. 计算报告
+python scripts/evaluate.py \
+  --input data/test/eval_predictions.jsonl \
+  --out data/test/eval_report.json
+
+# 4. 汇总离线 + 在线指标
+python scripts/metrics_summary.py
+```
+
+**核心离线指标**
+
+- **排序检索**：实体 / 关系 / Chunk 的 Recall@K、Precision@K、NDCG@K（对齐匹配）
+- **RAGAS v2**：context_recall、context_precision、faithfulness（启发式或 `--ragas-llm`）
+- **多跳**：`multihop: true` 样本的要点/别名匹配准确率
+- **可选**：ROUGE、文档 Hit@K（`--include-answer`）
+
+**在线遥测**：每次 query/retrieve 追加 `data/logs/query_metrics.jsonl`，记录延迟、图谱空率、重排过滤率、token 用量等，无需测试集。
+
+### API 服务
+
+
+| 方法     | 路径                            | 说明                  |
+| ------ | ----------------------------- | ------------------- |
+| GET    | `/api/rag/health`             | 健康检查                |
+| POST   | `/api/rag/query`              | 问答（省略 `mode` 时智能路由） |
+| POST   | `/api/rag/documents`          | 上传单文件               |
+| POST   | `/api/rag/documents/batch`    | 多文件上传               |
+| PUT    | `/api/rag/documents/{doc_id}` | 覆写并重建索引             |
+| DELETE | `/api/rag/documents/{doc_id}` | 删除索引                |
+| GET    | `/api/rag/documents`          | 文档列表                |
+| GET    | `/api/rag/documents/{doc_id}` | 文档详情                |
+| POST   | `/api/rag/incremental-update` | 触发增量扫描              |
+
+
+请求体示例（智能路由）：
+
+```json
+{
+  "question": "Polar 码与 Reed-Muller 码的性能对比如何？",
+  "auto_mode": true,
+  "include_mode_selection": true
+}
+```
+
+## 命令行速查
+
+```bash
+export PYTHONPATH=.
+
+# 索引
+python scripts/build_index.py --mode full --raw data/raw
+python scripts/incremental_update.py
+python scripts/incremental_update.py --convert-first
+
+# 问答
+python scripts/query.py "什么是 LDPC 码？"
+python scripts/query.py -q "问题" --mode local --json --show-mode
+python scripts/query.py "问题" --context --json   # 仅检索上下文
+
+# 评估
+python scripts/collect_eval_predictions.py -i data/test/eval_gold.jsonl -o data/test/eval_predictions.jsonl
+python scripts/evaluate.py --input data/test/eval_predictions.jsonl --out data/test/eval_report.json
+python scripts/metrics_summary.py
+
+# 维护
+python scripts/clear_index.py --all    # 清空 Neo4j、workdir、SQLite（慎用）
+python scripts/download_reranker.py    # 预下载重排模型到 models/hub
+```
+
+## 终端演示
+
+```bash
+$ python scripts/query.py "循环码的生成多项式有什么性质？" --show-mode
+
+[mode_router] 选型: mix | 难度=medium | 原因=需结合图谱实体与原文 chunk 证据
+...
+循环码的生成多项式 g(x) 必须整除 x^n - 1，且 ...
+```
+
+带 JSON 输出与路由详情：
+
+```bash
+python scripts/query.py "比较卷积码与分组码的优缺点" --json --show-mode
+```
+
+## 测试
 
 ```bash
 export PYTHONPATH=.
 pytest -q
 ```
 
-## 常見問題
+覆盖模块：增量更新、FEC 实体、模式路由、RAGAS/对齐指标、关系优化、多模态、MinerU 侧车等。
 
-1. **Neo4j 連不上**：確認 `NEO4J_URI` 與防火牆。**在主機執行** 腳本或 API 時請用 `bolt://127.0.0.1:7687`（compose 已將 7687 映射到主機）。
-2. **Milvus 連不上**：主機請用 `http://127.0.0.1:19530`。Standalone 啟動較慢時可查看 `docker compose logs -f milvus`。
-3. **嵌入維度錯誤**：`EMBEDDING_DIMENSION` 必須與模型輸出一致（bge-m3 為 1024）。首次載入會下載/載入模型，可調大 `EMBEDDING_LIGHTRAG_EMBEDDING_TIMEOUT`。
-4. **`.env` 缺失**：Compose 不再掛載應用 `env_file`；若尚未建立 `.env`，請 `cp .env.example .env` 供本機 Python 使用。
-5. **`PermissionError: data/logs/app.log`**：若曾用 Docker 寫過日誌，`data/logs` 可能屬於 root。可執行 `sudo chown -R "$USER:$USER" data/logs`（或刪除該目錄後再啟動）。程式已改為：**無法寫檔時僅輸出到終端機**，不影響啟動。
-6. **瀏覽器打開根路徑 `/`**：已導向 **`/docs`**（Swagger）；亦可直接訪問 `/api/rag/health`。
+## 常见问题
 
-與需求一致：`config/`、`data/`、`src/`（含 `data_processing`、`storage`、`incremental`、`retrieval`、`service`、`utils`）、`scripts/`、`tests/`、`docker-compose.yml`、`main.py`。
+1. **Neo4j 连不上**
+  本机脚本/API 请使用 `bolt://127.0.0.1:7687`（与 compose 端口映射一致）。
+2. **Milvus 连不上**
+  使用 `http://127.0.0.1:19530`；standalone 启动较慢，可 `docker compose logs -f milvus`。
+3. **嵌入维度错误**
+  `EMBEDDING_DIMENSION` 须与模型一致（bge-m3 为 **1024**）。首次加载可调大 `EMBEDDING_LIGHTRAG_EMBEDDING_TIMEOUT`。
+4. `**PermissionError: data/logs/app.log`**
+  若目录属主为 root：`sudo chown -R "$USER:$USER" data/logs`。无法写文件时会回退到终端输出，不影响启动。
+5. **模型下载**
+  设置 `MODELS_HF_ENDPOINT` 镜像；嵌入/重排完成后可 `MODELS_OFFLINE=true`。重排：`python scripts/download_reranker.py`。
+6. **增量删除侧车文件**
+  `data/meta/document_manifest.json` 记录 MinerU 元数据与 `images/`；删索引时会清理侧车，**不删除**你放在 `data/raw` 的主文件本体。
 
-API 調用見上文「API 摘要」與 `/docs`。
+## 配置说明
+
+主要环境变量见 `[.env.example](./.env.example)`，分组包括：
+
+- **NEO4J_*** / **MILVUS_***：存储连接
+- **OPENAI_***：LLM（DeepSeek 等）
+- **EMBEDDING_***：bge-m3 嵌入
+- **RETRIEVAL_***：默认模式、top_k、BM25、重排阈值、智能路由
+- **LIGHTRAG_***：token 上限、关系 top_k、关键词回退
+- **FEC_SUMMARY_LANGUAGE** / **FEC_ENTITY_TYPES_JSON**：领域配置
+- **MODELS_***：本机模型目录与离线模式
+- **MULTIMODAL_***：多模态 LLM（可选）
+
+## 参考与致谢
+
+- [LightRAG](https://github.com/HKUDS/LightRAG) — 轻量级知识图谱增强 RAG
+- [GraphRAG](https://github.com/microsoft/graphrag) — 微软知识图谱 RAG 框架
+- [Neo4j](https://neo4j.com/) — 图数据库
+- [Milvus](https://milvus.io/) — 向量数据库
+- [BGE](https://github.com/FlagOpen/FlagEmbedding) — bge-m3 / bge-reranker
+- [MinerU](https://github.com/opendatalab/MinerU) — PDF 结构化解析
+

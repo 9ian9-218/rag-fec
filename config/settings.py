@@ -92,25 +92,126 @@ class ChunkSettings(BaseSettings):
     chunk_overlap: int = Field(default=100, ge=0)
 
 
+class LightRAGRuntimeSettings(BaseSettings):
+    """LightRAG 查詢期參數（對應環境變數 LIGHTRAG_* / MAX_*_TOKENS 等）。"""
+
+    model_config = SettingsConfigDict(env_prefix="LIGHTRAG_", env_file=".env", extra="ignore")
+
+    max_entity_tokens: int = Field(
+        default=8000,
+        ge=512,
+        le=32000,
+        description="實體上下文 token 上限（原庫默認 6000，放寬以利多跳）",
+    )
+    max_relation_tokens: int = Field(
+        default=10000,
+        ge=512,
+        le=32000,
+        description="關係上下文 token 上限（原庫默認 8000）",
+    )
+    max_total_tokens: int = Field(
+        default=20000,
+        ge=4000,
+        le=64000,
+        description="實體+關係+chunk 總 token 上限（原庫默認 30000，下調降延遲）",
+    )
+    related_entity_chunk_number: int = Field(
+        default=6,
+        ge=1,
+        le=32,
+        description="每個實體關聯的 chunk 數（LightRAG related_chunk_number）",
+    )
+    related_relation_chunk_number: int = Field(
+        default=4,
+        ge=1,
+        le=32,
+        description="每個關係關聯的 chunk 數（運行期 patch，低於實體以降噪）",
+    )
+    relation_top_k: int = Field(
+        default=7,
+        ge=1,
+        le=100,
+        description="關係向量庫查詢 top_k（低於 RETRIEVAL_TOP_K，減少冗餘邊）",
+    )
+    relation_rerank_enabled: bool = Field(
+        default=True,
+        description="檢索後對關係描述做 CrossEncoder 重排過濾",
+    )
+    relation_min_rerank_score: float = Field(
+        default=0.32,
+        ge=0.0,
+        le=1.0,
+        description="關係重排 min-max 歸一化後的最低分",
+    )
+    relation_keyword_min_score: float = Field(
+        default=0.10,
+        ge=0.0,
+        le=1.0,
+        description="關係描述與高/低層關鍵詞的最小重合度（0 表示不過濾）",
+    )
+    kg_chunk_pick_method: str = Field(
+        default="VECTOR",
+        description="關聯 chunk 選擇：VECTOR 用向量相似度降噪，WEIGHT 為權重",
+    )
+    max_graph_nodes: int = Field(
+        default=128,
+        ge=32,
+        le=2000,
+        description="Neo4j 子圖遍歷節點上限（原公式 max_hop*48≈96 或庫默認 1000）",
+    )
+    chunk_top_k: int | None = Field(
+        default=9,
+        ge=1,
+        le=100,
+        description="覆寫 CHUNK_TOP_K；None 時與 RETRIEVAL_TOP_K 一致",
+    )
+    cosine_better_than_threshold: float = Field(
+        default=0.22,
+        ge=0.0,
+        le=1.0,
+        description="向量檢索餘弦閾值（原 0.2）",
+    )
+    keyword_fallback_enabled: bool = Field(
+        default=True,
+        description="LLM 關鍵詞抽取失敗或為空時使用 FEC 啟發式回退",
+    )
+    entity_extract_max_gleaning: int = Field(
+        default=2,
+        ge=0,
+        le=5,
+        description="索引期實體抽取補全輪次（原庫默認 1，提高以補全圖譜實體）",
+    )
+
+
 class RetrievalSettings(BaseSettings):
     """檢索預設行為。"""
 
     model_config = SettingsConfigDict(env_prefix="RETRIEVAL_", env_file=".env", extra="ignore")
 
     default_mode: str = Field(default="mix")
-    top_k: int = Field(default=10, ge=1, le=100)
+    top_k: int = Field(default=8, ge=1, le=100)
     max_hop: int = Field(
         default=2,
         ge=1,
         le=8,
-        description="語意參數；LightRAG 內部以 max_graph_nodes 等控制圖規模",
+        description="語意參數；Neo4j 規模主要由 LIGHTRAG_MAX_GRAPH_NODES 控制",
     )
     enable_bm25: bool = Field(default=True)
     rerank_min_score: float = Field(
-        default=0.0,
+        default=0.28,
         ge=0.0,
         le=1.0,
         description="對 rerank 分數 min-max 歸一化後的低分過濾；0 表示僅依 chunk_top_k 截斷（對應 MIN_RERANK_SCORE）",
+    )
+    llm_mode_router_enabled: bool = Field(
+        default=True,
+        description="檢索前調用 LLM 評估問題並在 naive/local/global/hybrid/mix 中自動選模式",
+    )
+    llm_mode_router_temperature: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="模式路由 LLM 溫度（建議 0 以穩定選 mode）",
     )
 
 
@@ -252,7 +353,7 @@ class MultimodalSettings(BaseSettings):
         description="多模態：從「最終參考片段」中解析的本地圖片數上限；達到後不再掃描後續片段/地址",
     )
     reference_context_max_chars: int = Field(
-        default=28_000,
+        default=18_000,
         ge=2_000,
         le=500_000,
         description="多模態/純檢索上下文：在 LightRAG 已 rerank、去噪與 token 截斷後，再對 chunks 做字數預算（近似 token 上限）",
@@ -306,6 +407,7 @@ class Settings(BaseSettings):
     embedding: EmbeddingSettings = Field(default_factory=EmbeddingSettings)
     chunk: ChunkSettings = Field(default_factory=ChunkSettings)
     retrieval: RetrievalSettings = Field(default_factory=RetrievalSettings)
+    lightrag: LightRAGRuntimeSettings = Field(default_factory=LightRAGRuntimeSettings)
     incremental: IncrementalSettings = Field(default_factory=IncrementalSettings)
     service: ServiceSettings = Field(default_factory=ServiceSettings)
     paths: PathsSettings = Field(default_factory=PathsSettings)
@@ -406,7 +508,15 @@ def apply_settings_to_environ(settings: Settings | None = None) -> None:
 
     os.environ["CHUNK_SIZE"] = str(s.chunk.chunk_size)
     os.environ["CHUNK_OVERLAP_SIZE"] = str(s.chunk.chunk_overlap)
+    lr = s.lightrag
+    chunk_top_k = lr.chunk_top_k if lr.chunk_top_k is not None else s.retrieval.top_k
     os.environ["TOP_K"] = str(s.retrieval.top_k)
+    os.environ["CHUNK_TOP_K"] = str(chunk_top_k)
+    os.environ["MAX_ENTITY_TOKENS"] = str(lr.max_entity_tokens)
+    os.environ["MAX_RELATION_TOKENS"] = str(lr.max_relation_tokens)
+    os.environ["MAX_TOTAL_TOKENS"] = str(lr.max_total_tokens)
+    os.environ["RELATED_CHUNK_NUMBER"] = str(lr.related_entity_chunk_number)
+    os.environ["KG_CHUNK_PICK_METHOD"] = str(lr.kg_chunk_pick_method).strip().upper()
     os.environ["EMBEDDING_BATCH_NUM"] = str(s.embedding.batch_size)
     os.environ["EMBEDDING_FUNC_MAX_ASYNC"] = str(s.embedding.max_async)
     os.environ["MIN_RERANK_SCORE"] = str(s.retrieval.rerank_min_score)

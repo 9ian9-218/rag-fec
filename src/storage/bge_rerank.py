@@ -9,7 +9,8 @@ from typing import Any, Callable
 import numpy as np
 
 from config.model_paths import resolve_reranker_model_load_path
-from config.settings import Settings
+from config.settings import Settings, get_settings
+from src.evaluation.online_monitor import set_rerank_stats
 from src.utils.logger import get_logger
 
 logger = get_logger("storage.bge_rerank")
@@ -94,9 +95,16 @@ def build_bge_rerank_model_func(settings: Settings | None = None) -> Callable[..
             return []
 
         norm = minmax_normalize_scores(scores)
+        min_score = float(get_settings().retrieval.rerank_min_score)
+        below_min = sum(1 for s in norm if s < min_score)
         order = sorted(range(len(norm)), key=lambda i: norm[i], reverse=True)
         if top_n is not None and int(top_n) > 0:
             order = order[: int(top_n)]
+        set_rerank_stats(
+            candidates=len(documents),
+            returned=len(order),
+            below_min_score=below_min,
+        )
 
         return [{"index": i, "relevance_score": float(norm[i])} for i in order]
 

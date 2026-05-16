@@ -1,5 +1,14 @@
-"""RAG / 圖譜增強問答離線評估（JSONL → 多維度報告）。"""
+"""KG-RAG 離線評估 + 線上遙測。"""
 
-from src.evaluation.runner import build_report, build_report_from_path, load_jsonl_rows
+from src.evaluation.online_monitor import QueryTelemetry, append_telemetry, build_telemetry
+from src.evaluation.runner import EVAL_SCHEMA, build_report, build_report_from_path, load_jsonl_rows
 
-__all__ = ["build_report", "build_report_from_path", "load_jsonl_rows"]
+__all__ = [
+    "EVAL_SCHEMA",
+    "QueryTelemetry",
+    "append_telemetry",
+    "build_report",
+    "build_report_from_path",
+    "build_telemetry",
+    "load_jsonl_rows",
+]

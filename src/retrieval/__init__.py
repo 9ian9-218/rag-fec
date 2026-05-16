@@ -6,6 +6,7 @@ from src.retrieval.mode_config import (
     build_query_param,
     suggest_mode_from_question,
 )
+from src.retrieval.mode_router import ModeRouteResult, resolve_retrieval_mode, route_mode_with_llm
 from src.retrieval.result_processor import compact_retrieval_payload, extract_sources, kg_dict_to_bullets
 from src.retrieval.retriever import GraphRAGRetriever
 
@@ -17,5 +18,8 @@ __all__ = [
     "compact_retrieval_payload",
     "extract_sources",
     "kg_dict_to_bullets",
+    "ModeRouteResult",
+    "resolve_retrieval_mode",
+    "route_mode_with_llm",
     "suggest_mode_from_question",
 ]

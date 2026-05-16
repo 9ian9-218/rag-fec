@@ -2,8 +2,9 @@
 
 用法示例：
 
-  python scripts/query.py "什麼是循環碼？"
-  python scripts/query.py -q "什麼是循環碼？" --mode mix
+  python scripts/query.py "什麼是循環碼？"          # 預設：LLM 智能選模式
+  python scripts/query.py -q "問題" --mode mix      # 顯式指定模式，跳過路由
+  python scripts/query.py "問題" --json --show-mode
   python scripts/query.py --interactive
   echo "簡述第五章重點" | python scripts/query.py
   python scripts/query.py "..." --context --json
@@ -37,8 +38,25 @@ def _resolve_question(args: argparse.Namespace) -> str | None:
     return None
 
 
-async def _run_stream(rag: RAGService, question: str, session_id: str | None, mode: str | None, multimodal: bool) -> None:
-    res = await rag.query(question, session_id=session_id, mode=mode, stream=True, multimodal=multimodal)
+async def _run_stream(
+    rag: RAGService,
+    question: str,
+    session_id: str | None,
+    mode: str | None,
+    multimodal: bool,
+    *,
+    no_auto_mode: bool,
+) -> None:
+    use_router = not no_auto_mode
+    rag.set_llm_mode_router(use_router)
+    res = await rag.query(
+        question,
+        session_id=session_id,
+        mode=mode,
+        stream=True,
+        multimodal=multimodal,
+        use_llm_router=use_router if mode is None else False,
+    )
     if hasattr(res, "__aiter__"):
         async for chunk in res:  # type: ignore[union-attr]
             if chunk:
@@ -53,7 +71,10 @@ async def _async_main(args: argparse.Namespace) -> int:
     apply_settings_to_environ(get_settings())
 
     rag = RAGService()
+    use_router = not args.no_auto_mode
+    rag.set_llm_mode_router(use_router)
     mode: str | None = args.mode
+    router_kw = use_router if mode is None else False
     session_id: str | None = args.session_id
 
     if args.interactive:
@@ -71,9 +92,16 @@ async def _async_main(args: argparse.Namespace) -> int:
             if line.lower() in ("exit", "quit", "/exit", "/quit"):
                 break
             if args.stream:
-                await _run_stream(rag, line, sid, mode, args.multimodal)
+                await _run_stream(rag, line, sid, mode, args.multimodal, no_auto_mode=args.no_auto_mode)
             else:
-                ans = await rag.query(line, session_id=sid, mode=mode, stream=False, multimodal=args.multimodal)
+                ans = await rag.query(
+                    line,
+                    session_id=sid,
+                    mode=mode,
+                    stream=False,
+                    multimodal=args.multimodal,
+                    use_llm_router=router_kw,
+                )
                 print(ans)
         return 0
 
@@ -87,20 +115,33 @@ async def _async_main(args: argparse.Namespace) -> int:
             question,
             mode=mode,
             stream=False,
+            use_llm_router=router_kw,
         )
         if args.json:
             print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
+        elif payload.get("mode_selection"):
+            print(json.dumps(payload.get("mode_selection"), ensure_ascii=False), file=sys.stderr)
         else:
             print(json.dumps(payload, ensure_ascii=False, default=str))
         return 0
 
     if args.stream:
-        await _run_stream(rag, question, session_id, mode, args.multimodal)
+        await _run_stream(rag, question, session_id, mode, args.multimodal, no_auto_mode=args.no_auto_mode)
         return 0
 
-    answer = await rag.query(question, session_id=session_id, mode=mode, stream=False, multimodal=args.multimodal)
+    answer = await rag.query(
+        question,
+        session_id=session_id,
+        mode=mode,
+        stream=False,
+        multimodal=args.multimodal,
+        use_llm_router=router_kw,
+    )
     if args.json:
-        print(json.dumps({"answer": answer}, ensure_ascii=False))
+        payload: dict = {"answer": answer}
+        if args.show_mode and rag._retriever._last_mode_route is not None:
+            payload["mode_selection"] = rag._retriever._last_mode_route.to_dict()
+        print(json.dumps(payload, ensure_ascii=False))
     else:
         print(answer)
     return 0
@@ -121,7 +162,17 @@ def main() -> None:
         "--mode",
         default=None,
         choices=("naive", "local", "global", "hybrid", "mix", "bypass"),
-        help="檢索模式（預設見設定 RETRIEVAL_DEFAULT_MODE）",
+        help="檢索模式；指定後跳過 LLM 自動路由",
+    )
+    p.add_argument(
+        "--no-auto-mode",
+        action="store_true",
+        help="關閉檢索前 LLM 模式路由（使用 RETRIEVAL_DEFAULT_MODE 或啟發式）",
+    )
+    p.add_argument(
+        "--show-mode",
+        action="store_true",
+        help="與 --json 同用時輸出 mode_selection（難度/複雜度/選中模式）",
     )
     p.add_argument("--session-id", default=None, help="對話 session（多輪記憶）；不傳則用 default")
     p.add_argument("--stream", action="store_true", help="串流輸出答案（逐塊寫入 stdout）")

@@ -22,11 +22,22 @@ logger = get_logger("service.api")
 class QueryBody(BaseModel):
     question: str = Field(..., min_length=1)
     session_id: str | None = None
-    mode: str | None = Field(default=None, description="naive|local|global|hybrid|mix|bypass")
+    mode: str | None = Field(
+        default=None,
+        description="顯式指定檢索模式時跳過智能路由；省略則由 LLM 在 naive/local/global/hybrid/mix 中自動選擇",
+    )
+    auto_mode: bool = Field(
+        default=True,
+        description="為 True 且未指定 mode 時啟用 LLM 智能路由（受 RETRIEVAL_LLM_MODE_ROUTER_ENABLED 約束）",
+    )
     stream: bool = False
     multimodal: bool = Field(
         default=False,
         description="為 True 時：檢索後解析 chunk 內 ![](images/...) 並送視覺模型（需 API 支援 image_url）",
+    )
+    include_mode_selection: bool = Field(
+        default=False,
+        description="為 True 時在 JSON 響應中附帶 mode_selection（難度/複雜度/選中模式）",
     )
 
 
@@ -87,6 +98,9 @@ def create_app() -> FastAPI:
     @app.post("/api/rag/query")
     async def rag_query(body: QueryBody):
         rag = get_rag()
+        use_router = body.auto_mode if body.mode is None else False
+        rag.set_llm_mode_router(use_router)
+
         if body.stream:
 
             async def gen() -> AsyncIterator[bytes]:
@@ -96,6 +110,7 @@ def create_app() -> FastAPI:
                     mode=body.mode,
                     stream=True,
                     multimodal=body.multimodal,
+                    use_llm_router=use_router,
                 )
                 if hasattr(res, "__aiter__"):
                     async for chunk in res:  # type: ignore[union-attr]
@@ -112,8 +127,15 @@ def create_app() -> FastAPI:
             mode=body.mode,
             stream=False,
             multimodal=body.multimodal,
+            use_llm_router=use_router,
         )
-        return JSONResponse({"answer": text})
+        payload: dict[str, Any] = {"answer": text}
+        if body.include_mode_selection:
+            sel = rag.last_mode_selection
+            if sel is not None:
+                payload["mode_selection"] = sel
+                payload["mode"] = sel.get("mode")
+        return JSONResponse(payload)
 
     @app.post("/api/rag/documents")
     async def upload_document(file: UploadFile = File(...)):
