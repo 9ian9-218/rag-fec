@@ -9,10 +9,12 @@ from config.settings import get_settings
 from src.data_processing.change_detector import (
     ChangeReport,
     detect_changes,
+    detect_index_changes,
     load_hash_cache,
     rebuild_hash_cache_for_directory,
     write_hash_cache,
 )
+from src.incremental.conversion_manager import markdown_path_for_pdf
 from src.data_processing.document_loader import load_document
 from src.incremental.cascade_cleaner import cascade_delete_document
 from src.incremental.checkpoint_manager import CheckpointManager
@@ -44,7 +46,11 @@ class UpdateManager:
             logger.info("增量更新已停用（INCREMENTAL_ENABLED=false）")
             return {"skipped": True}
 
-        report = detect_changes([self._raw], recursive=True)
+        s_doc = get_settings().document
+        if s_doc.is_two_stage():
+            report = detect_index_changes([self._raw], recursive=True)
+        else:
+            report = detect_changes([self._raw], recursive=True)
         rag = await get_lightrag()
         stats = {"added": 0, "modified": 0, "removed": 0, "errors": 0}
         ingested_ok: list[Path] = []
@@ -62,6 +68,11 @@ class UpdateManager:
             doc_id = stable_doc_id(Path(path_str))
             try:
                 await cascade_delete_document(rag, doc_id, self._kv)
+                p = Path(path_str)
+                if p.suffix.lower() == ".pdf" and not get_settings().document.is_two_stage():
+                    from src.data_processing.mineru_convert import remove_mineru_sidecars_for_pdf
+
+                    remove_mineru_sidecars_for_pdf(p)
                 stats["removed"] += 1
             except Exception as e:
                 logger.error("刪除索引失敗 %s: %s", path_str, e)
@@ -80,7 +91,7 @@ class UpdateManager:
                     logger.warning("文件為空，略過索引: %s", path)
                     stats["errors"] += 1
                     return
-                await rag.ainsert(text, ids=doc_id, file_paths=str(path))
+                await rag.ainsert(text, ids=doc_id, file_paths=str(loaded.lightrag_file_path()))
                 from lightrag.base import DocStatus
 
                 failed = await rag.get_docs_by_status(DocStatus.FAILED)
@@ -126,15 +137,29 @@ class UpdateManager:
         logger.info("增量更新完成: %s", stats)
         return {"stats": stats, "report": _serialize_report(report)}
 
+    def _resolve_index_path(self, path: Path) -> Path:
+        """兩階段模式下上傳 PDF 時，改為索引同目錄已轉好的 Markdown。"""
+        path = path.expanduser().resolve()
+        s = get_settings().document
+        if path.suffix.lower() == ".pdf" and s.is_two_stage():
+            md = markdown_path_for_pdf(path)
+            if not md.is_file():
+                raise FileNotFoundError(
+                    f"兩階段模式須先轉檔 PDF：請執行 scripts/convert_documents.py，"
+                    f"預期 Markdown: {md}"
+                )
+            return md
+        return path
+
     async def ingest_path(self, path: Path, *, replace: bool = False) -> dict[str, Any]:
         """單一路徑入庫（API 上傳用）。"""
-        path = path.expanduser().resolve()
+        path = self._resolve_index_path(path)
         rag = await get_lightrag()
         doc_id = stable_doc_id(path)
         if replace:
             await cascade_delete_document(rag, doc_id, self._kv)
         loaded = load_document(path)
-        await rag.ainsert(loaded.text, ids=doc_id, file_paths=str(path))
+        await rag.ainsert(loaded.text, ids=doc_id, file_paths=str(loaded.lightrag_file_path()))
         from lightrag.base import DocStatus
 
         failed = await rag.get_docs_by_status(DocStatus.FAILED)

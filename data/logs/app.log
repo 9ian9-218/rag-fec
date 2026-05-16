@@ -56,3 +56,75 @@ RuntimeError: LightRAG 文件處理失敗（FAILED）: /home/z9ian9/myproject/my
 2026-05-15 16:04:28 | INFO | graph_rag_project.service.api | Graph RAG API 關閉
 2026-05-15 16:05:02 | INFO | graph_rag_project.service.api | Graph RAG API 啟動
 2026-05-15 16:05:06 | INFO | graph_rag_project.service.api | Graph RAG API 關閉
+2026-05-15 17:29:03 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/9a0624b896d81da7492a910ffa53731274b6cf3d
+2026-05-15 17:29:25 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-15 17:29:51 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-15 17:29:53 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-15 17:29:53 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-15 17:30:00 | INFO | graph_rag_project.incremental.cascade_cleaner | cascade_delete_document doc_id=doc-183145929a10805f6f8757040cc811e2 status=success
+2026-05-15 17:30:00 | INFO | graph_rag_project.data_processing.mineru_convert | 執行 MinerU: /home/z9ian9/miniconda3/envs/rag/bin/mineru -p /home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf -o /tmp/tmpsnc205n2 -b pipeline
+2026-05-15 17:30:21 | WARNING | graph_rag_project.data_processing.document_loader | MinerU 轉換失敗，改走一般 PDF 抽取: Command '['/home/z9ian9/miniconda3/envs/rag/bin/mineru', '-p', '/home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf', '-o', '/tmp/tmpsnc205n2', '-b', 'pipeline']' returned non-zero exit status 1.
+2026-05-15 17:42:24 | INFO | graph_rag_project.incremental.update_manager | 增量更新完成: {'added': 1, 'modified': 0, 'removed': 1, 'errors': 0}
+2026-05-15 17:48:51 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-15 17:48:55 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-15 17:48:56 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-15 17:48:56 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-15 18:47:49 | INFO | graph_rag_project.data_processing.mineru_convert | 執行 MinerU: /home/z9ian9/miniconda3/envs/rag/bin/mineru -p /home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf -o /tmp/tmp8me42a3d -b pipeline
+2026-05-15 18:48:14 | ERROR | graph_rag_project.incremental.conversion_manager | PDF 轉檔失敗: /home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf
+Traceback (most recent call last):
+  File "/home/z9ian9/myproject/rag-fec/src/incremental/conversion_manager.py", line 74, in run_incremental
+    out_md = self.convert_path(pdf)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/z9ian9/myproject/rag-fec/src/incremental/conversion_manager.py", line 47, in convert_path
+    return ensure_pdf_markdown_beside_source(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/z9ian9/myproject/rag-fec/src/data_processing/mineru_convert.py", line 177, in ensure_pdf_markdown_beside_source
+    convert_pdf_to_markdown(pdf_path, out_md, infer_backend=infer_backend)
+  File "/home/z9ian9/myproject/rag-fec/src/data_processing/mineru_convert.py", line 132, in convert_pdf_to_markdown
+    subprocess.run(cmd, check=True, env=mineru_subprocess_environ())
+  File "/home/z9ian9/miniconda3/envs/rag/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/z9ian9/miniconda3/envs/rag/bin/mineru', '-p', '/home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf', '-o', '/tmp/tmp8me42a3d', '-b', 'pipeline']' returned non-zero exit status 1.
+2026-05-15 18:48:14 | INFO | graph_rag_project.incremental.conversion_manager | PDF 轉檔增量完成: {'converted': 0, 'removed': 0, 'errors': 1}
+2026-05-15 18:50:08 | INFO | graph_rag_project.data_processing.mineru_convert | 執行 MinerU: /home/z9ian9/miniconda3/envs/rag/bin/mineru -p /home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf -o /tmp/tmp5cheakm_ -b pipeline
+2026-05-15 18:50:23 | ERROR | graph_rag_project.incremental.conversion_manager | PDF 轉檔失敗: /home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf
+Traceback (most recent call last):
+  File "/home/z9ian9/myproject/rag-fec/src/incremental/conversion_manager.py", line 74, in run_incremental
+    out_md = self.convert_path(pdf)
+             ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/z9ian9/myproject/rag-fec/src/incremental/conversion_manager.py", line 47, in convert_path
+    return ensure_pdf_markdown_beside_source(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/z9ian9/myproject/rag-fec/src/data_processing/mineru_convert.py", line 177, in ensure_pdf_markdown_beside_source
+    convert_pdf_to_markdown(pdf_path, out_md, infer_backend=infer_backend)
+  File "/home/z9ian9/myproject/rag-fec/src/data_processing/mineru_convert.py", line 132, in convert_pdf_to_markdown
+    subprocess.run(cmd, check=True, env=mineru_subprocess_environ())
+  File "/home/z9ian9/miniconda3/envs/rag/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/home/z9ian9/miniconda3/envs/rag/bin/mineru', '-p', '/home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf', '-o', '/tmp/tmp5cheakm_', '-b', 'pipeline']' returned non-zero exit status 1.
+2026-05-15 18:50:23 | INFO | graph_rag_project.incremental.conversion_manager | PDF 轉檔增量完成: {'converted': 0, 'removed': 0, 'errors': 1}
+2026-05-15 18:51:00 | INFO | graph_rag_project.data_processing.mineru_convert | 執行 MinerU: /home/z9ian9/miniconda3/envs/rag/bin/mineru -p /home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf -o /tmp/tmp1llfofld -b pipeline
+2026-05-15 18:52:45 | INFO | graph_rag_project.data_processing.mineru_convert | MinerU 產物已寫入源檔同目錄: /home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.md (+ images/)
+2026-05-15 18:52:45 | INFO | graph_rag_project.incremental.conversion_manager | 已轉檔: Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf → Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.md
+2026-05-15 18:52:45 | INFO | graph_rag_project.incremental.conversion_manager | PDF 轉檔增量完成: {'converted': 1, 'removed': 0, 'errors': 0}
+2026-05-15 18:52:57 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-15 18:53:01 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-15 18:53:01 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-15 18:53:02 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-15 18:53:05 | INFO | graph_rag_project.incremental.cascade_cleaner | cascade_delete_document doc_id=doc-48ecb0e9484fe0b05ad33bce718d359b status=success
+2026-05-15 19:09:18 | INFO | graph_rag_project.incremental.update_manager | 增量更新完成: {'added': 1, 'modified': 0, 'removed': 1, 'errors': 0}
+2026-05-15 19:09:50 | INFO | graph_rag_project.incremental.conversion_manager | PDF 轉檔增量完成: {'converted': 0, 'removed': 0, 'errors': 0}
+2026-05-15 19:09:54 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-15 19:10:02 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-15 19:10:03 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-15 19:10:03 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-15 19:10:03 | INFO | graph_rag_project.incremental.update_manager | 增量更新完成: {'added': 0, 'modified': 0, 'removed': 0, 'errors': 0}
+2026-05-15 19:47:03 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-15 19:47:21 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-15 19:47:22 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-15 19:47:23 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-15 19:47:43 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-15 19:47:47 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-15 19:47:48 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-15 19:47:48 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-15 19:47:50 | WARNING | graph_rag_project.retrieval.multimodal_answer | 視覺模型「deepseek-v4-flash」或當前 API 不接受圖片輸入（不支援多模態或參數被拒絕）：Error code: 400 - {'error': {'message': 'Failed to deserialize the JSON body into the target type: messages[1]: unknown variant `image_url`, expected `text` at line 1 column 372201', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}。已降級為僅將檢索文字上下文送主語言模型「deepseek-v4-flash」作答。

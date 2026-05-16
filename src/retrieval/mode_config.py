@@ -7,6 +7,8 @@ from typing import Literal
 
 from lightrag.base import QueryParam
 
+from config.settings import get_settings
+
 RetrievalMode = Literal["naive", "local", "global", "hybrid", "mix", "bypass"]
 
 
@@ -42,6 +44,8 @@ def build_query_param(
         param = replace(param, top_k=int(defaults["top_k"]))
     if "chunk_top_k" in defaults:
         param = replace(param, chunk_top_k=int(defaults["chunk_top_k"]))
+    if not get_settings().rerank_runtime_available():
+        param = replace(param, enable_rerank=False)
     return param
 
 

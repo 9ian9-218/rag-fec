@@ -8,6 +8,7 @@ import threading
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from config.model_paths import resolve_embedding_model_load_path, resolve_reranker_model_load_path
 from config.settings import Settings, apply_settings_to_environ, get_settings
 from src.utils.logger import get_logger
 
@@ -120,19 +121,20 @@ _st_model_lock = threading.Lock()
 _st_models: dict[str, Any] = {}
 
 
-def _get_sentence_transformer(model_name: str) -> Any:
-    """程序內單例載入，避免多個嵌入 worker 同時各自載入 CUDA 模型。"""
+def _get_sentence_transformer(model_key: str) -> Any:
+    """程序內單例載入；``model_key`` 為實際載入路徑或 Hub id。"""
     with _st_model_lock:
-        if model_name not in _st_models:
+        if model_key not in _st_models:
             from sentence_transformers import SentenceTransformer
 
-            logger.info("Loading SentenceTransformer model: %s", model_name)
-            _st_models[model_name] = SentenceTransformer(model_name, trust_remote_code=True)
-        return _st_models[model_name]
+            logger.info("Loading SentenceTransformer model: %s", model_key)
+            _st_models[model_key] = SentenceTransformer(model_key, trust_remote_code=True)
+        return _st_models[model_key]
 
 
-def _warm_sentence_transformer(model_name: str) -> None:
-    _get_sentence_transformer(model_name)
+def _warm_sentence_transformer(settings: Settings) -> None:
+    load_path = resolve_embedding_model_load_path(settings)
+    _get_sentence_transformer(load_path)
 
 
 def _project_root() -> Path:
@@ -146,10 +148,11 @@ def _build_embedding_func(settings: Settings):
 
     s = settings
     dim = s.embedding.dimension
-    model = s.embedding.model_name
+    model_id = s.embedding.model_name
+    load_path = resolve_embedding_model_load_path(s)
 
     def _encode_sync(texts: list[str]) -> np.ndarray:
-        m = _get_sentence_transformer(model)
+        m = _get_sentence_transformer(load_path)
         arr = m.encode(
             texts,
             normalize_embeddings=True,
@@ -162,7 +165,7 @@ def _build_embedding_func(settings: Settings):
     @wrap_embedding_func_with_attrs(
         embedding_dim=dim,
         max_token_size=8192,
-        model_name=model,
+        model_name=model_id,
         send_dimensions=False,
     )
     async def _embed(texts: list[str], **_kwargs: Any) -> Any:
@@ -223,14 +226,33 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
     working_dir = str(root / s.paths.lightrag_working_dir)
     os.makedirs(working_dir, exist_ok=True)
 
-    _warm_sentence_transformer(s.embedding.model_name)
+    _warm_sentence_transformer(s)
     embedding_func = _build_embedding_func(s)
     logger.info(
-        "Embedding backend: sentence-transformers, model=%s, dim=%d",
+        "Embedding backend: sentence-transformers, model=%s, load_path=%s, dim=%d",
         s.embedding.model_name,
+        resolve_embedding_model_load_path(s),
         s.embedding.dimension,
     )
     llm_model_func = _build_llm_func(s)
+
+    rerank_model_func = None
+    if s.models.rerank_enabled and s.rerank_runtime_available():
+        from src.storage.bge_rerank import build_bge_rerank_model_func
+
+        rerank_model_func = build_bge_rerank_model_func(s)
+        logger.info(
+            "Rerank enabled: model=%s load_path=%s min_score=%s",
+            s.models.rerank_model_name,
+            resolve_reranker_model_load_path(s),
+            s.retrieval.rerank_min_score,
+        )
+    else:
+        logger.info(
+            "Rerank skipped (rerank_enabled=%s runtime_available=%s)",
+            s.models.rerank_enabled,
+            s.rerank_runtime_available(),
+        )
 
     max_graph_nodes = min(1000, max(64, s.retrieval.max_hop * 48))
 
@@ -261,6 +283,8 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
         default_embedding_timeout=s.embedding.lightrag_embedding_timeout,
         embedding_func_max_async=s.embedding.max_async,
         addon_params=addon_params,
+        rerank_model_func=rerank_model_func,
+        min_rerank_score=s.retrieval.rerank_min_score,
     )
     logger.info(
         "LightRAG FEC addon_params: language=%s entity_types=%d kinds",
@@ -293,3 +317,9 @@ def reset_lightrag_singleton() -> None:
     """測試或重建索引時清除單例參考。"""
     global _lightrag_instance
     _lightrag_instance = None
+    try:
+        from src.storage.bge_rerank import reset_rerank_singleton
+
+        reset_rerank_singleton()
+    except ImportError:
+        pass

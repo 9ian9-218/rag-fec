@@ -10,6 +10,9 @@ from config.settings import get_settings
 from src.retrieval.mode_config import RetrievalMode, build_query_param, suggest_mode_from_question
 from src.retrieval.result_processor import compact_retrieval_payload, extract_sources, kg_dict_to_bullets
 from src.storage.lightrag_init import get_lightrag
+from src.utils.logger import get_logger
+
+logger = get_logger("retrieval.retriever")
 
 
 class GraphRAGRetriever:
@@ -74,8 +77,13 @@ class GraphRAGRetriever:
         system_prompt: str | None = None,
         history: list[dict[str, str]] | None = None,
         stream: bool = False,
+        multimodal: bool = False,
     ) -> str | AsyncIterator[str]:
-        """端到端問答（含 LLM）。``stream=True`` 時回傳 async iterator。"""
+        """端到端問答（含 LLM）。``stream=True`` 時回傳 async iterator。
+
+        ``multimodal=True``：先 ``aquery_data`` 取 chunks，解析 ``![](images/...)``，
+        將圖片一併送入支援 vision 的 OpenAI 相容 API（``stream`` 與多模態同開時暫不支援，將降級為非串流）。
+        """
         rag = await self._rag()
         m = mode or self._settings.retrieval.default_mode
         if not isinstance(m, str) or m not in (
@@ -93,6 +101,44 @@ class GraphRAGRetriever:
             stream=stream,
             conversation_history=history or [],
         )
+
+        if multimodal and stream:
+            logger.warning("多模態與 stream 同時請求時，改為非串流多模態回答")
+            stream = False
+            param = build_query_param(
+                m,  # type: ignore[arg-type]
+                top_k=top_k or self._settings.retrieval.top_k,
+                stream=False,
+                conversation_history=history or [],
+            )
+
+        if multimodal and m != "bypass":
+            bundle = await rag.aquery_data(question, param)
+            if isinstance(bundle, dict) and bundle.get("status") == "success":
+                from src.retrieval.multimodal_answer import (
+                    answer_with_retrieved_images,
+                    answer_with_retrieved_text_only,
+                )
+
+                try:
+                    return await answer_with_retrieved_images(
+                        settings=self._settings,
+                        question=question,
+                        bundle=bundle,
+                        history_messages=history,
+                    )
+                except Exception as e:
+                    logger.warning("多模態管線異常，嘗試僅以檢索文字作答: %s", e)
+                    try:
+                        return await answer_with_retrieved_text_only(
+                            settings=self._settings,
+                            question=question,
+                            bundle=bundle,
+                            history_messages=history,
+                        )
+                    except Exception as e2:
+                        logger.warning("僅文字檢索作答仍失敗，降級為 LightRAG aquery: %s", e2)
+
         return await rag.aquery(question, param, system_prompt=system_prompt)
 
     def build_postprocess_chain(self):

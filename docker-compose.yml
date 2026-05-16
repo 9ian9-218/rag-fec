@@ -65,6 +65,7 @@ services:
       MILVUS_URI: http://milvus:19530
     volumes:
       - ./data:/app/data
+      - ./models:/app/models
     ports:
       - "8000:8000"
     depends_on:

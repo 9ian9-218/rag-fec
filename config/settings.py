@@ -100,6 +100,12 @@ class RetrievalSettings(BaseSettings):
         description="語意參數；LightRAG 內部以 max_graph_nodes 等控制圖規模",
     )
     enable_bm25: bool = Field(default=True)
+    rerank_min_score: float = Field(
+        default=0.0,
+        ge=0.0,
+        le=1.0,
+        description="對 rerank 分數 min-max 歸一化後的低分過濾；0 表示僅依 chunk_top_k 截斷（對應 MIN_RERANK_SCORE）",
+    )
 
 
 class IncrementalSettings(BaseSettings):
@@ -141,6 +147,90 @@ class PathsSettings(BaseSettings):
     lightrag_working_dir: str = Field(default="data/lightrag_workdir")
     sqlite_path: str = Field(default="data/meta/app_kv.sqlite3")
     logging_conf: str = Field(default="config/logging.conf")
+
+
+class ModelsSettings(BaseSettings):
+    """本機模型根目錄（預設專案下 ``models/``，Hub 快照在 ``models/hub/``）。"""
+
+    model_config = SettingsConfigDict(env_prefix="MODELS_", env_file=".env", extra="ignore")
+
+    dir: str = Field(default="models", description="相對 project_root 的模型根目錄")
+    hf_endpoint: str | None = Field(
+        default="https://hf-mirror.com",
+        description="Hugging Face 鏡像；未設則不覆寫環境變數",
+    )
+    offline: bool = Field(
+        default=True,
+        description="為 True 時設 HF_HUB_OFFLINE，優先使用 models/hub 已有快照",
+    )
+    embedding_local_path: str | None = Field(
+        default=None,
+        description="可選：嵌入模型目錄，覆寫自動解析的 Hub 快照路徑",
+    )
+    rerank_enabled: bool = Field(
+        default=True,
+        description="是否啟用本機 CrossEncoder rerank；關閉時不注入 rerank_model_func 並關閉 RERANK_BY_DEFAULT",
+    )
+    rerank_model_name: str = Field(
+        default="BAAI/bge-reranker-v2-m3",
+        description="HuggingFace 模型 id；權重下載至 models/hub 後自動解析快照路徑",
+    )
+    rerank_local_path: str | None = Field(
+        default=None,
+        description="可選：reranker 目錄，覆寫 Hub 快照（與 EMBEDDING 的 *_LOCAL_PATH 一致）",
+    )
+    rerank_batch_size: int = Field(
+        default=8,
+        ge=1,
+        le=128,
+        description="CrossEncoder.predict 批次大小",
+    )
+
+
+class DocumentConversionSettings(BaseSettings):
+    """PDF 等轉 Markdown（MinerU）與圖片落地。"""
+
+    model_config = SettingsConfigDict(env_prefix="DOCUMENT_", env_file=".env", extra="ignore")
+
+    pipeline_mode: str = Field(
+        default="two_stage",
+        description="two_stage：PDF 僅在轉檔步驟處理，索引只讀 .md；coupled：入庫時內聯 MinerU/抽取",
+    )
+    conversion_cache_path: str = Field(
+        default="data/conversion_cache.json",
+        description="PDF→MD 增量快取（與索引 hash_cache 分離）",
+    )
+    use_mineru_for_pdf: bool = Field(
+        default=True,
+        description="轉檔步驟（或 coupled 入庫）是否使用 MinerU",
+    )
+    mineru_infer_backend: str = Field(default="pipeline", description="MinerU -b 推論後端")
+    mineru_force_refresh: bool = Field(default=False, description="忽略 MinerU 緩存強制重轉")
+
+    def is_two_stage(self) -> bool:
+        return (self.pipeline_mode or "two_stage").strip().lower() in {
+            "two_stage",
+            "two-stage",
+            "2",
+            "separate",
+        }
+
+
+class MultimodalSettings(BaseSettings):
+    """檢索後結合圖片的多模態回答（OpenAI 相容 vision）。"""
+
+    model_config = SettingsConfigDict(env_prefix="MULTIMODAL_", env_file=".env", extra="ignore")
+
+    vision_model: str | None = Field(
+        default=None,
+        description="視覺模型名；未設則沿用 OPENAI_MODEL / LLM_MODEL_NAME",
+    )
+    max_images_per_query: int = Field(default=8, ge=0, le=32)
+    max_image_bytes: int = Field(default=4_000_000, ge=50_000, le=20_000_000)
+    system_prompt: str | None = Field(
+        default=None,
+        description="多模態一輪回答的 system 提示；未設則使用內建預設",
+    )
 
 
 class FecDomainSettings(BaseSettings):
@@ -188,6 +278,9 @@ class Settings(BaseSettings):
     incremental: IncrementalSettings = Field(default_factory=IncrementalSettings)
     service: ServiceSettings = Field(default_factory=ServiceSettings)
     paths: PathsSettings = Field(default_factory=PathsSettings)
+    models: ModelsSettings = Field(default_factory=ModelsSettings)
+    document: DocumentConversionSettings = Field(default_factory=DocumentConversionSettings)
+    multimodal: MultimodalSettings = Field(default_factory=MultimodalSettings)
     fec: FecDomainSettings = Field(default_factory=FecDomainSettings)
 
     lightrag_workspace: str = Field(default="", validation_alias="WORKSPACE")
@@ -216,6 +309,29 @@ class Settings(BaseSettings):
             return float(self.openai_temperature)
         return self.llm.temperature
 
+    def resolved_vision_model_name(self) -> str:
+        """多模態視覺模型；未單獨指定時與主 LLM 相同。"""
+        v = (self.multimodal.vision_model or "").strip()
+        return v if v else self.resolved_llm_model_name()
+
+    def rerank_runtime_available(self) -> bool:
+        """本機 rerank 是否應開啟（關閉開關、離線且無快照時為 False）。"""
+        if not self.models.rerank_enabled:
+            return False
+        from pathlib import Path
+
+        from config.model_paths import resolve_hub_model_dir, resolve_project_root
+
+        lp = (self.models.rerank_local_path or "").strip()
+        if lp:
+            p = Path(lp).expanduser()
+            if not p.is_absolute():
+                p = resolve_project_root(self) / p
+            return p.is_dir()
+        if resolve_hub_model_dir(self.models.rerank_model_name, self) is not None:
+            return True
+        return not self.models.offline
+
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
@@ -228,6 +344,10 @@ def apply_settings_to_environ(settings: Settings | None = None) -> None:
     import json
 
     s = settings or get_settings()
+    from config.model_paths import apply_models_to_environ
+
+    apply_models_to_environ(s)
+
     os.environ.setdefault("NEO4J_URI", s.neo4j.uri)
     os.environ.setdefault("NEO4J_USERNAME", s.neo4j.username)
     os.environ.setdefault("NEO4J_PASSWORD", s.neo4j.password)
@@ -251,6 +371,7 @@ def apply_settings_to_environ(settings: Settings | None = None) -> None:
     os.environ["TOP_K"] = str(s.retrieval.top_k)
     os.environ["EMBEDDING_BATCH_NUM"] = str(s.embedding.batch_size)
     os.environ["EMBEDDING_FUNC_MAX_ASYNC"] = str(s.embedding.max_async)
+    os.environ["MIN_RERANK_SCORE"] = str(s.retrieval.rerank_min_score)
 
     root = os.path.abspath(s.paths.project_root)
     os.environ.setdefault("LIGHTRAG_WORKDIR", os.path.join(root, s.paths.lightrag_working_dir))

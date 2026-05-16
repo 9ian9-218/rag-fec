@@ -1,13 +1,15 @@
 {
   "processed_paths": [
-    "/home/z9ian9/myproject/my_rag/data/raw/差错控制编码_第05章.md"
+    "/home/z9ian9/myproject/my_rag/data/raw/差错控制编码_第05章.md",
+    "/home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf",
+    "/home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.md"
   ],
   "cursor": 0,
   "stats": {
-    "added": 1,
+    "added": 0,
     "modified": 0,
     "removed": 0,
     "errors": 0
   },
-  "updated_at": 1778819959.4040575
+  "updated_at": 1778843403.7284539
 }

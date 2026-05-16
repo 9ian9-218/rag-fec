@@ -11,8 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from config.settings import get_settings
-from src.data_processing.change_detector import rebuild_hash_cache_for_directory
+from src.data_processing.change_detector import INDEX_SUFFIXES, rebuild_hash_cache_for_directory
 from src.data_processing.document_loader import iter_documents
+from src.incremental.conversion_manager import ConversionManager
 from src.incremental.doc_registry import stable_doc_id
 from src.incremental.update_manager import UpdateManager
 from src.storage.lightrag_init import get_lightrag
@@ -23,14 +24,20 @@ async def _full(raw: Path) -> None:
     setup_logging()
     s = get_settings()
     raw = raw.resolve()
-    rebuild_hash_cache_for_directory(raw, recursive=True)
+    if s.document.is_two_stage():
+        print("=== PDF 轉檔（全量掃描） ===")
+        print(ConversionManager(raw_dir=raw).run_incremental())
+        suffixes = INDEX_SUFFIXES
+    else:
+        suffixes = None
+    rebuild_hash_cache_for_directory(raw, recursive=True, suffixes=suffixes)
     rag = await get_lightrag()
     from src.storage.kv_client import KVClient
 
     kv = KVClient()
-    for doc in iter_documents(raw, recursive=True):
+    for doc in iter_documents(raw, recursive=True, suffixes=suffixes):
         doc_id = stable_doc_id(doc.path)
-        await rag.ainsert(doc.text, ids=doc_id, file_paths=str(doc.path))
+        await rag.ainsert(doc.text, ids=doc_id, file_paths=str(doc.lightrag_file_path()))
         kv.upsert_document(
             doc_id,
             str(doc.path.resolve()),

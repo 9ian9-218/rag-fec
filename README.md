@@ -7,7 +7,8 @@
 - **LightRAG**（`lightrag-hku`）：`Neo4JStorage` + `MilvusVectorDBStorage`；KV 使用 **`JsonKVStorage`**（持久化於 `data/lightrag_workdir`）。應用層 **`src/storage/kv_client.py`** 使用 **SQLite** 管理文件註冊與斷點，對應需求中的「元資料 / 註冊表入 SQLite」。
 - **FEC 領域實體**：預設使用與 `rag-fec` 的 `FEC_ENTITY_KIND_TYPES` 一致的 12 類（見 `config/fec_defaults.py`），經 `LightRAG.addon_params["entity_types"]` 與環境變數 `ENTITY_TYPES`（JSON 陣列）注入；摘要語言預設 **`FEC_SUMMARY_LANGUAGE=Chinese`**（對應 `SUMMARY_LANGUAGE`）。可用 **`FEC_ENTITY_TYPES_JSON`** 覆寫類型列表。
 - **增量更新**：`data/hash_cache.json` 比對 MD5；變更時呼叫 LightRAG `adelete_by_doc_id` 再 `ainsert`；路徑穩定 `doc_id` 見 `src/incremental/doc_registry.py`。
-- **嵌入**：本機 **sentence-transformers**（預設 **BAAI/bge-m3**，1024 維）；無需外部嵌入 API。
+- **嵌入**：本機 **sentence-transformers**（預設 **BAAI/bge-m3**，1024 維）；權重從專案 **`models/hub/`** 載入（見 `MODELS_*`）。
+- **PDF 解析（可選）**：MinerU 將 **`data/raw/foo.pdf`** 轉為同目錄 **`foo.md`** + **`images/`**，chunk 內保留 `![](images/...)`，增量更新與刪除 PDF 時會同步處理側車檔案。
 - **編排**：檢索鏈可選 LangChain `RunnableLambda`（見 `src/retrieval/retriever.py`）。
 
 ## 本地開發
@@ -23,7 +24,9 @@
 - 全量建索引：`python scripts/build_index.py --mode full --raw data/raw`
 - 增量更新：`python scripts/incremental_update.py`
 - 清空索引：`python scripts/clear_index.py --all`（會清空 Neo4j 圖、LightRAG 工作目錄檔案與 SQLite；請謹慎）
-- 評估：`python scripts/evaluate.py --input data/test/pairs.jsonl --out data/test/eval_report.json`
+- 評估：`python scripts/evaluate.py --input data/test/eval_sample_full.jsonl --out data/test/eval_report.json`
+- PDF→Markdown（MinerU，可選）：`python scripts/convert_pdf_mineru.py your.pdf -o out/your.md`
+- 本地問答：`python scripts/query.py "問題"`；多模態：`python scripts/query.py "問題" --multimodal`（需 `MULTIMODAL_VISION_MODEL` 等支援 vision 的端點）（答案 ROUGE1/2/L、EM、分詞/字元 F1；可選 `gold_doc_ids`/`retrieved_doc_ids` 檢索與 `gold_entities` 等圖欄位，見報告內 `schema`）
 
 ## Docker Compose 一鍵部署
 

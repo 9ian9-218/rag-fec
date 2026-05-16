@@ -19,6 +19,11 @@
 #   -d '{"question":"請簡述文件重點","stream":false}' \
 #   http://127.0.0.1:8000/api/rag/query
 
+# 範例 3b：多模態（chunk 含 ![](images/...) 且 MULTIMODAL_VISION_MODEL 為支援 vision 的模型）
+# curl -s -H "Content-Type: application/json" \
+#   -d '{"question":"圖中說明了什麼？","stream":false,"multimodal":true}' \
+#   http://127.0.0.1:8000/api/rag/query
+
 # 範例 4：觸發增量更新（掃描 data/raw 與 hash_cache）
 # curl -s -X POST http://127.0.0.1:8000/api/rag/incremental-update
 

@@ -37,8 +37,8 @@ def _resolve_question(args: argparse.Namespace) -> str | None:
     return None
 
 
-async def _run_stream(rag: RAGService, question: str, session_id: str | None, mode: str | None) -> None:
-    res = await rag.query(question, session_id=session_id, mode=mode, stream=True)
+async def _run_stream(rag: RAGService, question: str, session_id: str | None, mode: str | None, multimodal: bool) -> None:
+    res = await rag.query(question, session_id=session_id, mode=mode, stream=True, multimodal=multimodal)
     if hasattr(res, "__aiter__"):
         async for chunk in res:  # type: ignore[union-attr]
             if chunk:
@@ -71,9 +71,9 @@ async def _async_main(args: argparse.Namespace) -> int:
             if line.lower() in ("exit", "quit", "/exit", "/quit"):
                 break
             if args.stream:
-                await _run_stream(rag, line, sid, mode)
+                await _run_stream(rag, line, sid, mode, args.multimodal)
             else:
-                ans = await rag.query(line, session_id=sid, mode=mode, stream=False)
+                ans = await rag.query(line, session_id=sid, mode=mode, stream=False, multimodal=args.multimodal)
                 print(ans)
         return 0
 
@@ -95,10 +95,10 @@ async def _async_main(args: argparse.Namespace) -> int:
         return 0
 
     if args.stream:
-        await _run_stream(rag, question, session_id, mode)
+        await _run_stream(rag, question, session_id, mode, args.multimodal)
         return 0
 
-    answer = await rag.query(question, session_id=session_id, mode=mode, stream=False)
+    answer = await rag.query(question, session_id=session_id, mode=mode, stream=False, multimodal=args.multimodal)
     if args.json:
         print(json.dumps({"answer": answer}, ensure_ascii=False))
     else:
@@ -133,6 +133,11 @@ def main() -> None:
     )
     p.add_argument("--json", action="store_true", help="以 JSON 輸出（--context 時為美化縮排）")
     p.add_argument("-i", "--interactive", action="store_true", help="REPL 多輪問答（共用 session）")
+    p.add_argument(
+        "--multimodal",
+        action="store_true",
+        help="檢索後將 chunk 內圖片一併送入視覺模型（與 --stream 同開時會自動改非串流）",
+    )
     args = p.parse_args()
     try:
         raise SystemExit(asyncio.run(_async_main(args)))

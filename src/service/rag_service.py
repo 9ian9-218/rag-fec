@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, AsyncIterator
 
 from config.settings import get_settings
+from src.incremental.conversion_manager import ConversionManager
 from src.incremental.update_manager import UpdateManager
 from src.retrieval.retriever import GraphRAGRetriever
 from src.storage.kv_client import KVClient
@@ -36,6 +37,7 @@ class RAGService:
         session_id: str | None = None,
         mode: str | None = None,
         stream: bool = False,
+        multimodal: bool = False,
     ) -> str | AsyncIterator[str]:
         hist = self._hist(session_id)
         hist.append({"role": "user", "content": question})
@@ -44,6 +46,7 @@ class RAGService:
             mode=mode,  # type: ignore[arg-type]
             history=hist[:-1],
             stream=stream,
+            multimodal=multimodal,
         )
         if stream:
             return out  # type: ignore[return-value]
@@ -54,11 +57,17 @@ class RAGService:
     async def query_with_context(self, question: str, **kw: Any) -> dict[str, Any]:
         return await self._retriever.retrieve_data(question, **kw)
 
-    async def incremental_update(self) -> dict[str, Any]:
-        mgr = UpdateManager(kv=self._kv)
-        return await mgr.run_incremental()
+    async def incremental_update(self, *, convert_first: bool = False) -> dict[str, Any]:
+        out: dict[str, Any] = {}
+        if convert_first and self._settings.document.is_two_stage():
+            out["conversion"] = ConversionManager().run_incremental()
+        out["index"] = await UpdateManager(kv=self._kv).run_incremental()
+        return out
 
     async def add_document(self, path: Path) -> dict[str, Any]:
+        path = path.expanduser().resolve()
+        if path.suffix.lower() == ".pdf" and self._settings.document.is_two_stage():
+            ConversionManager().convert_path(path)
         mgr = UpdateManager(kv=self._kv)
         return await mgr.ingest_path(path, replace=False)
 

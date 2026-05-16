@@ -13,6 +13,11 @@ from src.utils.logger import get_logger
 
 logger = get_logger("data_processing.change_detector")
 
+# 兩階段管線：轉檔與索引分開追蹤
+CONVERSION_SUFFIXES = {".pdf"}
+INDEX_SUFFIXES = {".md", ".markdown", ".txt", ".docx"}
+DEFAULT_SCAN_SUFFIXES = CONVERSION_SUFFIXES | INDEX_SUFFIXES
+
 
 @dataclass
 class ChangeReport:
@@ -46,13 +51,14 @@ def detect_changes(
     *,
     recursive: bool = True,
     suffixes: set[str] | None = None,
+    cache_path: Path | None = None,
 ) -> ChangeReport:
     """比對目前檔案與快取，回傳新增 / 修改 / 刪除清單。"""
-    s = get_settings()
-    cache_path = Path(s.paths.project_root).resolve() / s.incremental.hash_cache_path
+    if cache_path is None:
+        cache_path = _cache_path_for(get_settings().incremental.hash_cache_path)
     old = _read_cache(cache_path)
 
-    suf = suffixes or {".pdf", ".md", ".markdown", ".docx", ".txt"}
+    suf = suffixes or DEFAULT_SCAN_SUFFIXES
     current: dict[str, str] = {}
 
     for root in scan_roots:
@@ -94,11 +100,46 @@ def detect_changes(
     )
 
 
-def write_hash_cache(mapping: dict[str, str]) -> None:
-    """寫入完整路徑 -> MD5 對照表。"""
+def detect_index_changes(
+    scan_roots: Iterable[Path],
+    *,
+    recursive: bool = True,
+) -> ChangeReport:
+    """僅偵測應入 LightRAG 索引的檔案（不含 .pdf）。"""
+    return detect_changes(scan_roots, recursive=recursive, suffixes=INDEX_SUFFIXES)
+
+
+def detect_conversion_changes(
+    scan_roots: Iterable[Path],
+    *,
+    recursive: bool = True,
+) -> ChangeReport:
+    """僅偵測需 MinerU/轉檔的 PDF（使用 conversion_cache）。"""
+    return detect_changes(
+        scan_roots,
+        recursive=recursive,
+        suffixes=CONVERSION_SUFFIXES,
+        cache_path=_cache_path_for(get_settings().document.conversion_cache_path),
+    )
+
+
+def _cache_path_for(relative: str) -> Path:
     s = get_settings()
-    cache_path = Path(s.paths.project_root).resolve() / s.incremental.hash_cache_path
-    _write_cache(cache_path, mapping)
+    return Path(s.paths.project_root).resolve() / relative
+
+
+def write_hash_cache(mapping: dict[str, str]) -> None:
+    """寫入索引增量快取（路徑 -> MD5）。"""
+    _write_cache(_cache_path_for(get_settings().incremental.hash_cache_path), mapping)
+
+
+def load_conversion_cache() -> dict[str, str]:
+    return _read_cache(_cache_path_for(get_settings().document.conversion_cache_path))
+
+
+def write_conversion_cache(mapping: dict[str, str]) -> None:
+    """寫入 PDF 轉檔增量快取。"""
+    _write_cache(_cache_path_for(get_settings().document.conversion_cache_path), mapping)
 
 
 def rebuild_hash_cache_for_directory(
@@ -108,7 +149,7 @@ def rebuild_hash_cache_for_directory(
     suffixes: set[str] | None = None,
 ) -> dict[str, str]:
     """掃描目錄並覆寫 hash_cache（全量重建）。"""
-    suf = suffixes or {".pdf", ".md", ".markdown", ".docx", ".txt"}
+    suf = suffixes or DEFAULT_SCAN_SUFFIXES
     directory = directory.expanduser().resolve()
     mapping: dict[str, str] = {}
     if not directory.is_dir():
@@ -127,9 +168,7 @@ def rebuild_hash_cache_for_directory(
 
 
 def load_hash_cache() -> dict[str, str]:
-    s = get_settings()
-    cache_path = Path(s.paths.project_root).resolve() / s.incremental.hash_cache_path
-    return _read_cache(cache_path)
+    return _read_cache(_cache_path_for(get_settings().incremental.hash_cache_path))
 
 
 def merge_cache_after_success(old: dict[str, str], report: ChangeReport) -> dict[str, str]:

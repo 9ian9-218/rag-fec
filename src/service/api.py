@@ -24,6 +24,10 @@ class QueryBody(BaseModel):
     session_id: str | None = None
     mode: str | None = Field(default=None, description="naive|local|global|hybrid|mix|bypass")
     stream: bool = False
+    multimodal: bool = Field(
+        default=False,
+        description="為 True 時：檢索後解析 chunk 內 ![](images/...) 並送視覺模型（需 API 支援 image_url）",
+    )
 
 
 class IncrementalBody(BaseModel):
@@ -91,6 +95,7 @@ def create_app() -> FastAPI:
                     session_id=body.session_id,
                     mode=body.mode,
                     stream=True,
+                    multimodal=body.multimodal,
                 )
                 if hasattr(res, "__aiter__"):
                     async for chunk in res:  # type: ignore[union-attr]
@@ -106,6 +111,7 @@ def create_app() -> FastAPI:
             session_id=body.session_id,
             mode=body.mode,
             stream=False,
+            multimodal=body.multimodal,
         )
         return JSONResponse({"answer": text})
 
