@@ -398,3 +398,9 @@ subprocess.CalledProcessError: Command '['/home/z9ian9/miniconda3/envs/rag/bin/m
 2026-05-16 18:01:05 | INFO | graph_rag_project.retrieval.multimodal_answer | 多模態抽圖：於最終 chunks 12 中截為 6 條後再正則取圖（每查詢最多 3 張）
 2026-05-16 18:01:05 | INFO | graph_rag_project.retrieval.multimodal_answer | 多模態 vision：model=Qwen3.5-9B 送入 3 張圖片 -> ['/home/z9ian9/myproject/rag-fec/data/raw/images/1367532a2ad40e309965f9e9e92a7f508fe5c715b39396dc3820db487cd3205f.jpg', '/home/z9ian9/myproject/rag-fec/data/raw/images/08e638a7edfb1b4df680510bd9b208966e0d84066b4a999bfc030b4508aa4348.jpg', '/home/z9ian9/myproject/rag-fec/data/raw/images/89c83eda77dc6862376fbca550fb4de1e594702b1b542f955c3072a4ec50c826.jpg']
 2026-05-16 18:01:05 | INFO | graph_rag_project.retrieval.multimodal_answer | 多模態 vision：base=http://127.0.0.1:8080/v1
+2026-05-16 18:23:09 | INFO | graph_rag_project.storage.lightrag_init | Loading SentenceTransformer model: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181
+2026-05-16 18:23:26 | INFO | graph_rag_project.storage.lightrag_init | Embedding backend: sentence-transformers, model=BAAI/bge-m3, load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-m3/snapshots/5617a9f61b028005a4858fdac845db406aefb181, dim=1024
+2026-05-16 18:23:28 | INFO | graph_rag_project.storage.lightrag_init | Rerank enabled: model=BAAI/bge-reranker-v2-m3 load_path=/home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3 min_score=0.0
+2026-05-16 18:23:29 | INFO | graph_rag_project.storage.lightrag_init | LightRAG FEC addon_params: language=Chinese entity_types=12 kinds
+2026-05-16 18:23:29 | INFO | graph_rag_project.storage.lightrag_init | LightRAG storages initialized
+2026-05-16 18:23:34 | INFO | graph_rag_project.storage.bge_rerank | Loading CrossEncoder reranker: /home/z9ian9/myproject/rag-fec/models/hub/models--BAAI--bge-reranker-v2-m3
