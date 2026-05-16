@@ -1,6 +1,6 @@
 # RAG-FEC：面向 FEC 领域的生产级 Graph RAG 系统
 
-本项目聚焦于 **LightRAG + Neo4j + Milvus** 的知识图谱增强检索（KG-RAG），面向 **前向纠错编码（FEC）** 领域文献与教材，提供文档解析、图谱构建、多模式检索、智能路由、增量更新、离线/在线评估与 FastAPI 服务，适合科研文献问答与领域知识库构建。
+本项目聚焦于 **LightRAG + Neo4j + Milvus** 的知识图谱增强检索（KG-RAG），面向 **前向纠错编码（FEC）** 领域文献与教材，提供文档解析、图谱构建、多模式检索、智能路由、增量更新、离线/在线评估与 FastAPI 服务，适合科研文献问答与领域知识库构建，本项目由vibe coding生成。
 
 > 灵感来源于 GraphRAG 与 LightRAG 的轻量图谱方案，在 FEC 专业语料上做了实体类型、关系优化与评估体系的领域化落地。
 
@@ -30,7 +30,7 @@ flowchart TB
         Router["LLM 模式路由"]
         Modes["naive / local / global / hybrid / mix"]
         Rerank["BGE CrossEncoder 重排"]
-        LLM["DeepSeek 等 OpenAI 兼容 LLM"]
+        LLM["OpenAI 兼容 LLM"]
     end
 
     subgraph Service["服务与评估"]
