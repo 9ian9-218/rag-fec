@@ -9,15 +9,23 @@ from config.settings import get_settings
 from src.data_processing.change_detector import (
     ChangeReport,
     detect_changes,
+    detect_conversion_changes,
     detect_index_changes,
+    load_conversion_cache,
     load_hash_cache,
     rebuild_hash_cache_for_directory,
+    write_conversion_cache,
     write_hash_cache,
 )
 from src.incremental.conversion_manager import markdown_path_for_pdf
 from src.data_processing.document_loader import load_document
 from src.incremental.cascade_cleaner import cascade_delete_document
 from src.incremental.checkpoint_manager import CheckpointManager
+from src.incremental.document_manifest import (
+    legacy_cleanup_markdown_sidecars,
+    purge_for_doc_id,
+    register_after_ingest,
+)
 from src.incremental.doc_registry import stable_doc_id
 from src.storage.kv_client import KVClient
 from src.storage.lightrag_init import get_lightrag
@@ -47,12 +55,28 @@ class UpdateManager:
             return {"skipped": True}
 
         s_doc = get_settings().document
+        stats = {"added": 0, "modified": 0, "removed": 0, "errors": 0}
+        # two_stage：先依 conversion_cache 處理已刪 PDF的側車，否則僅刪 .md 時 images 仍殘留
+        if s_doc.is_two_stage():
+            from src.data_processing.mineru_convert import remove_mineru_sidecars_for_pdf
+
+            conv_report = detect_conversion_changes([self._raw], recursive=True)
+            for path_str in conv_report.removed:
+                try:
+                    remove_mineru_sidecars_for_pdf(Path(path_str))
+                except Exception as e:
+                    logger.error("刪除 PDF 側車失敗 %s: %s", path_str, e)
+                    stats["errors"] += 1
+            conv_cache = load_conversion_cache()
+            for path_str in conv_report.removed:
+                conv_cache.pop(path_str, None)
+            write_conversion_cache(conv_cache)
+
         if s_doc.is_two_stage():
             report = detect_index_changes([self._raw], recursive=True)
         else:
             report = detect_changes([self._raw], recursive=True)
         rag = await get_lightrag()
-        stats = {"added": 0, "modified": 0, "removed": 0, "errors": 0}
         ingested_ok: list[Path] = []
         interval = max(1, s.incremental.checkpoint_interval)
         cp = self._cp.load()
@@ -68,11 +92,16 @@ class UpdateManager:
             doc_id = stable_doc_id(Path(path_str))
             try:
                 await cascade_delete_document(rag, doc_id, self._kv)
+                m_out = purge_for_doc_id(doc_id)
                 p = Path(path_str)
-                if p.suffix.lower() == ".pdf" and not get_settings().document.is_two_stage():
-                    from src.data_processing.mineru_convert import remove_mineru_sidecars_for_pdf
+                suf = p.suffix.lower()
+                if m_out.get("skipped"):
+                    if suf == ".pdf" and not get_settings().document.is_two_stage():
+                        from src.data_processing.mineru_convert import remove_mineru_sidecars_for_pdf
 
-                    remove_mineru_sidecars_for_pdf(p)
+                        remove_mineru_sidecars_for_pdf(p)
+                    elif suf in (".md", ".markdown"):
+                        legacy_cleanup_markdown_sidecars(path_str)
                 stats["removed"] += 1
             except Exception as e:
                 logger.error("刪除索引失敗 %s: %s", path_str, e)
@@ -85,6 +114,7 @@ class UpdateManager:
             try:
                 if is_modify:
                     await cascade_delete_document(rag, doc_id, self._kv)
+                    purge_for_doc_id(doc_id)
                 loaded = load_document(path)
                 text = loaded.text
                 if not text.strip():
@@ -105,6 +135,7 @@ class UpdateManager:
                     loaded.metadata.get("md5_content"),
                     loaded.metadata.get("size_bytes"),
                 )
+                register_after_ingest(doc_id, loaded, path)
                 if is_modify:
                     stats["modified"] += 1
                 else:
@@ -158,6 +189,7 @@ class UpdateManager:
         doc_id = stable_doc_id(path)
         if replace:
             await cascade_delete_document(rag, doc_id, self._kv)
+            purge_for_doc_id(doc_id)
         loaded = load_document(path)
         await rag.ainsert(loaded.text, ids=doc_id, file_paths=str(loaded.lightrag_file_path()))
         from lightrag.base import DocStatus
@@ -173,6 +205,7 @@ class UpdateManager:
             loaded.metadata.get("md5_content"),
             loaded.metadata.get("size_bytes"),
         )
+        register_after_ingest(doc_id, loaded, path)
         if self._raw.exists():
             c = load_hash_cache()
             try:

@@ -1,2738 +1,4422 @@
 {
-  "doc-b5515cd71622f7b6d62f979b2cde9c40": {
+  "doc-0f78da8d62102a9a83a98730e0e9150f": {
     "relation_pairs": [
       [
-        "r阶Reed-Muller码",
-        "r阶Reed-Muller码的基向量集合"
+        "(7,4)循环码",
+        "码字(0000000)"
       ],
       [
-        "Low code rate regime (≤0.5)",
-        "RPA decoding"
+        "Interleaved Golay Code",
+        "Three-Dimensional Product Code"
       ],
       [
-        "Proposition 5",
-        "RPA Decoder"
+        "(n,k)循环码",
+        "首尾相接突发错误模式"
       ],
       [
-        "RPA算法",
-        "投影码字"
+        "消息(0001)",
+        "码字(1010001)"
       ],
       [
-        "Algorithm 1",
-        "Algorithm 3"
+        "C1",
+        "循环码"
       ],
       [
-        "Decoding Method",
-        "Equation (2)"
+        "(31,26)循环汉明码",
+        "生成多项式g(X)=1+X^2+X^5"
       ],
       [
-        "LLR",
-        "唯一译码算法"
+        "k比特缓冲寄存器",
+        "接收向量r(X)"
       ],
       [
-        "Algorithm 2",
-        "Spectral Algorithm"
+        "多项式$X^{7}+1$",
+        "生成多项式$g(X)=1+X+X^{3}$"
       ],
       [
-        "Coset {z,z'}",
-        "RM码"
+        "X+1",
+        "X^i+X^j+X^k+X^l"
       ],
       [
-        "Fig. 2(i)",
-        "RM(10,2)"
+        "(9,3)码",
+        "准循环码"
       ],
       [
-        "Coset {z,z'}",
-        "系数α_i(z,z')"
+        "反多项式X^4 h(X^{-1})",
+        "多项式X^7+1"
       ],
       [
-        "Comparison between Reed-Muller codes and polar codes over AWGN channels",
-        "Fig. 2"
+        "(15,11)循环汉明码",
+        "g(X)=1+X+X^4"
       ],
       [
-        "Reed-Muller Code of Length 1024",
-        "Reed-Muller Codes"
+        "接收向量",
+        "校正子寄存器"
       ],
       [
-        "RPA算法",
-        "[11]–[13]中的算法"
+        "定理5-2",
+        "循环码C"
       ],
       [
-        "Aggregation函数",
-        "RPA_RM解码函数"
+        "余式b(X)=X+X^2",
+        "例5-2"
       ],
       [
-        "似然函数L_{/B}(T)",
-        "公式(13)"
+        "循环乘积码",
+        "循环乘积码译码器"
       ],
       [
-        "Emmanuel Abbe",
-        "Princeton University"
+        "差错检测电路",
+        "校正子(01000)"
       ],
       [
-        "L_max",
-        "列表译码过程"
+        "校正子寄存器",
+        "通用循环码译码器"
       ],
       [
-        "Bernoulli-1/2 Distribution",
-        "Random Codeword C"
+        "(n,k)循环码",
+        "生成多项式g(X)"
       ],
       [
-        "c_0(z)",
-        "hat c_1"
+        "(15,5)准循环码",
+        "例5-14"
       ],
       [
-        "RPA Decoder",
-        "Reed-Muller Code"
+        "C2",
+        "循环乘积码"
       ],
       [
-        "RPA_RM解码函数",
-        "二进制输入无记忆信道"
+        "循环乘积码",
+        "循环码"
       ],
       [
-        "Ecole Polytechnique Fédérale de Lausanne (EPFL)",
-        "Emmanuel Abbe"
+        "G",
+        "v1(X)"
       ],
       [
-        "RPA_RM",
-        "θ"
+        "g(X)",
+        "循环乘积码"
       ],
       [
-        "Corollary 39",
-        "Meta converse bound"
+        "循环码",
+        "校验位"
       ],
       [
-        "SCL decoder",
-        "Table I"
+        "循环码",
+        "生成多项式g(X)"
       ],
       [
-        "RM Codes",
-        "w(0.01)"
+        "CCITT",
+        "CCITT X-25标准CRC码"
       ],
       [
-        "Code Word c0",
-        "Code Word c2"
+        "码多项式$1+X^{3}+X^{5}+X^{6}$",
+        "码字(1001011)"
       ],
       [
-        "Department of Mathematics, Princeton University",
-        "Emmanuel Abbe"
+        "(15,11)循环汉明码",
+        "(8,4)缩短循环码"
       ],
       [
-        "Reed-Muller Codes",
-        "Table I"
+        "C1",
+        "d1"
       ],
       [
-        "Dumer's algorithm",
-        "RM(8,2)"
+        "c_0",
+        "p_0^{(2)}"
       ],
       [
-        "似然函数L_{/B}(T)",
-        "引理2"
+        "图5-3",
+        "基于校验多项式h(X)=1+h1X+...+X^k的编码电路"
       ],
       [
-        "码字c_1",
-        "码字c_2"
+        "$X^{n-k}u(X)$",
+        "生成多项式$g(X)$"
       ],
       [
-        "Projection step",
-        "RPA decoder"
+        "(23,12)格雷码",
+        "完备码"
       ],
       [
-        "B. Sakkour",
-        "二阶Reed-Muller码"
+        "习题5-8",
+        "多项式(X+1)g(X)"
       ],
       [
-        "公式(16)",
-        "对数似然比向量L^(2)"
+        "余式 ρ(X)",
+        "信息部分错误模式e_I(X)"
       ],
       [
-        "Polar Codes",
-        "Transition Width w(δ)"
+        "循环码",
+        "译码电路"
       ],
       [
-        "向量空间E=F2^m",
-        "子空间B"
+        "捕错译码器",
+        "改进的捕错译码"
       ],
       [
-        "Fig. 2",
-        "Simplified_RPA算法"
+        "X^n+1",
+        "a(X)"
       ],
       [
-        "(r-1)th Order Reed-Muller Code",
-        "Algorithm 4"
+        "捕错译码方法",
+        "纠单个错误的分组码"
       ],
       [
-        "Decoding Method",
-        "Maximization Criterion"
+        "C1",
+        "g1(X)"
       ],
       [
-        "RPA_RM Algorithm",
-        "Reed-Muller Code"
+        "接收多项式",
+        "校正子"
       ],
       [
-        "二进制输入信道",
-        "解码算法(Algorithms 3–4)"
+        "图5-1",
+        "编码电路"
       ],
       [
-        "Binary-input memoryless channels",
-        "RPA decoding"
+        "改进的捕错译码",
+        "覆盖多项式 φ_j(X)"
       ],
       [
-        "R. Urbanke",
-        "Reed-Muller Codes"
+        "c_2",
+        "p_2^{(2)}"
       ],
       [
-        "List解码版本的Simplified_RPA算法",
-        "Simplified_RPA算法"
+        "s(X)=1+X+X^2",
+        "校正子向量(111)"
       ],
       [
-        "Binary Symmetric Channel (BSC)",
-        "RPA decoding"
+        "c_0",
+        "p_0^{(1)}"
       ],
       [
-        "RM(8,5)",
-        "Simplified_RPA algorithm"
+        "简单捕错方案",
+        "错误模式e(X)=X^5+X^11+X^22"
       ],
       [
-        "One-Dimensional Subspace",
-        "Projection"
+        "校正子重量",
+        "阈值t"
       ],
       [
-        "向量v",
-        "输入向量z和z'"
+        "余式b_i(X)",
+        "向量b_i"
       ],
       [
-        "H. D. Pfister",
-        "Minimum-Weight Parity Checks"
+        "循环码",
+        "法尔码"
+      ],
+      [
+        "第一步操作",
+        "门4"
+      ],
+      [
+        "定理5-4",
+        "接收多项式r(X)"
+      ],
+      [
+        "接收多项式$r(X)$",
+        "门1"
+      ],
+      [
+        "射影几何码",
+        "循环码"
+      ],
+      [
+        "IBM",
+        "IBM-SDLC标准CRC码"
+      ],
+      [
+        "表5-5",
+        "错误模式e(X)"
+      ],
+      [
+        "循环码",
+        "系统循环码"
+      ],
+      [
+        "二进制对称信道(BSC)",
+        "距离为4的循环汉明码"
+      ],
+      [
+        "生成多项式g(X)",
+        "编码电路"
+      ],
+      [
+        "r=(0010110)",
+        "校正子s"
+      ],
+      [
+        "A1(z)",
+        "公式(4-1)"
+      ],
+      [
+        "准循环码",
+        "循环码"
+      ],
+      [
+        "校正子寄存器",
+        "校正子重量"
+      ],
+      [
+        "图5-4",
+        "基于校验多项式h(X)=1+X+X^2+X^4的(7,4)循环码编码电路"
+      ],
+      [
+        "捕错译码",
+        "捕错译码器"
+      ],
+      [
+        "公式(5-12)",
+        "校验矩阵H"
+      ],
+      [
+        "生成多项式$\\pmb{g}(X)$",
+        "纠t个差错的码"
+      ],
+      [
+        "C2",
+        "n2"
+      ],
+      [
+        "习题5-9",
+        "最小距离为4"
+      ],
+      [
+        "捕错译码方法",
+        "纠双错误码"
+      ],
+      [
+        "循环移位",
+        "捕错译码"
+      ],
+      [
+        "m输入与门",
+        "校正子"
+      ],
+      [
+        "捕错译码器",
+        "门2"
+      ],
+      [
+        "单个差错",
+        "循环汉明码"
+      ],
+      [
+        "图3-9",
+        "图5-9"
+      ],
+      [
+        "校验部分错误模式e_p(X)",
+        "错误模式e(X)"
+      ],
+      [
+        "图5-6",
+        "表5-3"
+      ],
+      [
+        "g(X)=1+X+X^3",
+        "码字(0010111)"
+      ],
+      [
+        "Meggitt译码器",
+        "习题5-24"
+      ],
+      [
+        "(7,4)循环码",
+        "校验多项式h(X)"
+      ],
+      [
+        "捕错译码",
+        "纠突发错误码"
+      ],
+      [
+        "二进制多项式g(X)",
+        "循环码"
+      ],
+      [
+        "两个差错的组合",
+        "循环码C2"
+      ],
+      [
+        "余式 ρ_j(X)",
+        "多项式集合 {φ_j(X)}"
+      ],
+      [
+        "循环乘积码",
+        "循环乘积码的生成多项式"
+      ],
+      [
+        "校正子寄存器",
+        "缩短循环码"
+      ],
+      [
+        "循环汉明码的对偶码",
+        "距离为4的循环汉明码"
+      ],
+      [
+        "公式(5-1)",
+        "循环移位"
+      ],
+      [
+        "校正子",
+        "译码器"
+      ],
+      [
+        "校验多项式h(X)",
+        "校验矩阵H"
+      ],
+      [
+        "g(X)=1+X+X^3",
+        "码字(0100011)"
+      ],
+      [
+        "消息(0101)",
+        "码字(1100101)"
+      ],
+      [
+        "覆盖多项式集合",
+        "阈值检测开关"
+      ],
+      [
+        "基于校验多项式h(X)=1+h1X+...+X^k的编码电路",
+        "门2"
+      ],
+      [
+        "循环移位",
+        "首尾相接错误模式"
+      ],
+      [
+        "消息(1100)",
+        "码字(1011100)"
+      ],
+      [
+        "校正子寄存器",
+        "门1"
+      ],
+      [
+        "系统搜索译码器",
+        "门1"
+      ],
+      [
+        "11级移位寄存器",
+        "生成多项式g1(X)"
+      ],
+      [
+        "X^{2^{m-1}}+1",
+        "g(X)=(X+1)p(X)"
+      ],
+      [
+        "余式多项式 ρ(X)",
+        "校正子多项式s^(n-k+l)(X)"
+      ],
+      [
+        "s(X)=X+X^2",
+        "校正子向量(011)"
+      ],
+      [
+        "接收位",
+        "接收向量r(X)"
+      ],
+      [
+        "校正子s(X)",
+        "错误模式e(X)"
+      ],
+      [
+        "消息(0000)",
+        "码字(0000000)"
+      ],
+      [
+        "C2",
+        "C3"
+      ],
+      [
+        "循环汉明码C1",
+        "循环码C2"
+      ],
+      [
+        "传送码字 ν(X)",
+        "例5-9"
+      ],
+      [
+        "循环汉明码",
+        "汉明码"
+      ],
+      [
+        "循环乘积码",
+        "纠错能力"
+      ],
+      [
+        "(23,12)格雷码",
+        "循环码"
+      ],
+      [
+        "(7,4)循环码",
+        "码字(1011100)"
+      ],
+      [
+        "信息部分错误模式e_I(X)",
+        "生成多项式g(X)"
+      ],
+      [
+        "ANSI标准CRC码",
+        "循环冗余校验(CRC)码"
+      ],
+      [
+        "消息多项式u(X)",
+        "码多项式v(X)"
+      ],
+      [
+        "(31,26)循环汉明码",
+        "m=5"
+      ],
+      [
+        "定义5-1",
+        "循环码"
+      ],
+      [
+        "图5-11",
+        "通用循环码译码器"
+      ],
+      [
+        "循环码",
+        "捕错译码"
+      ],
+      [
+        "IBM-SDLC标准CRC码",
+        "循环冗余校验(CRC)码"
+      ],
+      [
+        "门4",
+        "阈值检测开关T0"
+      ],
+      [
+        "例5-3",
+        "表(5-1)"
       ],
       [
         "BSC信道",
-        "图4(c)"
+        "习题5-9"
       ],
       [
-        "RM(m,r)",
-        "向量v"
+        "校正子寄存器",
+        "门4"
       ],
       [
-        "Figure 2(d): RM(8,2) vs polar codes",
-        "Polar codes"
+        "G",
+        "H"
       ],
       [
-        "估计向量y_hat",
-        "符号向量u_hat"
+        "$\\beta_1$和$\\beta_2$",
+        "$\\pmb{g}(X) = \\pmb{\\phi}_{1}(X) \\cdot \\pmb{\\phi}_{2}(X)$"
       ],
       [
-        "二维子空间投影",
-        "陪集"
+        "g(X)",
+        "码多项式"
       ],
       [
-        "IEEE Data Storage Best Paper Award",
-        "Min Ye"
+        "(7,4)循环码",
+        "码字(0100011)"
       ],
       [
-        "A_{z,z'}",
-        "\\hat{y}_{z,z'}"
+        "p_2^{(2)}",
+        "码字v"
       ],
       [
-        "BSC Channel",
-        "RPA_RM Decoding Algorithm"
+        "码字(1100101)",
+        "表5-2"
       ],
       [
-        "列表译码",
-        "最大似然译码"
+        "不可纠正错误模式",
+        "重量"
       ],
       [
-        "Algorithm 9",
-        "Appendix C"
+        "m次本原多项式$\\boldsymbol{p}(X)$",
+        "素元$\\alpha$"
       ],
       [
-        "估计向量y_hat",
-        "最大化问题(公式4和5)"
+        "(7,4)循环码",
+        "码字(0101110)"
       ],
       [
-        "子空间B",
-        "陪集标签二进制向量"
+        "接收多项式r(X)",
+        "缓冲寄存器"
       ],
       [
-        "Polar codes",
-        "SCL+list decoder"
+        "习题5-13",
+        "图5-11"
       ],
       [
-        "LLR",
-        "列表译码"
+        "译码方式",
+        "阈值t"
       ],
       [
-        "Lemma",
-        "Proposition 4"
+        "公式(5-33)",
+        "重量枚举式B2(z)"
       ],
       [
-        "RM(7,4)",
-        "Simplified_RPA算法"
+        "习题3-6(2)",
+        "对偶码"
       ],
       [
-        "RM(m,r)",
-        "c_0"
+        "(7,4)循环码",
+        "码字v=(0 1 1 1 0 0 1)"
       ],
       [
-        "Figure 2(g): RM(8,5) vs polar codes",
-        "Polar codes"
+        "循环码",
+        "校验多项式h(X)"
       ],
       [
-        "Chase Algorithm",
-        "D. Chase"
+        "校正子",
+        "错误模式检测电路"
       ],
       [
-        "公式(11)",
-        "集合基数相等关系"
+        "例5-5",
+        "寄存器内容表格"
       ],
       [
-        "Est_{i,j}(z)",
-        "\\hat{L}(z)"
+        "校正子s(X)",
+        "阈值检测开关"
       ],
       [
-        "BSC信道",
-        "RM(8,3)"
+        "g^{(k)}(X)",
+        "公式(5-1)"
       ],
       [
-        "Code Length",
-        "ML Decoder"
+        "循环汉明码",
+        "漏检误码率"
       ],
       [
-        "Polar codes",
-        "RM(7,3)"
+        "Linear Codes",
+        "Undetected Error Probability"
       ],
       [
-        "Algorithm 1",
-        "Proposition 2"
+        "接收多项式r(X)",
+        "码多项式v(X)"
       ],
       [
-        "Figure 2(d): RM(8,2) vs polar codes",
-        "RM(8,2)"
+        "A1(z)",
+        "A2(z)"
       ],
       [
-        "E",
-        "z"
+        "g(X)=1+X+X^3",
+        "码字(0111001)"
       ],
       [
-        "AWGN信道",
-        "图4(a)"
+        "门3",
+        "阈值检测开关T0"
       ],
       [
-        "Algorithm 9",
-        "Proposition 5"
+        "图5-5",
+        "校正子电路"
       ],
       [
-        "Decoding Method",
-        "Fast Hadamard Transform"
+        "子矩阵Q_l",
+        "生成矩阵G"
       ],
       [
-        "Code Word c2",
-        "Reed-Muller Code"
+        "校验位",
+        "系统形式的循环码"
       ],
       [
-        "矩阵A",
-        "谱松弛"
+        "循环码C",
+        "循环码C*"
       ],
       [
-        "RPA_RM解码函数",
-        "退出阈值θ"
+        "消息(1010)",
+        "码字(0011010)"
       ],
       [
-        "Algorithm 1",
-        "Proposition 1"
+        "Meggitt译码器",
+        "准循环码"
       ],
       [
-        "Polar Codes",
-        "w(0.1)"
+        "相邻三重错误模式",
+        "陪集首"
       ],
       [
-        "一阶里德-穆勒码",
-        "最大似然译码器"
+        "图5-17 (15,7)循环码的捕错译码器",
+        "捕错译码器"
       ],
       [
-        "Dumer's algorithm",
-        "RM(9,3)"
+        "(15,11)循环汉明码",
+        "(15,11)循环汉明码的译码器"
       ],
       [
-        "BMS Channel",
-        "RPA Decoder"
+        "(7,4)循环码",
+        "例5-3"
       ],
       [
-        "E/B",
-        "nu'_m(A,z)"
+        "C2",
+        "极长码"
       ],
       [
-        "Reed-Muller Codes",
-        "Third-Order Reed-Muller Code"
+        "例5-2",
+        "消息多项式u(X)=1+X^3"
       ],
       [
-        "BSC channel",
-        "RM codes"
+        "g(X)",
+        "公式(5-3)"
       ],
       [
-        "BSC channel",
-        "Saptharishi-Shpilka-Volk algorithm"
+        "错误模式",
+        "错误模式检测器"
       ],
       [
-        "Dumers recursive decoding algorithm",
-        "Reed-Muller codes"
+        "多项式$X^{7}+1$",
+        "生成多项式$1+X^{2}+X^{3}$"
       ],
       [
-        "M. Bastani Parizi",
-        "Successive Cancellation List Decoding"
+        "校正子s",
+        "校正子电路"
       ],
       [
-        "Emmanuel Abbe",
-        "Google Faculty Research Award"
+        "覆盖多项式 φ_j(X)",
+        "译码过程"
       ],
       [
-        "P(7,4)",
-        "Polar Codes"
+        "(8,4)缩短循环码",
+        "习题5-4"
       ],
       [
-        "One-dimensional subspaces",
-        "Projection step"
+        "捕错译码器",
+        "缓冲寄存器"
       ],
       [
-        "hat L^(2)向量",
-        "方程(16)"
+        "循环码C",
+        "重量枚举式A(z)"
       ],
       [
-        "方程(17)",
-        "系数α_i(z,z')"
+        "C1",
+        "C3"
       ],
       [
-        "RM Codes",
-        "RPA_RM"
+        "公式(5-1)",
+        "对偶码"
       ],
       [
-        "列表大小",
-        "最大似然译码器"
+        "奇偶校验矩阵H",
+        "矩阵Q"
       ],
       [
-        "Maximal Likelihood (ML) decoder",
-        "Reed-Muller codes"
+        "C2",
+        "d2"
       ],
       [
-        "Figure 6(a)",
-        "P(8,2)"
+        "(7,4)循环码",
+        "例5-7"
       ],
       [
-        "CRC-aided polar codes",
-        "Successive Cancellation List (SCL) decoder"
+        "不可检测的突发差错e(X)=X^i g(X)",
+        "生成多项式g(X)"
       ],
       [
-        "Algorithm in [19]",
-        "RM(7,3)"
+        "多项式X^7+1",
+        "校验多项式h(X)"
       ],
       [
-        "幂迭代方法",
-        "近似解u_hat"
+        "循环码",
+        "线性码"
       ],
       [
-        "RM码",
-        "RPA_RM函数"
+        "h(X)",
+        "p(X)"
       ],
       [
-        "H. Hassani",
-        "Reed-Muller Codes"
+        "消息向量",
+        "码字"
       ],
       [
-        "List Decoding",
-        "Reedsdecoder"
+        "公式(5-14)",
+        "校验矩阵H"
       ],
       [
-        "Meta converse bound",
-        "Theorem 40"
+        "消息$u=(1010)$",
+        "生成多项式$g(X)=1+X+X^{3}$"
       ],
       [
-        "ML解码器",
-        "Simplified_RPA算法"
+        "(9,3)码",
+        "码字010001011"
       ],
       [
-        "$\\hat{y}_{/\\mathbb{B}_{i,j}}$",
-        "Recursive Decoding"
+        "校正子s(X)",
+        "表5-5"
       ],
       [
-        "L^(2)向量",
-        "方程(17)"
+        "接收多项式$r(X)$",
+        "门3"
       ],
       [
-        "二元输入无记忆信道",
-        "列表译码过程"
+        "多项式h(X)",
+        "生成多项式g(X)"
       ],
       [
-        "A. Shpilka",
-        "Reed-Muller Codes"
+        "(7,4)循环码",
+        "码字(0111001)"
       ],
       [
-        "聚合步骤",
-        "递归解码"
+        "多项式h(X)",
+        "校验矩阵H"
       ],
       [
-        "RPA_RM解码函数",
-        "Reed-Muller码"
+        "漏检差错概率Pu(E)",
+        "距离为4的循环汉明码"
       ],
       [
-        "Fig. 2(h)",
-        "RM(9,2)"
+        "校正子",
+        "校正子重量"
       ],
       [
-        "tilde L_{F_2}^{(2)}(T)",
-        "方程(13)"
+        "c_0",
+        "p_2^{(1)}"
       ],
       [
-        "Lemma 1",
-        "c_0"
+        "图5-8",
+        "通用循环码译码器"
       ],
       [
-        "Decoding Method",
-        "Log-Likelihood Ratio (LLR)"
+        "Digital Coding",
+        "M J E Golay"
       ],
       [
-        "Discrete Isoperimetric Inequalities",
-        "J.-P. Tillich"
+        "习题5-6",
+        "奇数重量的码字"
       ],
       [
-        "Discrete isoperimetric inequalities and the probability of a decoding error",
-        "J.-P. Tillich"
+        "(23,12)格雷码",
+        "生成多项式g1(X)"
       ],
       [
-        "BSC channel",
-        "Reed's algorithm"
+        "(7,4)循环码",
+        "例3-9"
       ],
       [
-        "RM(9,3)",
-        "RPA decoder"
+        "(7,4)循环码",
+        "系统形式的循环码"
       ],
       [
-        "Algorithm in [19]",
-        "Belief propagation"
+        "p_2^{(1)}",
+        "码字v"
       ],
       [
-        "子空间B",
-        "投影算子Proj(y,B)"
+        "校正子寄存器",
+        "系统搜索译码器"
       ],
       [
-        "Erasure Channels",
-        "Reed-Muller Codes"
+        "本原多项式p(X)",
+        "表2-7"
       ],
       [
-        "N_max",
-        "RPA_RM Decoding Function"
+        "习题5-6",
+        "二进制循环码"
       ],
       [
-        "L_/B^{(1)}",
-        "L_/B^{(2)}"
+        "另一种捕错译码器",
+        "门1"
       ],
       [
-        "Q(m,r,B)",
-        "RM(m-s,r-s)"
+        "IEC TC57",
+        "IEC TC57标准CRC码"
       ],
       [
-        "Information Theory",
-        "Min Ye"
+        "(15,7)循环码",
+        "捕错译码器"
       ],
       [
-        "AWGN信道",
-        "RM(8,2)"
+        "X^{2^{m-1}}+1",
+        "生成多项式p(X)"
       ],
       [
-        "Reed-Muller Code of Length 512",
-        "Reed-Muller Codes"
+        "(23, 12)格雷码",
+        "漏检差错的概率P_u(E)"
       ],
       [
-        "Q(m,r,B)",
-        "多项式prod_{i in A} Z'_i"
+        "例5-6",
+        "消息(1011)"
       ],
       [
-        "RPA_RM解码函数",
-        "最大迭代次数N_max"
+        "Kasami译码器",
+        "多项式集合 {φ_j(X)}"
       ],
       [
-        "First-Order RM Code",
-        "Maximal Likelihood Decoder"
+        "寄存器",
+        "编码过程"
       ],
       [
-        "RM Codes",
-        "Transition Width w(δ)"
+        "捕错译码",
+        "校正子"
       ],
       [
-        "N_max",
-        "RPA_RM函数"
+        "校正子寄存器",
+        "输出向量Q"
       ],
       [
-        "hat L^(2)向量",
-        "算法4"
+        "校正子(Syndrome)",
+        "错误模式e(X)"
       ],
       [
-        "Coset",
-        "Two-Dimensional Subspace"
+        "缓冲寄存器",
+        "错误模式检测电路"
       ],
       [
-        "Decoding Method",
-        "General Channel"
+        "X^n+1",
+        "g(X)"
       ],
       [
-        "Exiting Threshold θ",
-        "RPA_RM"
+        "缓冲寄存器",
+        "通用循环码译码器"
       ],
       [
-        "All One Vector",
-        "RM(m,r) Code"
+        "(23,12)格雷码",
+        "简单捕错译码"
       ],
       [
-        "Extended Hamming codes",
-        "RM(8,6)"
+        "(7,4)循环码",
+        "生成矩阵"
       ],
       [
-        "Fig. 2(i)",
-        "polar codes"
+        "计数器C",
+        "输出向量Q"
       ],
       [
-        "LLR Vectors",
-        "Proposition 4"
+        "校正子",
+        "译码电路"
       ],
       [
-        "Figure 6(c)",
-        "P(9,2)"
+        "(n,k)循环码",
+        "定理5-6"
       ],
       [
-        "幂迭代法",
-        "聚合函数"
+        "伽罗华域$GF(2^{m})$",
+        "素元$\\alpha$"
       ],
       [
-        "基B",
-        "标准基"
+        "码字(0011010)",
+        "表5-2"
       ],
       [
-        "Polar Codes",
-        "RM Codes"
+        "接收多项式$r(X)$",
+        "校正子寄存器"
       ],
       [
-        "Code Word c0",
-        "Permutation π^(c0)"
+        "I B Pyne",
+        "Reduction of Redundancy"
       ],
       [
-        "软判决FHT译码器",
-        "通用二进制输入无记忆信道"
+        "(28,23)缩短循环码",
+        "例5-13"
       ],
       [
-        "RM(8,2)",
-        "RPA decoder"
+        "s(X)=X",
+        "校正子向量(010)"
       ],
       [
-        "Fast List Decoders",
-        "Polar Codes"
+        "(28,23)缩短循环码",
+        "(31,26)循环汉明码"
       ],
       [
-        "LLR",
-        "一维子空间投影"
+        "准循环码",
+        "生成矩阵G"
       ],
       [
-        "BSC信道",
-        "RM(9,2)"
+        "(15,7)循环码",
+        "最小距离d_min=5"
       ],
       [
-        "S. A. Hashemi",
-        "Successive Factor Graph Permutations"
+        "c_2",
+        "码字v"
       ],
       [
-        "RPA Decoding Algorithm",
-        "Spectral Decompositions"
+        "例5-13",
+        "图5-22"
       ],
       [
-        "向量\\tilde{u}",
-        "近似解u_hat"
+        "(7,4)循环码",
+        "表5-1"
       ],
       [
-        "Extended Hamming codes",
-        "RM(7,5)"
+        "定理5-4",
+        "校正子"
       ],
       [
-        "向量u",
-        "算法2"
+        "循环移位",
+        "错误模式"
       ],
       [
-        "Channel Polarization",
-        "Channel Polarization: A Method for Constructing Capacity-Achieving Codes for Symmetric Binary-Input Memoryless Channels (Paper)"
+        "子矩阵M_j",
+        "子矩阵Q_l"
       ],
       [
-        "Polar Codes",
-        "Table I"
+        "校正子寄存器",
+        "门3"
       ],
       [
-        "LLR",
-        "列表译码过程"
+        "p_0^{(1)}",
+        "码字v"
       ],
       [
-        "Corrupted Codeword y",
-        "RPA_RM Decoding Algorithm"
+        "系统搜索译码器",
+        "门3"
       ],
       [
-        "Channel Polarization",
-        "Symmetric Binary-Input Memoryless Channels"
+        "校正子$\\pmb{s}(X)$",
+        "校正子寄存器"
       ],
       [
-        "向量u_bar",
-        "算法2输出向量y_bar"
+        "消息(1001)",
+        "码字(0111001)"
       ],
       [
-        "符号函数sign",
-        "近似解u_hat"
+        "接收多项式",
+        "码多项式"
       ],
       [
-        "First-Order Reed-Muller Codes",
-        "Polynomial Encoding"
+        "(23,12)格雷码",
+        "含三个差错的错误模式"
       ],
       [
-        "Binary Vector \\(\\varpmb{u}\\)",
-        "Decoding Method"
+        "奇偶校验矩阵H",
+        "汉明码"
       ],
       [
-        "异或和估计y_hat_{z,z'}",
-        "矩阵A"
+        "信息位",
+        "循环码"
       ],
       [
-        "Algorithm 3",
-        "Reed-Muller Code"
+        "接收向量",
+        "缓冲寄存器"
       ],
       [
-        "L^(1)向量",
-        "方程(17)"
+        "校正子重量",
+        "门4"
       ],
       [
-        "Bell Labs Prize",
-        "Emmanuel Abbe"
+        "图5-18",
+        "接收多项式实例2"
       ],
       [
-        "列表译码过程",
-        "唯一译码算法"
+        "相邻双重错误模式",
+        "陪集首"
       ],
       [
-        "三阶RM码",
-        "递归投影聚合译码算法"
+        "消息(1011)",
+        "码字(1001011)"
       ],
       [
-        "B",
-        "T"
+        "(7,4)循环码",
+        "码字(1111111)"
       ],
       [
-        "ML decoding",
-        "RM codes"
+        "循环码",
+        "编码"
       ],
       [
-        "RM Codes",
-        "RM(2,2)"
+        "生成多项式g(X)",
+        "码字多项式v(X)"
       ],
       [
-        "hat c_1",
-        "hat c_2"
+        "循环码",
+        "系统形式的循环码"
       ],
       [
-        "SCL decoder",
-        "polar codes"
+        "捕错译码方法",
+        "纠突发错误码"
       ],
       [
-        "二进制输入无记忆信道",
-        "信道转移概率W"
+        "图5-6",
+        "校正子电路"
       ],
       [
-        "Algorithm 3",
-        "Threshold θ"
+        "公式(5-41)",
+        "校正子多项式s^(n-k+l)(X)"
       ],
       [
-        "Discrete isoperimetric inequalities and the probability of a decoding error",
-        "G. Zémor"
+        "G",
+        "循环码C"
       ],
       [
-        "P(7,3)",
-        "Polar Codes"
+        "图5-24 (9,3)准循环码的编码电路",
+        "编码电路"
       ],
       [
-        "Majority Voting Scheme",
-        "RPA_RM Decoding Algorithm"
+        "校正子(01000)",
+        "校正子寄存器"
       ],
       [
-        "K. Shabunov",
-        "Reed-Muller Codes"
+        "(21,11)循环码",
+        "r(X)=1+X^5+X^17"
       ],
       [
-        "y_hat_/B^{(1)}",
-        "y_hat_/B^{(2)}"
+        "习题5-9",
+        "漏检误码率P_u(E)"
       ],
       [
-        "L^{(3)}(z)",
-        "\\mathcal{T}"
+        "习题5-28",
+        "接收多项式实例1"
       ],
       [
-        "Automorphism group based decoding",
-        "Reed-Muller codes"
+        "Cyclic Product Codes",
+        "E J Weldon"
       ],
       [
-        "Cumulative LLR (cumuLLR)",
-        "Log-Likelihood Ratio (LLR)"
+        "e5(X)=X^5",
+        "s(X)=1+X+X^2"
       ],
       [
-        "N. Doan",
-        "Successive Factor Graph Permutations"
+        "循环码",
+        "纠错"
       ],
       [
-        "向量v",
-        "幂迭代方法"
+        "(7,4)线性码",
+        "循环码"
       ],
       [
-        "Algorithm 3",
-        "General Binary-Input Channels Decoding Algorithm"
+        "传送码字 ν(X)",
+        "接收码字r"
       ],
       [
-        "RM Codes",
-        "w(0.1)"
+        "接收码字$r(X)$",
+        "译码方式"
       ],
       [
-        "Min Ye",
-        "Princeton University"
+        "Meggitt译码器",
+        "图5-9"
       ],
       [
-        "传输码字c(z)",
-        "异或和估计y_hat_{z,z'}"
+        "循环码",
+        "循环移位"
       ],
       [
-        "方程(17)",
-        "第IV节"
+        "多项式集合 {φ_j(X)}",
+        "覆盖多项式集合"
       ],
       [
-        "Chase [21]",
-        "列表译码过程"
+        "g(X)",
+        "循环码C"
       ],
       [
-        "RPA decoder",
-        "SCL decoder"
+        "校正子寄存器",
+        "译码方式"
       ],
       [
-        "Algorithm 6",
-        "Simplified_RPA算法"
+        "系统形式编码步骤",
+        "除以生成多项式"
       ],
       [
-        "RPA算法",
-        "Reed-Muller码"
+        "码多项式",
+        "码字"
       ],
       [
-        "One-Dimensional Subspace Reduction",
-        "RPA Decoding Algorithm"
+        "对偶码",
+        "生成多项式X^k h(X^{-1})"
       ],
       [
-        "BSC Channel",
-        "Error Vector"
+        "G",
+        "例5-4"
       ],
       [
-        "Lemma 2",
-        "RM(m,r) Code"
+        "Meggitt译码方法",
+        "任意循环码"
       ],
       [
-        "引理",
-        "归纳法"
+        "Permutation Decoding",
+        "Systematic Codes"
       ],
       [
-        "传输码字c(z)",
-        "索引集合E"
+        "(7,4)循环码",
+        "图5-9"
       ],
       [
-        "Channel Coding: Non-Asymptotic Fundamental Limits",
-        "Y. Polyanskiy"
+        "校正子",
+        "生成多项式"
       ],
       [
-        "Reed-Muller Codes",
-        "Soft-Decision Decoding"
+        "反馈连接",
+        "编码电路"
       ],
       [
-        "Minimum-Weight Parity Checks",
-        "Reed-Muller Codes"
+        "习题5-9",
+        "转移概率p=10^{-2}"
       ],
       [
-        "LLR",
-        "c(z)"
+        "X+1",
+        "p(X)"
       ],
       [
-        "信道W",
-        "解码算法(Algorithms 3–4)"
+        "(21,11)循环码",
+        "(21,11)循环码的校正子计算电路"
       ],
       [
-        "二维子空间投影",
-        "标准基向量"
+        "(7,4)循环码",
+        "图5-6"
       ],
       [
-        "Dumer递归列表译码算法",
-        "列表大小"
+        "图5-13循环汉明码的译码器",
+        "校正子寄存器"
       ],
       [
-        "Reed-Muller Codes",
-        "Second-Order Reed-Muller Code"
+        "(15,11)循环汉明码",
+        "(15,11)循环汉明码的编码器"
       ],
       [
-        "Algorithm in [19]",
-        "First-order RM subcodes"
+        "循环汉明码",
+        "译码电路"
       ],
       [
-        "Recursive Projection-Aggregation Decoding (RPA_RM)",
-        "Recursive Projection-Aggregation Decoding of Reed-Muller Codes (Paper)"
+        "差错位r2",
+        "接收码字r"
       ],
       [
-        "RM(7,4)",
-        "Reed-Muller Codes"
+        "(7,4)循环码",
+        "梅吉特译码器"
       ],
       [
-        "Figure 6(b)",
-        "P(8,3)"
+        "(7,4)循环码",
+        "码字(1010001)"
       ],
       [
-        "Figure 6(b)",
-        "RM(8,3)"
+        "(7,3)循环码",
+        "最小距离"
       ],
       [
-        "B. L. Volk",
-        "Reed-Muller Codes"
+        "X^7+1",
+        "例5-1"
       ],
       [
-        "Reed-Muller Codes",
-        "S. A. Hashemi"
+        "准循环码",
+        "奇偶校验矩阵"
       ],
       [
-        "r阶Reed-Muller码",
-        "定义1"
+        "生成多项式g(X)",
+        "覆盖多项式余式 ρ_j(X)"
       ],
       [
-        "RPA decoder",
-        "Recursive decoding"
+        "p_1^{(2)}",
+        "码字v"
       ],
       [
-        "(r-1)th Order Reed-Muller Code",
-        "Coefficient α(z,z′)"
+        "校正子寄存器",
+        "模2和"
       ],
       [
-        "Recursive list-decoding",
-        "Reed-Muller codes"
+        "余式$b(X)$",
+        "系统形式码字"
       ],
       [
-        "集合A(1,0)",
-        "集合A(1,1)"
+        "c_1",
+        "p_0^{(2)}"
       ],
       [
-        "硬判决FHT译码器",
-        "软判决FHT译码器"
+        "子矩阵Q_l",
+        "循环阵"
       ],
       [
-        "Sakkour算法",
-        "[11]–[13]中的算法"
+        "缓冲寄存器",
+        "门1"
       ],
       [
-        "向量空间E",
-        "子空间B"
+        "改进的捕错译码",
+        "译码过程"
       ],
       [
-        "Fast Hadamard Transform",
-        "First-Order RM Code"
+        "(7,4)循环码",
+        "码字(0011010)"
       ],
       [
-        "Figure 6",
-        "RM codes"
+        "(7,4)循环码",
+        "g(X)=1+X+X^3"
       ],
       [
-        "Data Science and Information Technology Research Center",
-        "Min Ye"
+        "$X^{n-k}u(X)$",
+        "商式$a(X)$"
       ],
       [
-        "对数似然比",
-        "软判决FHT译码器"
+        "校正子寄存器",
+        "输出E"
       ],
       [
-        "Figure 2(b): RM(7,3) vs polar codes",
-        "RM(7,3)"
+        "图5-19",
+        "完成 ρ(X)乘以r(X)再除以g(X)的电路"
       ],
       [
-        "商码",
-        "引理1"
+        "接收向量r",
+        "表5-3"
       ],
       [
-        "Decoded Codeword",
-        "RPA_RM Decoding Function"
+        "校正子s(X)",
+        "校正子向量(s0,s1,s2)"
       ],
       [
-        "R. Saptharishi",
-        "Reed-Muller Codes"
+        "C1",
+        "C2"
       ],
       [
-        "Meta converse bound",
-        "RM(9,2)"
+        "c_1",
+        "p_0^{(1)}"
       ],
       [
-        "Meta converse bound",
-        "RM(9,3)"
+        "(7,4)循环码",
+        "生成多项式g(X)=1+X+X^3"
       ],
       [
-        "Reed-Muller码",
-        "[11]–[13]中的算法"
+        "计数器C",
+        "输出E"
       ],
       [
-        "Polar Codes Without CRC",
-        "Simplified_RPA Decoding Function"
+        "移位寄存器",
+        "编码电路"
       ],
       [
-        "$L(z)$",
-        "$c(z)$"
+        "余式 ρ(X)",
+        "校正子s(X)"
       ],
       [
-        "Algorithm 3",
-        "Algorithm 4 (Aggregation Function)"
+        "图5-15",
+        "捕错译码器"
       ],
       [
-        "RM Codes",
-        "RPA Decoding Algorithm"
+        "(n,k)循环码",
+        "突发差错"
       ],
       [
-        "Fast Hadamard Transform",
-        "Y. Beery"
+        "(n,k)循环码",
+        "定理5-3"
       ],
       [
-        "Successive Factor Graph Permutations",
-        "W. J. Gross"
+        "捕错译码器",
+        "组合逻辑电路"
       ],
       [
-        "Block Codes",
-        "Serial Orthogonal Decoder"
+        "公式(5-10)",
+        "生成多项式g(X)"
       ],
       [
-        "hat L^(1)向量",
-        "方程(17)"
+        "循环码",
+        "译码"
       ],
       [
-        "Coding Theory",
-        "Min Ye"
+        "循环码",
+        "突发差错"
       ],
       [
-        "BSC信道",
-        "图4(b)"
+        "5-16",
+        "长度为15的所有二进制循环码"
       ],
       [
-        "Figure 6(d)",
-        "RM(10,2)"
+        "子矩阵",
+        "转置"
       ],
       [
-        "P(7,2)",
-        "RM(7,2)"
+        "g(X)=(X+1)p(X)",
+        "循环码C2"
       ],
       [
-        "Majority Voting",
-        "RPA Decoding Algorithm"
+        "系统搜索译码器",
+        "计数器C"
       ],
       [
-        "$\\mathbb{B}_{i,j}$",
-        "投影"
+        "G",
+        "v2(X)"
       ],
       [
-        "E/B",
-        "RM(m,r)"
+        "覆盖多项式余式 ρ_j(X)",
+        "译码过程"
       ],
       [
-        "Maximal Number of Iterations N_max",
-        "RPA_RM"
+        "循环码",
+        "移位寄存器"
       ],
       [
-        "Linear Code",
-        "RM Codes"
+        "G'",
+        "循环码C"
       ],
       [
-        "AWGN channels",
-        "Reed-Muller codes"
+        "余式多项式b(X)",
+        "消息多项式u(X)"
       ],
       [
-        "Figure 2(h): RM(9,2) vs polar codes",
-        "Polar codes"
+        "接收向量r(X)",
+        "校正子"
       ],
       [
-        "RPA Algorithm",
-        "Reed-Muller Code"
+        "(21,11)循环码",
+        "g(X)=1+X^2+X^4+X^6+X^7+X^10"
       ],
       [
-        "Algorithm 9",
-        "RPA Decoder"
+        "(15,5)循环码",
+        "三个差错的错误模式"
       ],
       [
-        "Polar codes",
-        "RM(8,5)"
+        "向量b_i",
+        "矩阵Q"
       ],
       [
-        "RPA algorithm",
-        "Reed-Muller codes"
+        "公式(5-28)",
+        "奇偶校验矩阵"
       ],
       [
-        "AWGN Channel",
-        "RPA_RM Decoding Algorithm"
+        "消息(1000)",
+        "码字(1101000)"
       ],
       [
-        "SCL decoder",
-        "min-sum approximation"
+        "(15,5)循环码",
+        "习题5-25"
       ],
       [
-        "List Decoding",
-        "Polar Codes"
+        "不可约多项式",
+        "表2-9"
       ],
       [
-        "RM Codes",
-        "简化RPA算法"
+        "生成矩阵",
+        "系统形式"
       ],
       [
-        "RPA_RM函数",
-        "系数α_i(z,z')"
+        "接收向量r(X)",
+        "校正子电路"
       ],
       [
-        "Permutation π",
-        "Permutation π^(c0)"
+        "$(2^{m}-1,2^{m}-m-2)$循环汉明码C",
+        "m次本原多项式$\\boldsymbol{p}(X)$"
       ],
       [
-        "信道W",
-        "信道输出X1和X2"
+        "校正子s(X)",
+        "译码过程"
       ],
       [
-        "Aggregation step",
-        "RPA decoder"
+        "习题5-1",
+        "对偶码的生成多项式"
       ],
       [
-        "N_max",
-        "RPA_RM"
+        "奇偶校检位",
+        "码字"
       ],
       [
-        "Code Word c2",
-        "Proposition 4"
+        "第一步操作",
+        "门2"
       ],
       [
-        "RPA Decoding Algorithm",
-        "Voting Sets"
+        "查表法译码",
+        "标准阵列"
       ],
       [
-        "P(7,3)",
-        "RM(7,3)"
+        "另一种捕错译码器",
+        "门3"
       ],
       [
-        "Remark 1",
-        "二维子空间投影"
+        "循环码",
+        "欧氏几何码"
       ],
       [
-        "E. Santi",
-        "Minimum-Weight Parity Checks"
+        "漏检错误模式",
+        "错误模式"
       ],
       [
-        "Polar codes",
-        "Reed-Muller codes"
+        "公式(5-5)",
+        "定理5-5"
       ],
       [
-        "(r-1)-th Order RM Code",
-        "r-th Order RM Code"
+        "系统搜索译码器",
+        "错误模式"
       ],
       [
-        "对数似然比向量L^(1)",
-        "有限域E"
+        "循环码",
+        "缩短循环码"
       ],
       [
-        "Recursive Projection-Aggregation Decoding (RPA_RM)",
-        "Reed-Muller Codes"
+        "二进制对称信道(BSC)",
+        "距离为3的循环汉明码"
       ],
       [
-        "Reed-Muller Code of Length 512",
-        "Simplified_RPA Decoding Function"
+        "p(X)",
+        "本原多项式p(X)=1+X+X^4"
       ],
       [
-        "一阶RM码",
-        "快速哈达玛变换"
+        "循环汉明码的对偶码",
+        "重量分布"
       ],
       [
-        "P(8,4)",
-        "RM(8,4)"
+        "s(X)=1+X^2",
+        "校正子(101)"
       ],
       [
-        "Machine Learning",
-        "Min Ye"
+        "循环码",
+        "码多项式$v(X)$"
       ],
       [
-        "E",
-        "T"
+        "公式(5-13)",
+        "反多项式X^k h(X^{-1})"
       ],
       [
-        "Projection",
-        "Recursive Decoding"
+        "习题5-6",
+        "全1组成的码字"
       ],
       [
-        "Emmanuel Abbe",
-        "Massachusetts Institute of Technology"
+        "11级移位寄存器",
+        "生成多项式g2(X)"
       ],
       [
-        "Figure 7",
-        "w(0.1)"
+        "IEEE 802.3",
+        "IEEE 802.3标准CRC码"
       ],
       [
-        "Simplified_RPA算法",
-        "normal RPA算法"
+        "m+1个奇偶校检位",
+        "循环码C2"
       ],
       [
-        "商码",
-        "子空间B"
+        "循环码",
+        "梅吉特译码器"
       ],
       [
-        "RPA_RM函数",
-        "hat y_{/B}^{(i)}"
+        "g(X)=1+X^2+X^4+X^6+X^7+X^10",
+        "习题5-3"
       ],
       [
-        "一阶Reed-Muller码",
-        "快速Hadamard变换"
+        "(7,4)循环码",
+        "例5-9"
       ],
       [
-        "Recursive Decoding",
-        "Reed-Muller Codes"
+        "准循环码",
+        "循环移位"
       ],
       [
-        "RPA算法",
-        "运行时间"
+        "由$\\pmb{p}(X)$生成的汉明码",
+        "素元$\\alpha$"
       ],
       [
-        "RPA_RM Decoding Algorithm",
-        "Reed-Muller Code"
+        "(20,15)缩短循环码",
+        "(20,15)缩短循环码的译码电路"
       ],
       [
-        "Y. Polyanskiy",
-        "信道编码"
+        "乘积码",
+        "循环乘积码"
       ],
       [
-        "Reed-Muller Code of Length 256",
-        "Simplified_RPA Decoding Function"
+        "图5-10",
+        "差错纠正过程"
       ],
       [
-        "BMS Channel",
-        "Reed-Muller Code"
+        "差分方程v_{3-j}=v_{7-j}+v_{6-j}+v_{5-j}",
+        "校检位计算(v2=0, v1=0, v0=1)"
       ],
       [
-        "Algorithm 6",
-        "Voting sets"
+        "译码方式",
+        "阈值检测开关"
+      ],
+      [
+        "组合逻辑电路",
+        "阈值检测开关"
+      ],
+      [
+        "(20,15)缩短循环码",
+        "习题5-5"
+      ],
+      [
+        "循环冗余校验(CRC)码",
+        "缩短循环码"
+      ],
+      [
+        "k比特缓冲寄存器",
+        "另一种捕错译码器"
+      ],
+      [
+        "循环码",
+        "缩短的循环码"
+      ],
+      [
+        "准循环码",
+        "生成矩阵"
+      ],
+      [
+        "$X^{15}+1$",
+        "伽罗华域$GF(2^{4})$"
+      ],
+      [
+        "异或门",
+        "纠错"
+      ],
+      [
+        "Meggitt译码方法",
+        "捕错译码"
+      ],
+      [
+        "校正子s(X)",
+        "校验部分错误模式e_p(X)"
+      ],
+      [
+        "(15,7)循环码",
+        "g(X)=1+X^4+X^6+X^7+X^8"
+      ],
+      [
+        "$X^{n-k}u(X)$",
+        "消息多项式$u(X)$"
+      ],
+      [
+        "接收多项式r(X)",
+        "错误模式e(X)"
+      ],
+      [
+        "a",
+        "b"
+      ],
+      [
+        "(7,4)循环码",
+        "校验多项式h(X)=1+X+X^2+X^4"
+      ],
+      [
+        "循环码译码",
+        "通用循环码译码器"
+      ],
+      [
+        "5-12",
+        "循环码"
+      ],
+      [
+        "通用循环码译码器",
+        "错误模式检测器"
+      ],
+      [
+        "C2",
+        "g2(X)"
+      ],
+      [
+        "因式$(1+X)$",
+        "多项式$X^{7}+1$"
+      ],
+      [
+        "差错纠正过程",
+        "异或门"
+      ],
+      [
+        "(7,4)循环码",
+        "生成多项式$g(X)=1+X+X^{3}$"
+      ],
+      [
+        "Cyclic Product Codes",
+        "H O Burton"
+      ],
+      [
+        "Cd",
+        "h*(X)"
+      ],
+      [
+        "例5-1",
+        "多项式$X^{7}+1$"
+      ],
+      [
+        "习题5-6",
+        "因子X+1"
+      ],
+      [
+        "捕错译码",
+        "长高码率码"
+      ],
+      [
+        "5-15",
+        "交织后的码$C^{\\lambda}$"
+      ],
+      [
+        "(n,k)循环码",
+        "定理5-9"
+      ],
+      [
+        "Cyclic Product Codes",
+        "S Lin"
+      ],
+      [
+        "(7,4)循环码",
+        "码字(1101000)"
+      ],
+      [
+        "习题5-16",
+        "表2-9"
+      ],
+      [
+        "循环码",
+        "生成多项式"
+      ],
+      [
+        "循环码C",
+        "生成多项式g(X)"
+      ],
+      [
+        "循环码C",
+        "校验矩阵H"
+      ],
+      [
+        "发送码字ν(X)",
+        "接收向量r(X)"
+      ],
+      [
+        "X+1",
+        "g(X)"
+      ],
+      [
+        "Abstract Complex",
+        "Minimum Cover"
+      ],
+      [
+        "45度斜对角线传送顺序",
+        "图5-23"
+      ],
+      [
+        "c_2",
+        "p_2^{(1)}"
+      ],
+      [
+        "子矩阵",
+        "生成矩阵"
+      ],
+      [
+        "(7,4)循环码",
+        "例5-6"
+      ],
+      [
+        "生成多项式g(X)",
+        "码多项式v(X)"
+      ],
+      [
+        "生成矩阵G",
+        "系统形式的生成矩阵G'"
+      ],
+      [
+        "捕错译码器",
+        "门1"
+      ],
+      [
+        "不可纠正的错误模式",
+        "捕错译码器"
+      ],
+      [
+        "g(X)=1+X+X^3",
+        "码字(1001011)"
+      ],
+      [
+        "发送码字",
+        "生成多项式"
+      ],
+      [
+        "多路选择开关",
+        "译码电路"
+      ],
+      [
+        "校正子",
+        "模2加法"
+      ],
+      [
+        "(9,3)码",
+        "码字001011010"
+      ],
+      [
+        "(7,4)循环码",
+        "本原多项式p(X)"
+      ],
+      [
+        "(7,3)汉明码",
+        "译码电路"
+      ],
+      [
+        "突发差错",
+        "首尾相接突发错误模式"
+      ],
+      [
+        "商式$a(X)$",
+        "生成多项式$g(X)$"
+      ],
+      [
+        "Xv(X)",
+        "v^(1)(X)"
+      ],
+      [
+        "$C_1$",
+        "$C_2$"
+      ],
+      [
+        "子矩阵M_j",
+        "生成矩阵G"
+      ],
+      [
+        "图5-14",
+        "捕错译码器"
+      ],
+      [
+        "(n,k)循环码",
+        "校验多项式h(X)=1+h1X+...+X^k"
+      ],
+      [
+        "系统搜索译码器",
+        "门4"
+      ],
+      [
+        "(15,7)循环码",
+        "例5-11"
+      ],
+      [
+        "余式ρ(X)",
+        "生成多项式g(X)=1+X^2+X^5"
+      ],
+      [
+        "余式多项式b(X)",
+        "码字"
+      ],
+      [
+        "s(X)=1",
+        "校正子向量(100)"
+      ],
+      [
+        "(23,12)格雷码",
+        "含两个差错的错误模式"
+      ],
+      [
+        "E J Weldon",
+        "H O Burton"
+      ],
+      [
+        "奇偶校验矩阵",
+        "子矩阵"
+      ],
+      [
+        "基于校验多项式h(X)=1+h1X+...+X^k的编码电路",
+        "门1"
       ],
       [
         "BSC",
-        "RPA_RM解码函数"
+        "译码错误的概率"
       ],
       [
-        "RM(m,r)",
-        "Reed-Muller码"
+        "缓冲寄存器",
+        "门3"
       ],
       [
-        "Output Vector y",
-        "RPA_RM Decoding Function"
+        "L Rudolph",
+        "M E Mitchell"
       ],
       [
-        "集合A(0,0)",
-        "集合A(0,1)"
+        "习题5-29",
+        "二进制多项式g(X)"
       ],
       [
-        "Reed-Muller Code",
-        "c_0"
+        "公式(5-10)",
+        "多项式h(X)"
       ],
       [
-        "E",
-        "z'"
+        "码字(1011100)",
+        "表5-2"
       ],
       [
-        "Fast List Decoders",
-        "P. Giard"
+        "准循环码",
+        "对偶码"
       ],
       [
-        "Quotient Space Projection",
-        "RM Codes"
+        "循环码",
+        "校验多项式$h(X)$"
       ],
       [
-        "A. Vardy",
-        "List Decoding"
+        "(7,4)循环码",
+        "汉明码"
       ],
       [
-        "优化问题(6)",
-        "谱松弛"
+        "(23,12)格雷码",
+        "生成多项式g2(X)"
       ],
       [
-        "Algorithm 1",
-        "Simplified_RPA algorithm"
+        "E J Weldon",
+        "S Lin"
       ],
       [
-        "Polar codes",
-        "Successive Cancellation List (SCL) decoder"
+        "循环阵",
+        "生成多项式"
       ],
       [
-        "RM(8,5)",
-        "Simplified_RPA算法"
+        "信息部分错误模式e_I(X)",
+        "错误模式e(X)"
       ],
       [
-        "Algorithm 4",
-        "Cumulative LLR (cumuLLR)"
+        "消息多项式$u(X)$",
+        "系统形式"
       ],
       [
-        "First Order RM Codes",
-        "General Channels"
+        "h(X)",
+        "循环乘积码"
       ],
       [
-        "对数似然比",
-        "最大似然译码器"
+        "循环汉明码的对偶码",
+        "重量枚举式B2(z)"
       ],
       [
-        "Sidel'nikov-Pershakov algorithm",
-        "second-order RM codes"
+        "n1",
+        "n2"
       ],
       [
-        "Est_{i,j}(z)",
-        "LLR"
+        "循环码C",
+        "相邻三重错误模式"
       ],
       [
-        "B",
-        "E"
+        "a1(X)",
+        "公式(5-41)"
       ],
       [
-        "商空间E/B",
-        "陪集T"
+        "Meggitt译码器",
+        "校正子寄存器"
       ],
       [
-        "Reed-Muller Codes",
-        "W. J. Gross"
+        "捕错译码器",
+        "阈值检测开关"
       ],
       [
-        "向量u_bar",
-        "符号函数sign"
+        "循环码",
+        "生成多项式$g(X)=1+X+X^{3}$"
       ],
       [
-        "LLR",
-        "公式(3)"
+        "(8,4)缩短循环码",
+        "(8,4)缩短循环码的译码器"
       ],
       [
-        "Binary Symmetric Channel (BSC)",
-        "Reed-Muller codes"
+        "循环码",
+        "校正子计算"
       ],
       [
-        "P(7,2)",
-        "Polar Codes"
+        "习题5-7",
+        "反多项式g*(X)"
       ],
       [
-        "List Decoding",
-        "空间复杂度"
+        "普通循环码",
+        "缩短循环码"
       ],
       [
-        "Projection",
-        "RPA_RM Decoding Algorithm"
+        "Implementation of Decoders",
+        "M E Mitchell"
       ],
       [
-        "Department of Electrical Engineering (Princeton University)",
-        "Emmanuel Abbe"
+        "公式(5-15)",
+        "商式a_i(X)"
       ],
       [
-        "Reed-Muller Codes",
-        "S. Kudekar"
+        "Minimum Cover",
+        "Ray-Chaudhuri's Algorithm"
       ],
       [
-        "RPA_RM Decoding Function",
-        "Reed-Muller Code"
+        "加法器",
+        "基于校验多项式h(X)=1+h1X+...+X^k的编码电路"
       ],
       [
-        "Reed-Muller码(RM(m,r))",
-        "码字c_1"
+        "Cascade Decoding",
+        "N M Abramson"
       ],
       [
-        "First-Order Reed-Muller Code",
-        "Simplified_RPA Decoding Function"
+        "X+1",
+        "g(X)=(X+1)p(X)"
       ],
       [
-        "RPA_RM算法",
-        "对数似然比向量L^(2)"
+        "交织深度$\\lambda$",
+        "循环码C"
       ],
       [
-        "Fast Hadamard Transform",
-        "J. Snyders"
+        "G",
+        "v0(X)"
       ],
       [
-        "RPA_RM算法",
-        "对数似然比向量L^(1)"
+        "余式多项式 ρ(X)",
+        "公式(5-40)"
       ],
       [
-        "Algorithm 9",
-        "RPA_RM Decoding Function"
+        "缓冲寄存器",
+        "译码方式"
       ],
       [
-        "r阶Reed-Muller码",
-        "码字c"
+        "校正子",
+        "错误模式"
       ],
       [
-        "RPA_RM",
-        "c_hat"
+        "公式(5-46)",
+        "生成矩阵"
       ],
       [
-        "Dumer递归列表译码算法",
-        "Reed-Muller码"
+        "差错检测电路",
+        "校正子寄存器"
       ],
       [
-        "I. Dumer",
-        "K. Shabunov"
+        "模2和运算",
+        "译码方式"
       ],
       [
-        "Parallelization",
-        "RPA decoder"
+        "公式(5-45)",
+        "奇偶校验矩阵"
       ],
       [
-        "Reed-Muller码(RM(m,r))",
-        "码字c_2"
+        "(28,23)缩短汉明码",
+        "生成多项式g(X)=1+X^2+X^5"
       ],
       [
-        "P(7,4)",
-        "RM(7,4)"
+        "编码电路",
+        "输入"
       ],
       [
-        "向量v",
-        "输入向量z"
+        "公式(5-12)",
+        "校验多项式$h(X)$"
       ],
       [
-        "图1",
-        "递归投影聚合译码算法"
+        "习题5-8",
+        "偶数重量的码字"
       ],
       [
-        "Min Ye",
-        "Tsinghua-Berkeley Shenzhen Institute"
+        "c_0",
+        "p_2^{(2)}"
       ],
       [
-        "Algorithm 9",
-        "RPA_RM Function"
+        "奇偶校验矩阵",
+        "零矩阵"
       ],
       [
-        "RM Codes",
-        "RM(1,1)"
+        "校正子",
+        "校正子电路"
       ],
       [
-        "RPA_RM函数",
-        "θ"
+        "(7,4)循环码",
+        "g(X)"
       ],
       [
-        "Algorithm 5",
-        "RPA_LIST Decoding Function"
+        "(31,26)循环汉明码",
+        "例5-12"
       ],
       [
-        "似然函数L_{/B}(T)",
-        "解码算法(Algorithms 3–4)"
+        "a(X)",
+        "g(X)"
       ],
       [
-        "Binary Erasure Channel (BEC)",
-        "Reed-Muller codes"
+        "g(X)",
+        "g^(k)(X)"
       ],
       [
-        "异或和c(z)⊕c(z')",
-        "异或和估计y_hat_{z,z'}"
+        "捕错译码器",
+        "改进的捕错方法"
       ],
       [
-        "Fig. 3(b)",
-        "polar codes"
+        "循环码",
+        "本原多项式p(X)"
       ],
       [
-        "Figure 2(h): RM(9,2) vs polar codes",
-        "RM(9,2)"
+        "(23,12)格雷码",
+        "习题5-26"
       ],
       [
-        "Fast Hadamard Transform (FHT)",
-        "Hadamard Code"
+        "接收向量r",
+        "校正子s"
       ],
       [
-        "Figure 2(c): RM(7,4) vs polar codes",
-        "RM(7,4)"
+        "不可纠正的错误模式",
+        "译码方式"
       ],
       [
-        "AWGN信道",
-        "图5(b)"
+        "(7,4)循环码",
+        "码字(0110100)"
       ],
       [
-        "LLR Vector",
-        "RPA Decoder"
+        "二次剩余码",
+        "循环码"
       ],
       [
-        "RPA decoding",
-        "Short code length regime (≤1024)"
+        "接收向量r",
+        "校正子"
       ],
       [
-        "General Channels",
-        "LLR"
+        "(7,4)循环码",
+        "陪集首"
       ],
       [
-        "Algorithm in [19]",
-        "Minimum weight parity checks"
+        "多路选择开关",
+        "缓冲寄存器"
       ],
       [
-        "E (Binary m-tuple Space)",
-        "Output Vector y"
+        "g(X)=1+X+X^4",
+        "习题5-1"
       ],
       [
-        "K. Shabunov",
-        "Soft-Decision Decoding"
+        "(15,10)循环汉明码",
+        "漏检误码率P_u(E)"
       ],
       [
-        "Maximal Likelihood decoder",
-        "Reed-Muller codes"
+        "例5-10",
+        "图5-12"
       ],
       [
-        "参考文献[25]",
-        "软判决FHT译码器"
+        "组合逻辑电路",
+        "译码方式"
       ],
       [
-        "Polar Codes",
-        "w(0.01)"
+        "(2^m-1, 2^m-m-2)循环汉明码",
+        "p(X)"
       ],
       [
-        "Figure 7",
-        "RM Codes"
+        "g(X)",
+        "定理5-6"
       ],
       [
-        "E",
-        "n"
+        "例5-9",
+        "接收码字r"
       ],
       [
-        "BSC",
-        "通用二进制输入无记忆信道"
+        "捕错译码",
+        "校正子寄存器循环移位"
       ],
       [
-        "CRC",
-        "Successive Cancellation List (SCL) decoder"
+        "循环码C",
+        "码多项式v(X)"
       ],
       [
-        "Algorithm 4",
-        "General Binary-Input Channels Decoding Algorithm"
+        "IEC TC57标准CRC码",
+        "循环冗余校验(CRC)码"
       ],
       [
-        "Reed-Muller Code of Length 1024",
-        "Simplified_RPA Decoding Function"
+        "图5-11",
+        "图5-8"
       ],
       [
-        "Algorithm 4",
-        "Coefficient α(z,z′)"
+        "接收多项式",
+        "缓冲寄存器"
       ],
       [
-        "RPA Algorithm",
-        "Simplified_RPA Decoding Function"
+        "$\\phi(X)$ (最小多项式)",
+        "5-17"
       ],
       [
-        "Binary Symmetric Channel (BSC)",
-        "Simplified_RPA Decoding Function"
+        "图5-7右端输入的(n-k)级校正子电路",
+        "生成多项式"
       ],
       [
-        "Code Word c0",
-        "Reed-Muller Code"
+        "查表法译码",
+        "错误模式"
       ],
       [
-        "Polar codes",
-        "RM(8,3)"
+        "(7,4)循环码",
+        "最小距离"
       ],
       [
-        "Polar Codes",
-        "S. A. Hashemi"
+        "校正子寄存器",
+        "缓冲寄存器"
       ],
       [
-        "RPA_RM",
-        "一维子空间投影"
+        "$\\pmb{g}(X) = \\pmb{\\phi}_{1}(X) \\cdot \\pmb{\\phi}_{2}(X)$",
+        "5-18"
       ],
       [
-        "Emmanuel Abbe",
-        "von Neumann Fellowship"
+        "接收多项式r(X)",
+        "校正子(Syndrome)"
       ],
       [
-        "RM(7,4)",
-        "Reed-Muller码"
+        "信息位",
+        "接收向量r(X)"
       ],
       [
-        "向量ν'_m(A)",
-        "子集A"
+        "(15,11)循环汉明码的译码器",
+        "习题5-2"
       ],
       [
-        "Corrupted Codeword y",
-        "Original Codeword c"
+        "$X^{15}+1$",
+        "不可约多项式"
       ],
       [
-        "Emmanuel Abbe",
-        "Program for Applied and Computational Mathematics"
+        "公式(5-10)",
+        "公式(5-11)"
       ],
       [
-        "向量\\tilde{u}",
-        "幂迭代方法"
+        "g(X)=1+X+X^3",
+        "码字(0001101)"
       ],
       [
-        "changevote",
-        "numofchange"
+        "查表法译码",
+        "校正子"
       ],
       [
-        "Polar Codes With Optimal CRC Size",
-        "Simplified_RPA Decoding Function"
-      ],
-      [
-        "Meta converse bound",
-        "RM(8,2)"
-      ],
-      [
-        "Power-Iteration Method",
-        "RPA Decoding Algorithm"
-      ],
-      [
-        "RPA decoding",
-        "Reed-Muller codes"
-      ],
-      [
-        "向量v",
-        "输入向量z'"
-      ],
-      [
-        "Binary Vectors of Length 2",
-        "RM(1,1)"
-      ],
-      [
-        "RPA算法(无列表)",
-        "图5"
-      ],
-      [
-        "Coset",
-        "One-Dimensional Subspace"
-      ],
-      [
-        "RPA_RM函数",
-        "算法4"
-      ],
-      [
-        "RPA算法",
-        "原始接收词y"
-      ],
-      [
-        "对数似然比向量L^(2)",
-        "有限域E"
-      ],
-      [
-        "L_max",
-        "RPA_RM"
-      ],
-      [
-        "Reed-Muller Codes",
-        "Simplified_RPA Decoding Function"
-      ],
-      [
-        "CRC-aided polar codes",
-        "SCL decoder"
-      ],
-      [
-        "RPA decoder",
-        "Voting sets"
-      ],
-      [
-        "RM码",
-        "商码"
-      ],
-      [
-        "Emmanuel Abbe",
-        "Foundation Latsis International Prize"
-      ],
-      [
-        "Reed-Muller Code",
-        "c_hat"
-      ],
-      [
-        "Discrete Isoperimetric Inequalities",
-        "G. Zémor"
-      ],
-      [
-        "RM码",
-        "算法1"
-      ],
-      [
-        "Polar codes",
-        "RM(8,4)"
-      ],
-      [
-        "Algorithm 3",
-        "Proposition 3"
-      ],
-      [
-        "G. Zémor",
-        "J.-P. Tillich"
-      ],
-      [
-        "陪集T",
-        "陪集标签二进制向量"
-      ],
-      [
-        "Polar Codes",
-        "Reed-Muller Codes"
-      ],
-      [
-        "Figure 7",
-        "Polar Codes"
-      ],
-      [
-        "hat L^(2)向量",
-        "方程(17)"
-      ],
-      [
-        "Binary Vectors of Length 4",
-        "RM(2,2)"
-      ],
-      [
-        "M. Mondelli",
-        "Reed-Muller Codes"
-      ],
-      [
-        "LLR",
-        "L_max"
-      ],
-      [
-        "Algorithm in [28]",
-        "RM(7,3)"
-      ],
-      [
-        "Figure 2(g): RM(8,5) vs polar codes",
-        "RM(8,5)"
-      ],
-      [
-        "alpha_1",
-        "alpha_2"
-      ],
-      [
-        "RM(m-1,r-1)",
-        "c_0"
-      ],
-      [
-        "M. Mondelli",
-        "Polar Codes"
-      ],
-      [
-        "RM(m,r) Code",
-        "Random Codeword C"
-      ],
-      [
-        "Reed-Muller码(RM(m,r))",
-        "有限域E"
-      ],
-      [
-        "Dumer递归列表译码算法",
-        "运行时间"
-      ],
-      [
-        "Block Codes",
-        "Chase Algorithm"
-      ],
-      [
-        "All-Zero Codeword",
-        "BSC Channel"
-      ],
-      [
-        "Min Ye",
-        "Peking University"
-      ],
-      [
-        "LLR Vector",
-        "RPA_RM Decoding Function"
-      ],
-      [
-        "Code Projection",
-        "RPA Decoding Algorithm"
-      ],
-      [
-        "RM(7,3)",
-        "Reed-Muller Codes"
-      ],
-      [
-        "Sidelnikov-Pershakov算法",
-        "参数h"
-      ],
-      [
-        "RM codes",
-        "RPA decoder"
-      ],
-      [
-        "RPA algorithm",
-        "second-order RM codes"
-      ],
-      [
-        "Comparison with previous decoding algorithms of RM codes",
-        "Fig. 4(c)"
-      ],
-      [
-        "RM(9,2)",
-        "图4(b)"
-      ],
-      [
-        "Fast List Decoders",
-        "W. J. Gross"
-      ],
-      [
-        "induction hypothesis",
-        "y_hat_/B^{(2)}"
-      ],
-      [
-        "Reed-Muller码(RM(m,1))",
-        "最大似然解码器"
-      ],
-      [
-        "Polar Codes",
-        "Successive Cancellation List Decoding"
-      ],
-      [
-        "Fast Hadamard Transform",
-        "First-order RM Code"
-      ],
-      [
-        "Fig. 3(a)",
-        "RM(8,2)"
-      ],
-      [
-        "Polar codes",
-        "RM(7,4)"
-      ],
-      [
-        "BSC",
-        "RPA_RM Decoding Function"
-      ],
-      [
-        "Lemma 3",
-        "RM(m,r)"
-      ],
-      [
-        "Output Vector y",
-        "Permutation π^(c0)"
-      ],
-      [
-        "Quotient space codes",
-        "RPA decoder"
-      ],
-      [
-        "r阶Reed-Muller码的基向量集合",
-        "基向量ν_m(A)"
-      ],
-      [
-        "Dumer递归列表译码算法",
-        "译码错误概率"
-      ],
-      [
-        "Proposition 4",
-        "Recursive Projection-Aggregation Decoding (RPA_RM)"
-      ],
-      [
-        "矩阵A",
-        "符号向量u_hat"
-      ],
-      [
-        "Reed-Muller码",
-        "参数m"
-      ],
-      [
-        "AWGN信道",
-        "RM(9,2)"
-      ],
-      [
-        "Algorithm 1",
-        "RPA_RM Decoding Algorithm"
-      ],
-      [
-        "LLR Vectors",
-        "Random Channel Outputs"
-      ],
-      [
-        "Berlekamp-Welch type of algorithm",
-        "Reed-Muller codes"
-      ],
-      [
-        "C. Thibeault",
-        "Fast List Decoders"
-      ],
-      [
-        "Fig. 2(h)",
-        "polar codes"
-      ],
-      [
-        "Combinat. Probab. Comput.",
-        "Discrete isoperimetric inequalities and the probability of a decoding error"
-      ],
-      [
-        "Figure 2(e): RM(8,3) vs polar codes",
-        "RM(8,3)"
-      ],
-      [
-        "RPA_RM Decoding Function",
-        "θ"
-      ],
-      [
-        "LLR Vector",
-        "changevote"
-      ],
-      [
-        "AWGN Channel",
-        "Simplified_RPA Decoding Function"
-      ],
-      [
-        "P(8,3)",
-        "RM(8,3)"
-      ],
-      [
-        "A. Shpilka",
-        "R. Saptharishi"
-      ],
-      [
-        "hat y_{/B}^{(i)}",
-        "系数α_i(z,z')"
-      ],
-      [
-        "RM(7,4)",
-        "Simplified_RPA algorithm"
-      ],
-      [
-        "Figure 6(a)",
-        "RM(8,2)"
-      ],
-      [
-        "Lemma 1",
-        "Projection"
-      ],
-      [
-        "二维子空间投影",
-        "简化RPA算法"
-      ],
-      [
-        "Figure 2(e): RM(8,3) vs polar codes",
-        "Polar codes"
-      ],
-      [
-        "I. Dumer",
-        "Recursive Decoding"
-      ],
-      [
-        "Figure 2(a): RM(7,2) vs polar codes",
-        "Polar codes"
-      ],
-      [
-        "Codeword \\(c\\)",
-        "First-Order Reed-Muller Codes"
-      ],
-      [
-        "A. Vardy",
-        "Fast List Decoders"
-      ],
-      [
-        "原始接收向量y",
-        "向量u"
-      ],
-      [
-        "Polar codes",
-        "RM(9,2)"
-      ],
-      [
-        "O. Ordentlich",
-        "Reed-Muller Codes"
-      ],
-      [
-        "Decoding Method",
-        "First-Order Reed-Muller Codes"
-      ],
-      [
-        "Polar Codes",
-        "W. J. Gross"
-      ],
-      [
-        "Aggregat",
-        "递归投影聚合译码算法"
-      ],
-      [
-        "C. Hager",
-        "Minimum-Weight Parity Checks"
-      ],
-      [
-        "信道转移概率W",
-        "公式(12)"
-      ],
-      [
-        "公式(11)",
-        "引理2"
-      ],
-      [
-        "信道W",
-        "随机变量S1和S2"
-      ],
-      [
-        "估计向量y_hat",
-        "向量长度n"
-      ],
-      [
-        "Fast Hadamard Transform",
-        "First-Order Reed-Muller Code"
-      ],
-      [
-        "Algorithm 1",
-        "One-Dimensional Subspaces"
-      ],
-      [
-        "基B下的坐标",
-        "标准基下的坐标"
-      ],
-      [
-        "P(8,2)",
-        "RM(8,2)"
-      ],
-      [
-        "Simp_Aggregation Function",
-        "Simplified_RPA Decoding Function"
-      ],
-      [
-        "Est_{i,j}(z)",
-        "Simplified_RPA算法"
-      ],
-      [
-        "Sidelnikov-Pershakov算法",
-        "[11]–[13]中的算法"
-      ],
-      [
-        "幂迭代方法",
-        "算法2"
-      ],
-      [
-        "Reed-Muller码",
-        "快速Hadamard变换"
-      ],
-      [
-        "Polar Codes",
-        "SCL Decoder"
-      ],
-      [
-        "RM(m,r)",
-        "线性变换M^{-1}"
-      ],
-      [
-        "Fig. 3(c)",
-        "RM(9,2)"
-      ],
-      [
-        "BMS Channel",
-        "Proposition 4"
-      ],
-      [
-        "I. Dumer",
-        "Soft-Decision Decoding"
-      ],
-      [
-        "S. Verdu",
-        "信道编码"
-      ],
-      [
-        "All-Zero Codeword",
-        "BMS Channel"
-      ],
-      [
-        "向量u",
-        "向量u_bar"
-      ],
-      [
-        "normal RPA算法",
-        "第二阶Reed-Muller码"
-      ],
-      [
-        "Proposition 4",
-        "RPA_RM"
-      ],
-      [
-        "O. Sberlo",
-        "Reed-Muller Codes"
-      ],
-      [
-        "Proposition 4",
-        "Reed-Muller Code"
-      ],
-      [
-        "LLR Vector L_y^(2)",
-        "Permutation π^(c0)"
-      ],
-      [
-        "Binary-Input Channel",
-        "General Binary-Input Channels Decoding Algorithm"
-      ],
-      [
-        "changevote",
-        "聚合函数"
-      ],
-      [
-        "Figure 2(c): RM(7,4) vs polar codes",
-        "Polar codes"
-      ],
-      [
-        "List Decoding",
-        "RPA_RM"
-      ],
-      [
-        "RPA Decoder",
-        "RPA_LIST Decoding Function"
-      ],
-      [
-        "LLR Vector L_y^(1)",
-        "Output Vector y"
-      ],
-      [
-        "Reed-Muller Codes",
-        "Successive Factor Graph Permutations"
-      ],
-      [
-        "Addition in F2",
+        "(23,12)格雷码",
         "BSC"
       ],
       [
-        "Binary Vector \\(\\varpmb{u}\\)",
-        "Codeword \\(c\\)"
+        "图5-13循环汉明码的译码器",
+        "缓冲寄存器"
       ],
       [
-        "RPA_RM",
-        "简化RPA算法"
+        "X^n+1",
+        "g^(k)(X)"
       ],
       [
-        "AWGN channels",
-        "Monte Carlo trials"
+        "(9,3)准循环码",
+        "准循环码"
       ],
       [
-        "Figure 6(c)",
-        "RM(9,2)"
+        "信道",
+        "编码过程"
       ],
       [
-        "Fast Hadamard Transform",
-        "RPA_RM"
+        "循环汉明码C",
+        "相邻双重错误模式"
       ],
       [
-        "F2上的多项式环",
-        "基向量ν_m(A)"
+        "r=(0010110)",
+        "表5-3"
       ],
       [
-        "BMS Channel",
-        "Permutation π"
+        "习题5-21",
+        "循环汉明码"
       ],
       [
-        "Fast Hadamard Transform",
-        "Reed-Muller Code"
+        "(15,5)准循环码",
+        "生成多项式"
       ],
       [
-        "R. R. Green",
-        "Serial Orthogonal Decoder"
+        "(28,23)缩短循环码",
+        "缩短3位"
       ],
       [
-        "BSC",
-        "算法1"
+        "E J McCluskey",
+        "Reduction of Redundancy"
       ],
       [
-        "Algorithm 1",
-        "RPA_RM"
+        "等式(5-39)",
+        "缩短循环码"
       ],
       [
-        "RPA算法",
-        "译码错误概率"
+        "D U Friedman",
+        "Undetected Error Probability"
       ],
       [
-        "Figure 1",
-        "RPA_RM Decoding Algorithm"
+        "三输入与门",
+        "校正子(101)"
       ],
       [
-        "幂迭代方法",
-        "矩阵A"
+        "v0(X)",
+        "除以生成多项式"
       ],
       [
-        "Hassani et al.",
-        "RM codes"
+        "习题5-8",
+        "奇数重量的码字"
       ],
       [
-        "Dumer递归列表译码算法",
-        "RPA算法"
+        "(7,4)循环码",
+        "校正子电路"
       ],
       [
-        "Fast Hadamard Transform",
-        "Hadamard Transform"
+        "系统形式",
+        "编码过程"
       ],
       [
-        "Algorithm utilizing minimum-weight parity checks",
-        "Reed-Muller codes"
+        "(20,15)缩短循环码",
+        "(31,26)循环汉明码"
       ],
       [
-        "Algorithm 1",
-        "Changevote ε(z)"
+        "(n,k)循环码C",
+        "循环码"
       ],
       [
-        "Algorithm 1",
-        "RPA algorithm"
+        "D U Friedman",
+        "S K Leung-Yan-Cheong"
       ],
       [
-        "LLR Vector (L)",
-        "Recursive Decoding"
+        "校正子s(X)",
+        "表5-4"
       ],
       [
-        "AWGN信道",
-        "图5(a)"
+        "E R Barnes",
+        "Undetected Error Probability"
       ],
       [
-        "Codeword \\(c\\)",
-        "Polynomial over \\(\\mathbb{F}_2\\)"
+        "(28,23)缩短循环码",
+        "生成多项式g(X)=1+X^2+X^5"
       ],
       [
-        "Sidelnikov-Pershakov算法",
-        "参数s"
+        "(7,4)循环码",
+        "生成多项式$1+X^{2}+X^{3}$"
       ],
       [
-        "LLR向量",
-        "公式(13)"
+        "X^n+1",
+        "定理5-6"
       ],
       [
-        "RPA_RM解码函数",
-        "算法3"
+        "差错检测电路",
+        "校正子"
       ],
       [
-        "Figure 2(b): RM(7,3) vs polar codes",
-        "Polar codes"
+        "校正子重量",
+        "门2"
       ],
       [
-        "A_{z,z'}",
-        "矩阵A"
+        "(n,k)循环码",
+        "g(X)"
       ],
       [
-        "估计值\\hat{y}_{/\\mathbb{B}}",
-        "解码算法(Algorithms 3–4)"
+        "(7,4)循环码",
+        "例5-10"
       ],
       [
-        "RPA_RM算法",
-        "Reed-Muller码(RM(m,r))"
+        "E J Weldon",
+        "Three-Dimensional Product Code"
       ],
       [
-        "Polar codes",
-        "RM codes"
+        "捕错译码器",
+        "门3"
       ],
       [
-        "H. V. Poor",
-        "信道编码"
+        "单个差错",
+        "陪集首"
       ],
       [
-        "商空间E/B",
-        "投影算子Proj(y,B)"
+        "E R Barnes",
+        "S K Leung-Yan-Cheong"
       ],
       [
-        "RPA_RM",
-        "m"
+        "乘以X^(n-k)",
+        "消息多项式u(X)"
       ],
       [
-        "Code Word c1",
-        "Proposition 4"
+        "另一种捕错译码器",
+        "阈值检测开关"
       ],
       [
-        "Algorithm 1",
-        "RM Code"
+        "c_2",
+        "p_0^{(2)}"
       ],
       [
-        "Coefficient α(z,z′)",
-        "Cumulative LLR (cumuLLR)"
+        "习题5-1",
+        "奇偶校验矩阵"
       ],
       [
-        "列表译码过程",
-        "前三比特枚举"
+        "例5-6",
+        "生成多项式g(X)=1+X+X^3"
       ],
       [
-        "Algorithm in [19]",
-        "RPA decoder"
+        "BCH码",
+        "随机差错纠正"
       ],
       [
-        "RPA_RM",
-        "Reed-Muller Code"
+        "(7,4)循环码",
+        "循环码"
       ],
       [
-        "Figure 2(f): RM(8,4) vs polar codes",
-        "Polar codes"
+        "1+X",
+        "X^7+1"
       ],
       [
-        "Definition 3",
-        "Proposition 4"
+        "(20,15)缩短循环码的译码电路",
+        "习题5-5"
       ],
       [
-        "LLR向量",
-        "RPA_RM解码函数"
+        "接收向量r(X)",
+        "校正子寄存器"
       ],
       [
-        "Lemma 2",
-        "二维子空间投影"
+        "校正子$s(X)$",
+        "译码方式"
       ],
       [
-        "方程(16)",
-        "算法4"
+        "余式s^{(n-k+l)}(X)",
+        "等式(5-39)"
       ],
       [
-        "RPA_RM解码函数",
-        "聚合函数"
+        "g(X)",
+        "定理5-2"
       ],
       [
-        "Reed-Muller码(RM(m,1))",
-        "码字c_0"
+        "E J McCluskey",
+        "I B Pyne"
       ],
       [
-        "Figure 7",
-        "w(0.01)"
+        "奇偶校验矩阵",
+        "循环码"
       ],
       [
-        "Algorithm 7",
-        "Simplified_RPA算法"
+        "编码电路",
+        "门2"
       ],
       [
-        "Code Word c1",
-        "Reed-Muller Code"
+        "$(2^{m}-1,2^{m}-m-2)$循环汉明码C",
+        "5-10"
       ],
       [
-        "[11]–[13]中的算法",
-        "图4"
+        "消息(0110)",
+        "码字(1000110)"
       ],
       [
-        "P(10,2)",
-        "RM(10,2)"
+        "差错模式$\\pmb{e}(X)$",
+        "校正子$\\pmb{s}(X)$"
       ],
       [
-        "Differential Privacy",
-        "Min Ye"
+        "(23,12)格雷码",
+        "简单捕错方案"
       ],
       [
-        "Comparison between Reed-Muller codes and polar codes over BSC channels",
-        "Fig. 3"
+        "例5-11",
+        "捕错译码"
       ],
       [
-        "AWGN channels",
-        "Polar codes"
+        "编码电路",
+        "输出"
       ],
       [
-        "Figure 2(i): RM(10,2) vs polar codes",
-        "Polar codes"
+        "Meggitt译码器",
+        "图5-11"
       ],
       [
-        "Lemma 2",
-        "Linear Code"
+        "接收向量r(X)",
+        "模2和"
       ],
       [
-        "Projection",
-        "RM Codes"
+        "(23,12)格雷码",
+        "改进的捕错方法"
       ],
       [
-        "LLR",
-        "Lemma 2"
+        "接收多项式r(X)",
+        "校正子s(X)"
       ],
       [
-        "商空间E/B",
-        "子空间B"
+        "校正子s(X)",
+        "校正子寄存器"
       ],
       [
-        "Figure 2(f): RM(8,4) vs polar codes",
-        "RM(8,4)"
+        "s(X)=1+X",
+        "校正子向量(110)"
       ],
       [
-        "L^{(1)}(z)",
-        "L^{(2)}(z)"
+        "g^{(k)}(X)",
+        "生成多项式g(X)"
       ],
       [
-        "Channel Coding: Non-Asymptotic Fundamental Limits",
-        "Princeton University"
+        "v3(X)",
+        "除以生成多项式"
       ],
       [
-        "Reed algorithm",
-        "Reed-Muller codes"
+        "译码方式",
+        "错误模式$e(X)$"
       ],
       [
-        "Lemma 3",
-        "命题4"
+        "(15,11)循环汉明码",
+        "循环汉明码"
       ],
       [
-        "Polar codes",
-        "RM(7,2)"
+        "X^n+1",
+        "循环移位"
       ],
       [
-        "向量u_bar",
-        "算法2"
+        "定理5-8",
+        "校正子s(X)"
       ],
       [
-        "Definition 3",
-        "Permutation π"
+        "校正子",
+        "生成多项式p(X)"
       ],
       [
-        "Figure 6(d)",
-        "P(10,2)"
+        "码字(0111001)",
+        "表5-2"
       ],
       [
-        "I. Tal",
-        "List Decoding"
+        "c_0",
+        "p_1^{(2)}"
       ],
       [
-        "$\\mathbb{B}_{i,j}$",
-        "陪集"
+        "(7,4)循环码",
+        "例5-4"
       ],
       [
-        "Code Length",
-        "Transition Width w(δ)"
+        "(9,3)准循环码",
+        "参数k_0"
       ],
       [
-        "High code rate regime",
-        "RPA decoding"
+        "码字(0110100)",
+        "表5-2"
       ],
       [
-        "Second-Order Reed-Muller Code",
-        "Simplified_RPA Decoding Function"
+        "(23,12)格雷码",
+        "Kasami译码器"
       ],
       [
-        "Dumer's algorithm",
-        "RPA decoder"
+        "g(X)",
+        "公式(5-42)"
       ],
       [
-        "列表译码",
-        "算法1"
+        "g(X)",
+        "定理5-3"
       ],
       [
-        "LLR Vector",
-        "RPA_LIST Decoding Function"
+        "r^{(n-k)}(X)",
+        "接收向量r(X)"
       ],
       [
-        "Original Codeword c",
-        "RPA_RM Decoding Algorithm"
+        "消息(0010)",
+        "码字(1110010)"
       ],
       [
-        "RPA算法",
-        "图4"
+        "反多项式g*(X)",
+        "循环码C*"
       ],
       [
-        "算法2",
-        "聚合函数"
+        "(15,11)循环汉明码的编码器",
+        "习题5-2"
       ],
       [
-        "ML Decoder",
-        "Transition Width w(δ)"
+        "例5-14",
+        "生成多项式"
       ],
       [
-        "Polar codes",
-        "SCL decoder"
+        "习题5-23",
+        "循环码"
       ],
       [
-        "Fig. 3(b)",
-        "RM(8,3)"
+        "多项式ρ(X)=1+X^2+X^3",
+        "生成多项式g(X)=1+X^2+X^5"
       ],
       [
-        "RPA_RM",
-        "r"
+        "生成多项式g(X)=1+X+X^3",
+        "表5-1"
       ],
       [
-        "Fig. 3(c)",
-        "polar codes"
+        "BCH码",
+        "突发错误纠正"
       ],
       [
-        "基B",
-        "子空间B"
+        "信息位",
+        "校验位"
       ],
       [
-        "Reed算法",
-        "引理1"
+        "D U Friedman",
+        "E R Barnes"
       ],
       [
-        "Fig. 3(a)",
-        "polar codes"
+        "(15,7)循环码",
+        "图5-16码数据位的环状排列"
       ],
       [
-        "RM(7,3)",
-        "文献[19]"
+        "差分方程(公式5-18)",
+        "校验位"
       ],
       [
-        "Permutation π",
-        "W (Output Alphabet)"
+        "g(X)",
+        "定理5-1"
       ],
       [
-        "RPA algorithm",
-        "Table I"
+        "本原多项式",
+        "汉明码"
       ],
       [
-        "r阶Reed-Muller码",
-        "向量空间E=F2^m"
+        "信息位",
+        "码字"
       ],
       [
-        "Emmanuel Abbe",
-        "NSF CAREER Award"
+        "(n,k)循环码",
+        "循环码"
       ],
       [
-        "Reed-Muller Code of Length 256",
-        "Reed-Muller Codes"
+        "不可检测的突发差错e(X)=X^i g(X)",
+        "长度为n-k+1的突发差错"
       ],
       [
-        "N. Doan",
-        "Reed-Muller Codes"
+        "ρ₂(X)",
+        "校正子s(X)"
       ],
       [
-        "A Class of Multiple-Error-Correcting Codes and the Decoding Scheme (Paper)",
-        "Reed-Muller Codes"
+        "门1",
+        "门2"
       ],
       [
-        "A. Burg",
-        "Successive Cancellation List Decoding"
+        "Meggitt译码器",
+        "循环乘积码"
       ],
       [
-        "RM(7,2)",
-        "Reed-Muller Codes"
+        "接收向量r(X)",
+        "校正子s"
       ],
       [
-        "hat L^(1)向量",
-        "方程(16)"
+        "C2",
+        "最小重量4"
       ],
       [
-        "Min Ye",
-        "University of Maryland"
+        "生成多项式g(X)",
+        "系统码的编码步骤"
       ],
       [
-        "Polar codes",
-        "RM(8,2)"
+        "缓冲寄存器",
+        "门4"
       ],
       [
-        "N. Doan",
+        "(15,5)循环码",
+        "简单捕错译码"
+      ],
+      [
+        "校正子多项式s^(n-k+l)(X)",
+        "生成多项式g(X)"
+      ],
+      [
+        "校正子",
+        "系统搜索译码器"
+      ],
+      [
+        "另一种捕错译码器",
+        "图5-15另一种捕错译码器"
+      ],
+      [
+        "校正子向量(s0,s1,s2)",
+        "表5-4"
+      ],
+      [
+        "习题5-6",
+        "最小重量至少为3"
+      ],
+      [
+        "循环乘积码",
+        "最小距离"
+      ],
+      [
+        "码字001011010",
+        "码字010001011"
+      ],
+      [
+        "v2(X)",
+        "例5-4"
+      ],
+      [
+        "定理5-8",
+        "校正子电路"
+      ],
+      [
+        "校正子电路",
+        "生成多项式g(X)"
+      ],
+      [
+        "单个差错",
+        "循环汉明码C1"
+      ],
+      [
+        "循环码译码",
+        "校正子寄存器"
+      ],
+      [
+        "5-13",
+        "校正子寄存器"
+      ],
+      [
+        "循环码",
+        "循环码C"
+      ],
+      [
+        "$\\beta$ (非零元素)",
+        "$\\phi(X)$ (最小多项式)"
+      ],
+      [
+        "图5-18",
+        "接收多项式实例1"
+      ],
+      [
+        "e4(X)=X^4",
+        "s(X)=X+X^2"
+      ],
+      [
+        "$(15,10)$循环汉明码",
+        "循环汉明码"
+      ],
+      [
+        "$C_1$, $C_2$, $C_3$",
+        "5-20"
+      ],
+      [
+        "s(X)=X^2",
+        "校正子向量(001)"
+      ],
+      [
+        "完成 ρ(X)乘以r(X)再除以g(X)的电路",
+        "校正子寄存器"
+      ],
+      [
+        "e2(X)=X^2",
+        "s(X)=X^2"
+      ],
+      [
+        "F J MacWilliams",
+        "Permutation Decoding"
+      ],
+      [
+        "全零向量",
+        "陪集首"
+      ],
+      [
+        "习题5-1",
+        "系统形式的生成矩阵"
+      ],
+      [
+        "v0(X)",
+        "例5-4"
+      ],
+      [
+        "码字(1110010)",
+        "表5-2"
+      ],
+      [
+        "校正子寄存器",
+        "组合逻辑电路"
+      ],
+      [
+        "习题5-8",
+        "重量枚举式A1(z)"
+      ],
+      [
+        "A2(z)",
+        "公式(5-31)"
+      ],
+      [
+        "(15,5)准循环码",
+        "准循环码"
+      ],
+      [
+        "编码电路",
+        "编码过程"
+      ],
+      [
+        "生成多项式g(X)",
+        "系统形式生成矩阵G"
+      ],
+      [
+        "校正子寄存器",
+        "错误模式检测电路"
+      ],
+      [
+        "c_0",
+        "码字v"
+      ],
+      [
+        "系统搜索译码器",
+        "门5"
+      ],
+      [
+        "Cyclic Codes",
+        "Implementation of Decoders"
+      ],
+      [
+        "覆盖多项式数目N",
+        "译码方式"
+      ],
+      [
+        "(7,4)循环码",
+        "码字(1000110)"
+      ],
+      [
+        "图5-3",
+        "校验多项式$h(X)$"
+      ],
+      [
+        "第一步操作",
+        "门1"
+      ],
+      [
+        "CCITT X-25标准CRC码",
+        "循环冗余校验(CRC)码"
+      ],
+      [
+        "组合逻辑电路",
+        "错误模式检测器"
+      ],
+      [
+        "图5-13循环汉明码的译码器",
+        "异或门"
+      ],
+      [
+        "消息$u=(1010)$",
+        "码字$(1110010)$"
+      ],
+      [
+        "对偶码",
+        "汉明码"
+      ],
+      [
+        "另一种捕错译码器",
+        "校正子寄存器"
+      ],
+      [
+        "循环码C",
+        "相邻双重错误模式"
+      ],
+      [
+        "循环乘积码",
+        "循环乘积码的校验多项式"
+      ],
+      [
+        "图5-11",
+        "校正子寄存器"
+      ],
+      [
+        "接收多项式",
+        "错误模式"
+      ],
+      [
+        "单个差错错误模式",
+        "陪集首"
+      ],
+      [
+        "Decoding Procedure",
+        "Multiple-Error-Correction Cyclic Codes"
+      ],
+      [
+        "h(X)",
+        "h*(X)"
+      ],
+      [
+        "缓冲寄存器",
+        "门"
+      ],
+      [
+        "图3-8",
+        "并行纠错"
+      ],
+      [
+        "(7,4)循环码",
+        "基于校验多项式h(X)=1+X+X^2+X^4的(7,4)循环码编码电路"
+      ],
+      [
+        "m输入与门",
+        "异或门"
+      ],
+      [
+        "ANSI",
+        "ANSI标准CRC码"
+      ],
+      [
+        "Prime Implicant Tables",
+        "Reduction of Redundancy"
+      ],
+      [
+        "长译码延时",
+        "首尾相接错误模式"
+      ],
+      [
+        "生成多项式",
+        "生成矩阵"
+      ],
+      [
+        "(7,4)循环码",
+        "码字(1110010)"
+      ],
+      [
+        "(31,26)循环汉明码",
+        "图5-20"
+      ],
+      [
+        "(23,12)格雷码",
+        "校正子s(X)"
+      ],
+      [
+        "码字(0101110)",
+        "表5-2"
+      ],
+      [
+        "循环汉明码",
+        "捕错译码器"
+      ],
+      [
+        "定理5-3",
+        "码多项式"
+      ],
+      [
+        "余式$b(X)$",
+        "组合多项式$b(X)+X^{n-k}u(X)$"
+      ],
+      [
+        "(28,23)缩短汉明码",
+        "图5-22"
+      ],
+      [
+        "接收向量r(X)",
+        "校验位"
+      ],
+      [
+        "5-19",
+        "由$\\pmb{p}(X)$生成的汉明码"
+      ],
+      [
+        "Cascade Decoding",
+        "Cyclic Product Codes"
+      ],
+      [
+        "S K Leung-Yan-Cheong",
+        "Undetected Error Probability"
+      ],
+      [
+        "例5-2",
+        "生成多项式g(X)=1+X+X^3"
+      ],
+      [
+        "v3(X)",
+        "例5-4"
+      ],
+      [
+        "g(X)",
+        "p(X)"
+      ],
+      [
+        "循环汉明码",
+        "捕错译码方法"
+      ],
+      [
+        "图5-7右端输入的(n-k)级校正子电路",
+        "校正子"
+      ],
+      [
+        "Kasami译码器",
+        "图5-18"
+      ],
+      [
+        "Product Codes",
+        "W C Gore"
+      ],
+      [
+        "校正子",
+        "校正子寄存器"
+      ],
+      [
+        "准循环码",
+        "移位寄存器"
+      ],
+      [
+        "基于校验多项式h(X)=1+X+X^2+X^4的(7,4)循环码编码电路",
+        "差分方程v_{3-j}=v_{7-j}+v_{6-j}+v_{5-j}"
+      ],
+      [
+        "多项式X^n+1",
+        "定理5-5"
+      ],
+      [
+        "图5-13",
+        "译码电路"
+      ],
+      [
+        "(21,11)循环码",
+        "习题5-3"
+      ],
+      [
+        "消息(1110)",
+        "码字(0101110)"
+      ],
+      [
+        "循环汉明码C1",
+        "校正子寄存器"
+      ],
+      [
+        "(9,3)准循环码",
+        "编码电路"
+      ],
+      [
+        "系统搜索译码器",
+        "门2"
+      ],
+      [
+        "不可纠正的差错",
+        "校正子重量"
+      ],
+      [
+        "(28,23)缩短循环码",
+        "多项式ρ(X)=1+X^2+X^3"
+      ],
+      [
+        "(n,k)循环码C",
+        "码多项式"
+      ],
+      [
+        "习题5-6",
+        "生成多项式g(X)"
+      ],
+      [
+        "循环码",
+        "示例表格"
+      ],
+      [
+        "循环码",
+        "编码电路"
+      ],
+      [
+        "反多项式X^k h(X^{-1})",
+        "校验矩阵H"
+      ],
+      [
+        "C1",
+        "循环乘积码"
+      ],
+      [
+        "捕错译码器",
+        "门4"
+      ],
+      [
+        "p_1^{(1)}",
+        "码字v"
+      ],
+      [
+        "另一种捕错译码器",
+        "接收向量r(X)"
+      ],
+      [
+        "循环码C2",
+        "最小距离"
+      ],
+      [
+        "接收向量",
+        "校正子"
+      ],
+      [
+        "C2",
+        "h2(X)"
+      ],
+      [
+        "模2和",
+        "缓冲寄存器"
+      ],
+      [
+        "习题5-8",
+        "循环码C"
+      ],
+      [
+        "校正子寄存器",
+        "译码电路"
+      ],
+      [
+        "图5-12",
+        "译码电路"
+      ],
+      [
+        "习题5-7",
+        "生成多项式g(X)"
+      ],
+      [
+        "循环汉明码",
+        "本原多项式p(X)"
+      ],
+      [
+        "v1(X)",
+        "例5-4"
+      ],
+      [
+        "Meggitt译码器",
+        "接收多项式"
+      ],
+      [
+        "C1",
+        "n1"
+      ],
+      [
+        "Eugene Prange",
+        "循环码"
+      ],
+      [
+        "D C Foata",
+        "Ray-Chaudhuri's Algorithm"
+      ],
+      [
+        "(n,k)循环码",
+        "定理5-4"
+      ],
+      [
+        "p_0^{(2)}",
+        "码字v"
+      ],
+      [
+        "(7,4)循环码",
+        "码字(1001011)"
+      ],
+      [
+        "不可约多项式",
+        "二进制多项式g(X)"
+      ],
+      [
+        "m输入与门",
+        "图5-13循环汉明码的译码器"
+      ],
+      [
+        "(7,4)循环码",
+        "单个差错"
+      ],
+      [
+        "$X^{n-k}u(X)$",
+        "组合多项式$b(X)+X^{n-k}u(X)$"
+      ],
+      [
+        "公式(5-44)",
+        "生成矩阵"
+      ],
+      [
+        "c_1",
+        "p_2^{(2)}"
+      ],
+      [
+        "码字(1101000)",
+        "表5-2"
+      ],
+      [
+        "Kasami译码器",
+        "系统搜索译码器"
+      ],
+      [
+        "循环码",
+        "系统搜索译码器"
+      ],
+      [
+        "循环移位",
+        "码多项式"
+      ],
+      [
+        "(n,k)循环码",
+        "基于校验多项式h(X)=1+h1X+...+X^k的编码电路"
+      ],
+      [
+        "图5-12",
+        "图5-9"
+      ],
+      [
+        "5-11",
+        "译码电路"
+      ],
+      [
+        "消息$u=(1010)$",
+        "码多项式$\\nu(X)=1+X+X^{2}+X^{5}$"
+      ],
+      [
+        "差错控制编码",
+        "循环码"
+      ],
+      [
+        "(7,4)循环码",
+        "例5-5"
+      ],
+      [
+        "公式(5-24)",
+        "公式(5-25)"
+      ],
+      [
+        "公式(5-2)",
+        "定理5-2"
+      ],
+      [
+        "接收多项式$r(X)$",
+        "缓冲寄存器"
+      ],
+      [
+        "重量",
+        "阈值t"
+      ],
+      [
+        "v(X)",
+        "v^(1)(X)"
+      ],
+      [
+        "接收多项式r(X)",
+        "门"
+      ],
+      [
+        "Kasami译码器",
+        "数与计时电路"
+      ],
+      [
+        "(7,3)循环码",
+        "反多项式X^4 h(X^{-1})"
+      ],
+      [
+        "(9,3)准循环码",
+        "参数m"
+      ],
+      [
+        "(28,23)缩短循环码",
+        "图5-22"
+      ],
+      [
+        "单个差错错误模式",
+        "循环码C"
+      ],
+      [
+        "A2(z)",
+        "公式(5-32)"
+      ],
+      [
+        "b",
+        "n2"
+      ],
+      [
+        "(9,3)码",
+        "图5-24"
+      ],
+      [
+        "(7,4)循环码",
+        "例5-8"
+      ],
+      [
+        "例5-12",
+        "缩短3位"
+      ],
+      [
+        "(9,3)码",
+        "表5-6"
+      ],
+      [
+        "覆盖多项式$\\phi_j(X)$",
+        "译码方式"
+      ],
+      [
+        "循环移位",
+        "校正子寄存器"
+      ],
+      [
+        "已纠错向量",
+        "缓冲寄存器"
+      ],
+      [
+        "例5-9",
+        "图5-10"
+      ],
+      [
+        "消息(0100)",
+        "码字(0110100)"
+      ],
+      [
+        "(7,4)循环码",
+        "码字(0010111)"
+      ],
+      [
+        "(9,3)准循环码",
+        "移位约束n_0"
+      ],
+      [
+        "X^{n-1} v(X^{-1})",
+        "循环码C*"
+      ],
+      [
+        "(23,12)格雷码",
+        "Kasami捕错译码方案"
+      ],
+      [
+        "公式(5-34)",
+        "漏检差错概率Pu(E)"
+      ],
+      [
+        "Meggitt译码器",
+        "Meggitt译码方法"
+      ],
+      [
+        "(X^3+1)",
+        "二进制多项式g(X)"
+      ],
+      [
+        "系统搜索译码器",
+        "重量"
+      ],
+      [
+        "图5-17 (15,7)循环码的捕错译码器",
+        "捕错译码"
+      ],
+      [
+        "(23, 12)格雷码",
+        "BSC"
+      ],
+      [
+        "循环码",
+        "线性分组码"
+      ],
+      [
+        "习题5-1",
+        "校验多项式h(X)"
+      ],
+      [
+        "Decoding Procedure",
+        "Kasami"
+      ],
+      [
+        "接收向量r(X)",
+        "缓冲寄存器"
+      ],
+      [
+        "余式s^{(n-k+l)}(X)",
+        "生成多项式g(X)"
+      ],
+      [
+        "译码过程",
+        "重量w[·]"
+      ],
+      [
+        "g(X)=1+X+X^3",
+        "码字(1100101)"
+      ],
+      [
+        "循环码",
+        "码多项式"
+      ],
+      [
+        "最小整数n",
+        "本原多项式p(X)=1+X+X^4"
+      ],
+      [
+        "c_2",
+        "p_1^{(2)}"
+      ],
+      [
+        "例5-5",
+        "码字(1001011)"
+      ],
+      [
+        "(7,4)循环码",
+        "Meggitt译码器"
+      ],
+      [
+        "g(X)=(X+1)p(X)",
+        "生成多项式p(X)"
+      ],
+      [
+        "第一步操作",
+        "门3"
+      ],
+      [
+        "例5-8",
+        "最小距离"
+      ],
+      [
+        "码多项式v(X)",
+        "错误模式e(X)"
+      ],
+      [
+        "捕错译码",
+        "纠单个错误的分组码"
+      ],
+      [
+        "v2(X)",
+        "除以生成多项式"
+      ],
+      [
+        "接收码字$r(X)$",
+        "缓冲寄存器"
+      ],
+      [
+        "E J Weldon",
+        "Interleaved Golay Code"
+      ],
+      [
+        "系统搜索译码器",
+        "缓冲寄存器"
+      ],
+      [
+        "e1(X)=X^1",
+        "s(X)=X"
+      ],
+      [
+        "(X^3+1)",
+        "p(X)"
+      ],
+      [
+        "C2",
+        "g(X)"
+      ],
+      [
+        "校正子",
+        "突发误码"
+      ],
+      [
+        "C1",
+        "h1(X)"
+      ],
+      [
+        "(7,4)循环码",
+        "表4-1"
+      ],
+      [
+        "循环码C",
+        "捕错译码器"
+      ],
+      [
+        "寄存器",
+        "编码电路"
+      ],
+      [
+        "(15,10)循环汉明码",
+        "习题5-9"
+      ],
+      [
+        "习题5-28",
+        "接收多项式实例2"
+      ],
+      [
+        "Xv(X)",
+        "g(X)"
+      ],
+      [
+        "$X^{n-k}u(X)$",
+        "余式$b(X)$"
+      ],
+      [
+        "c_2",
+        "p_1^{(1)}"
+      ],
+      [
+        "a",
+        "n1"
+      ],
+      [
+        "(15,7)循环码",
+        "捕错译码"
+      ],
+      [
+        "发送码字",
+        "接收多项式"
+      ],
+      [
+        "乘以X^(n-k)",
+        "系统形式编码步骤"
+      ],
+      [
+        "循环汉明码",
+        "最小距离"
+      ],
+      [
+        "(7,4)循环码",
+        "码字(1100101)"
+      ],
+      [
+        "校正子(Syndrome)",
+        "生成多项式g(X)"
+      ],
+      [
+        "信息位",
+        "通信信道"
+      ],
+      [
+        "45度斜对角线传送顺序",
+        "循环乘积码"
+      ],
+      [
+        "(15,10)循环汉明码",
+        "BSC信道"
+      ],
+      [
+        "另一种捕错译码器",
+        "第一步操作"
+      ],
+      [
+        "校正子",
+        "译码表"
+      ],
+      [
+        "ARQ协议",
+        "缩短循环码"
+      ],
+      [
+        "习题5-8",
+        "重量枚举式A(z)"
+      ],
+      [
+        "习题5-22",
+        "汉明码"
+      ],
+      [
+        "接收多项式r(X)",
+        "校正子多项式s^(n-k+l)(X)"
+      ],
+      [
+        "嵩忠雄(Kasami)",
+        "改进的捕错译码"
+      ],
+      [
+        "公式(5-15)",
+        "系统形式生成矩阵G"
+      ],
+      [
+        "捕错译码",
+        "纠双错误码"
+      ],
+      [
+        "码多项式1+X^3+X^5+X^6",
+        "码字(1001011)"
+      ],
+      [
+        "例5-2",
+        "码字v=(0 1 1 1 0 0 1)"
+      ],
+      [
+        "G",
+        "v3(X)"
+      ],
+      [
+        "习题5-7",
+        "码多项式v(X)"
+      ],
+      [
+        "余式b_i(X)",
+        "公式(5-15)"
+      ],
+      [
+        "信息位",
+        "系统形式的循环码"
+      ],
+      [
+        "译码电路",
+        "误差多项式和伴随式对应表"
+      ],
+      [
+        "定理5-10",
+        "突发差错"
+      ],
+      [
+        "捕错译码",
+        "改进的捕错译码"
+      ],
+      [
+        "对偶码",
+        "校验矩阵H"
+      ],
+      [
+        "反多项式X^k h(X^{-1})",
+        "多项式h(X)"
+      ],
+      [
+        "X^{n-1} v(X^{-1})",
+        "习题5-7"
+      ],
+      [
+        "例3-9",
+        "例5-9"
+      ],
+      [
+        "(7,4)循环码",
+        "码字(0001101)"
+      ],
+      [
+        "r(X)=1+X^5+X^17",
+        "习题5-3"
+      ],
+      [
+        "差分方程v_{3-j}=v_{7-j}+v_{6-j}+v_{5-j}",
+        "消息(1011)"
+      ],
+      [
+        "n-k级移位寄存器",
+        "基于校验多项式h(X)=1+h1X+...+X^k的编码电路"
+      ],
+      [
+        "(8,4)缩短循环码的译码器",
+        "习题5-4"
+      ],
+      [
+        "校正子",
+        "除法电路"
+      ],
+      [
+        "覆盖多项式 φ_j(X)",
+        "覆盖多项式余式 ρ_j(X)"
+      ],
+      [
+        "接收多项式r(X)",
+        "校正子寄存器"
+      ],
+      [
+        "公式(5-11)",
+        "公式(5-12)"
+      ],
+      [
+        "码字(1000110)",
+        "表5-2"
+      ],
+      [
+        "(15,5)准循环码",
+        "编码电路"
+      ],
+      [
+        "c_1",
+        "p_1^{(2)}"
+      ],
+      [
+        "校正子$s(X)$",
+        "校正子寄存器"
+      ],
+      [
+        "定理5-8",
+        "校正子寄存器"
+      ],
+      [
+        "校正子(01000)",
+        "错误模式e(X)=X^{27}"
+      ],
+      [
+        "(7,4)循环码",
+        "表5-2"
+      ],
+      [
+        "定理5-1",
+        "循环码C"
+      ],
+      [
+        "定理5-5",
+        "生成多项式g(X)"
+      ],
+      [
+        "a(X)",
+        "码字多项式v(X)"
+      ],
+      [
+        "例5-1",
+        "生成多项式$g(X)=1+X+X^{3}$"
+      ],
+      [
+        "循环汉明码",
+        "循环码"
+      ],
+      [
+        "捕错译码",
+        "校正子重量"
+      ],
+      [
+        "单个差错",
+        "接收向量r(X)"
+      ],
+      [
+        "差错检测",
+        "校正子"
+      ],
+      [
+        "差错位置r_{n-1}",
+        "校正子s(X)"
+      ],
+      [
+        "(7,4)循环码",
+        "图5-2"
+      ],
+      [
+        "g(X)=1+X+X^3",
+        "码字(1111111)"
+      ],
+      [
+        "子矩阵G_i",
+        "生成矩阵G"
+      ],
+      [
+        "c_1",
+        "p_1^{(1)}"
+      ],
+      [
+        "Implementation of Decoders",
+        "L Rudolph"
+      ],
+      [
+        "校验多项式$\\rho_j(X)$",
+        "译码方式"
+      ],
+      [
+        "信道噪声",
+        "差错检测"
+      ],
+      [
+        "g(X)=1+X+X^3",
+        "码字(1101001)"
+      ],
+      [
+        "(15,5)循环码",
+        "生成多项式g(X)"
+      ],
+      [
+        "奇偶校验矩阵",
+        "生成矩阵"
+      ],
+      [
+        "BCH码",
+        "循环码"
+      ],
+      [
+        "校正子",
+        "错误模式检测器"
+      ],
+      [
+        "捕错译码器",
+        "校正子寄存器"
+      ],
+      [
+        "(2^m-1, 2^m-m-2)循环汉明码",
+        "习题5-10"
+      ],
+      [
+        "流程图",
+        "译码电路"
+      ],
+      [
+        "(15,11)循环汉明码",
+        "习题5-2"
+      ],
+      [
+        "k级移位寄存器",
+        "基于校验多项式h(X)=1+h1X+...+X^k的编码电路"
+      ],
+      [
+        "错误模式示例",
+        "首尾相接突发"
+      ],
+      [
+        "校正子电路",
+        "输入门"
+      ],
+      [
+        "e0(X)=X^0",
+        "s(X)=1"
+      ],
+      [
+        "(15,5)循环码",
+        "双个差错"
+      ],
+      [
+        "(7,4)循环码",
+        "译码表"
+      ],
+      [
+        "差错模式",
+        "校正子寄存器"
+      ],
+      [
+        "循环码C",
+        "码字向量v"
+      ],
+      [
+        "C2",
+        "循环码"
+      ],
+      [
+        "码字(1010001)",
+        "表5-2"
+      ],
+      [
+        "(23,12)格雷码",
+        "系统搜索译码器"
+      ],
+      [
+        "G_c",
+        "生成矩阵G"
+      ],
+      [
+        "差错检测逻辑电路",
+        "阈值检测开关"
+      ],
+      [
+        "循环码",
+        "里德-索罗门码"
+      ],
+      [
+        "e6(X)=X^6",
+        "s(X)=1+X^2"
+      ],
+      [
+        "反多项式X^4 h(X^{-1})",
+        "校验多项式h(X)"
+      ],
+      [
+        "(15,11)循环汉明码",
+        "习题5-1"
+      ],
+      [
+        "习题5-7",
+        "二进制(n,k)循环码"
+      ],
+      [
+        "(23,12)格雷码",
+        "习题5-27"
+      ],
+      [
+        "(7,4)线性码",
+        "表5-1"
+      ],
+      [
+        "e",
+        "首尾相接突发错误模式"
+      ],
+      [
+        "编码电路",
+        "门1"
+      ],
+      [
+        "表5-4",
+        "错误模式e_i(X)"
+      ],
+      [
+        "生成矩阵",
+        "移位约束n_0"
+      ],
+      [
+        "原循环码的译码电路",
+        "缩短循环码"
+      ],
+      [
+        "e3(X)=X^3",
+        "s(X)=1+X"
+      ],
+      [
+        "(7,4)循环码",
+        "码字(1101001)"
+      ],
+      [
+        "(7,4)循环码",
+        "生成多项式g(X)"
+      ],
+      [
+        "循环码",
+        "错误模式$e(X)$"
+      ],
+      [
+        "时钟",
+        "校正子寄存器"
+      ],
+      [
+        "校正子",
+        "重量"
+      ],
+      [
+        "p(X)",
+        "习题5-10"
+      ],
+      [
+        "缓冲寄存器",
+        "门2"
+      ],
+      [
+        "定理5-11",
+        "突发差错"
+      ],
+      [
+        "v1(X)",
+        "除以生成多项式"
+      ],
+      [
+        "IEEE 802.3标准CRC码",
+        "循环冗余校验(CRC)码"
+      ],
+      [
+        "m+1个奇偶校验位",
+        "循环码C2"
+      ],
+      [
+        "G",
+        "G'"
+      ],
+      [
+        "a2(X)",
+        "公式(5-40)"
+      ],
+      [
+        "公式(5-40)",
+        "公式(5-41)"
+      ],
+      [
+        "(7,4)循环码",
+        "消息(1011)"
+      ],
+      [
+        "简单捕错方案",
+        "错误模式e(X)=X^11+X^22"
+      ],
+      [
+        "校正子修正",
+        "校正子寄存器"
+      ],
+      [
+        "r^{(n-k)}(X)",
+        "余式ρ(X)"
+      ],
+      [
+        "接收多项式",
+        "校正子寄存器"
+      ],
+      [
+        "(7,4)循环码",
+        "译码电路"
+      ],
+      [
+        "校正子重量",
+        "阈值检测开关"
+      ],
+      [
+        "接收多项式r(X)",
+        "校正子"
+      ],
+      [
+        "(21,11)循环码的校正子计算电路",
+        "习题5-3"
+      ],
+      [
+        "(28,23)缩短循环码",
+        "图5-21"
+      ],
+      [
+        "Kasami捕错译码方案",
+        "图5-18 (23,12)格雷码的捕错译码器"
+      ],
+      [
+        "图5-8",
+        "梅吉特译码器"
+      ],
+      [
+        "图5-7右端输入的(n-k)级校正子电路",
+        "接收多项式"
+      ],
+      [
+        "G",
+        "矩阵G'"
+      ],
+      [
+        "(7,4)循环码",
+        "例5-2"
+      ],
+      [
+        "单位矩阵",
+        "奇偶校验矩阵"
+      ],
+      [
+        "校正子电路",
+        "移位寄存器"
+      ],
+      [
+        "缓冲寄存器",
+        "译码电路"
+      ],
+      [
+        "g(X)",
+        "例5-4"
+      ],
+      [
+        "接收向量r(X)",
+        "校正子s(X)"
+      ],
+      [
+        "c_1",
+        "码字v"
+      ],
+      [
+        "循环码",
+        "随机错误"
+      ],
+      [
+        "定理5-8",
+        "校正子"
+      ],
+      [
+        "码字(0000000)",
+        "表5-2"
+      ],
+      [
+        "异或门",
+        "校正子寄存器"
+      ],
+      [
+        "g(X)",
+        "v(X)"
+      ],
+      [
+        "信息位长度n-k",
+        "译码方式"
+      ],
+      [
+        "(31,26)循环汉明码",
+        "缩短3位"
+      ],
+      [
+        "5-14",
+        "码多项式$v(X)$"
+      ],
+      [
+        "校正子寄存器",
+        "移位"
+      ],
+      [
+        "码向量",
+        "码多项式"
+      ]
+    ],
+    "count": 979,
+    "create_time": 1778915838,
+    "update_time": 1778915838,
+    "_id": "doc-0f78da8d62102a9a83a98730e0e9150f"
+  },
+  "doc-8c265c0e55db1ee795344f3f5df9c346": {
+    "relation_pairs": [
+      [
+        "Error Probability",
+        "TABLE VII"
+      ],
+      [
+        "(32,16) RM Code",
+        "RM(2,5)"
+      ],
+      [
+        "N=256",
+        "Polar Code"
+      ],
+      [
+        "Heuristic Method",
         "Polar Codes"
       ],
       [
-        "列表解码",
-        "基本版本"
+        "Forney's Factor Graph Representation",
+        "RM Code"
       ],
       [
-        "Reed-Muller Code",
-        "m"
+        "Channel-Specific Code Construction Rule",
+        "Table V"
       ],
       [
-        "Simplified_RPA algorithm",
-        "high-rate RM codes"
+        "RM Code",
+        "Trials=1000"
       ],
       [
-        "Fast Hadamard Transform",
-        "Simplified_RPA Decoding Function"
+        "F^{\\otimes n}",
+        "生成矩阵G_P(N,K)"
       ],
       [
-        "Emmanuel Abbe",
-        "Walter Curtis Johnson Prize"
+        "BEC",
+        "Channel-Specific Polar Code"
       ],
       [
-        "RM(8,3)",
-        "Reed-Muller码"
+        "Polar Code",
+        "Trials=1000"
       ],
       [
-        "α_1",
-        "α_2"
+        "向量z_N",
+        "排列π_N"
       ],
       [
-        "RM码",
-        "列表译码"
+        "BP Decoder",
+        "Polar Codes"
       ],
       [
-        "RM(8,3)",
-        "图4(c)"
+        "Errorprobability",
+        "Table VI"
       ],
       [
-        "Binary-Input Memoryless Channels",
-        "RPA_RM Decoding Function"
-      ],
-      [
-        "二元输入无记忆信道",
-        "唯一译码算法"
-      ],
-      [
-        "BMS Channel",
-        "W (Output Alphabet)"
-      ],
-      [
-        "Algorithm 3",
-        "Maximum Number of Iterations N_max"
-      ],
-      [
-        "RM(8,5)",
-        "Reed-Muller码"
-      ],
-      [
-        "Figure 2(i): RM(10,2) vs polar codes",
-        "RM(10,2)"
-      ],
-      [
-        "P(8,5)",
-        "RM(8,5)"
-      ],
-      [
-        "Algorithm 1",
-        "Section VI-C"
-      ],
-      [
-        "RPA_LIST Decoding Function",
-        "SCL Decoder"
-      ],
-      [
-        "Algorithm 1",
-        "Fast Hadamard Transform"
-      ],
-      [
-        "RM(9,2)",
-        "图4(a)"
-      ],
-      [
-        "Institute for Advanced Study",
-        "von Neumann Fellowship"
-      ],
-      [
-        "RM(m,r)",
-        "解码算法(Algorithms 3–4)"
-      ],
-      [
-        "Decoding Error Probability P_e(ε)",
-        "Transition Width w(δ)"
-      ],
-      [
-        "Code Word c0",
-        "Code Word c1"
-      ],
-      [
-        "Cosets",
-        "RPA decoding"
-      ],
-      [
-        "CRC",
-        "Polar codes"
-      ],
-      [
-        "Emmanuel Abbe",
-        "Mathematics Institute, School of Computer and Communication Sciences, EPFL"
-      ],
-      [
-        "Algorithm 3",
-        "RPA Decoder"
-      ],
-      [
-        "Simplified_RPA算法",
+        "Adaptive Polar Code",
         "Table I"
       ],
       [
-        "5G Standards",
-        "Polar codes"
+        "参数K",
+        "生成矩阵G_P(N,K)"
       ],
       [
-        "First-Order Reed-Muller Code",
+        "BEC",
+        "Erasureprobability"
+      ],
+      [
+        "BEC",
+        "Heuristic Method"
+      ],
+      [
+        "Polar Code",
+        "TABLE VII"
+      ],
+      [
+        "Plotkin Construction",
         "Reed-Muller Codes"
       ],
       [
-        "RPA Algorithm",
-        "Second-Order Reed-Muller Code"
+        "N=256",
+        "Table V"
       ],
       [
-        "N_max (Max Iterations)",
-        "RPA_RM Decoding Function"
+        "Codes On Graphs",
+        "G. D. Forney Jr."
       ],
       [
-        "LLR",
-        "二维子空间投影"
+        "Binary Symmetric Channel",
+        "Binary-Input Discrete Memoryless Channels"
       ],
       [
-        "Polar codes",
-        "RM(10,2)"
+        "极化码",
+        "示例n=3"
       ],
       [
-        "P(9,2)",
-        "RM(9,2)"
+        "Binary-Input Discrete Memoryless Channels",
+        "Polar Codes"
       ],
       [
-        "AWGN channel",
-        "RPA decoding"
+        "Binary Symmetric Channel",
+        "Polar Codes"
       ],
       [
-        "[11]–[13]中的算法",
-        "投影码字"
+        "BP Decoder",
+        "RM Codes"
       ],
       [
-        "Reed-Muller码",
-        "参数r"
+        "N=256",
+        "RM Code"
       ],
       [
-        "c_0(z)",
-        "方程(16)"
+        "(32,16) Polar Code",
+        "F⊗5"
       ],
       [
-        "Chase list-decoding",
-        "RPA decoding"
+        "Polar Codes",
+        "Reed-Muller Codes"
+      ],
+      [
+        "Channel Polarization",
+        "Polar Code"
+      ],
+      [
+        "Hamming Weight",
+        "π_8"
+      ],
+      [
+        "IEEE Xplore",
+        "Table"
+      ],
+      [
+        "参数n",
+        "向量z_N"
+      ],
+      [
+        "Channel-Specific Polar Code",
+        "Table V"
+      ],
+      [
+        "AL SIGNALING OVER AGNC",
+        "TRIALS = 1000"
+      ],
+      [
+        "RM Codes",
+        "Table III"
+      ],
+      [
+        "TRIALS=1000",
+        "Table IV"
+      ],
+      [
+        "Hamming Weight",
+        "π32"
+      ],
+      [
+        "Signal-To-Noise Ratio (Db)",
+        "TABLE VIII"
+      ],
+      [
+        "MAX. ITER. = 60",
+        "Table V"
+      ],
+      [
+        "IEEE Xplore",
+        "University of Electronic Science and Tech of China"
+      ],
+      [
+        "(32,16) Polar Code",
+        "(32,16) RM Code"
+      ],
+      [
+        "Antipodal Signaling",
+        "RM Code"
+      ],
+      [
+        "Channel-Specific Code Construction Rule",
+        "Polar Codes"
+      ],
+      [
+        "排列π_N",
+        "生成矩阵G_P(N,K)"
+      ],
+      [
+        "RM Codes",
+        "Table VIII"
+      ],
+      [
+        "BEC",
+        "Erasure Probability"
+      ],
+      [
+        "(32,16) Polar Code",
+        "Table I"
+      ],
+      [
+        "Generator Matrix",
+        "Reed-Muller Codes"
+      ],
+      [
+        "Rate",
+        "TABLE VIII"
+      ],
+      [
+        "G_P(8,5)生成矩阵",
+        "极化码"
+      ],
+      [
+        "D. E. Muller",
+        "RM Code"
+      ],
+      [
+        "BEC",
+        "Polar Code"
+      ],
+      [
+        "AGNC",
+        "RM Code"
+      ],
+      [
+        "Polar Code (N=256)",
+        "TABLE IX"
+      ],
+      [
+        "Max. Iter.=60",
+        "Polar Code"
+      ],
+      [
+        "BP Decoding",
+        "Polar Code"
       ],
       [
         "Channel Polarization",
         "Polar Codes"
       ],
       [
-        "A. Balatsoukas-Stimming",
-        "Successive Cancellation List Decoding"
+        "Generator Matrix",
+        "Tensor Power"
       ],
       [
-        "RM(9,3)",
-        "图5(b)"
+        "BSC",
+        "Polar Code"
       ],
       [
-        "AWGN信道",
-        "RM(9,3)"
+        "极化码",
+        "生成矩阵G_P(N,K)"
       ],
       [
-        "算法2",
+        "Polar Code (N=256)",
+        "最大迭代次数(Max. Iter.)"
+      ],
+      [
+        "Table",
+        "University of Electronic Science and Tech of China"
+      ],
+      [
+        "AL Signaling Over AGNC Performance Table",
+        "Signal-to-noise ratio (dB)"
+      ],
+      [
+        "Polar Codes",
+        "Table IV"
+      ],
+      [
+        "Polar Coding",
+        "RM Coding Order n=3"
+      ],
+      [
+        "N=256",
+        "Table IV"
+      ],
+      [
+        "RM Codes",
+        "Table II"
+      ],
+      [
+        "Binary Erasure Channel",
+        "Binary-Input Discrete Memoryless Channels"
+      ],
+      [
+        "Polar Code (N=256)",
+        "试验次数(Trials)"
+      ],
+      [
+        "Binary Erasure Channel",
+        "Polar Codes"
+      ],
+      [
+        "π_8具体排列",
+        "汉明权重"
+      ],
+      [
+        "Polar Codes",
+        "Table IX"
+      ],
+      [
+        "Polar Code",
+        "Table IV"
+      ],
+      [
+        "Codes On Graphs",
+        "RM Code"
+      ],
+      [
+        "RM Code",
+        "TABLE III"
+      ],
+      [
+        "Polar Codes",
+        "Table I"
+      ],
+      [
+        "向量z_N",
+        "递归公式(4)"
+      ],
+      [
+        "极化码",
         "里德-穆勒码"
       ],
       [
         "Polar Codes",
-        "Successive Factor Graph Permutations"
+        "RM Codes"
       ],
       [
-        "RM(8,2)",
-        "图5(a)"
+        "Encoding and BP-Decoding Complexity",
+        "Polar Code"
+      ],
+      [
+        "(32,16) RM Code",
+        "Table I"
+      ],
+      [
+        "Polar Codes",
+        "Table VII"
+      ],
+      [
+        "Generator Matrix",
+        "Plotkin Construction"
+      ],
+      [
+        "Belief-Propagation Decoding",
+        "Polar Codes"
+      ],
+      [
+        "G_RM(1,3)",
+        "rth Order RM Code"
+      ],
+      [
+        "BEC",
+        "RM Code"
+      ],
+      [
+        "RM Code",
+        "Table VI"
+      ],
+      [
+        "BP Decoding",
+        "RM Code"
       ],
       [
         "BSC",
-        "Decoding Error Probability P_e(ε)"
+        "RM Code"
       ],
       [
-        "似然函数L_{/B}(T)",
-        "集合T"
+        "F Matrix",
+        "Plotkin Construction"
       ],
       [
-        "M. Mondelli",
-        "Successive Factor Graph Permutations"
+        "(32,16) Case",
+        "BEC"
       ],
       [
-        "Psi(1,d,p,Psi,m)",
-        "方程(13)"
+        "Encoding and BP-Decoding Complexity",
+        "Forney's Factor Graph Representation"
       ],
       [
-        "hat L^(1)向量",
-        "算法4"
+        "Polar Code",
+        "Polar Code (N=256)"
       ],
       [
-        "矩阵A",
-        "索引集合E"
+        "Channel Polarization",
+        "E. Arıkan"
       ],
       [
-        "Fast List Decoders",
-        "G. Sarkis"
+        "BEC",
+        "Channel-Specific Code Construction Rule"
       ],
       [
-        "Figure 2(a): RM(7,2) vs polar codes",
-        "RM(7,2)"
+        "Polar Code",
+        "TABLE IV"
       ],
       [
-        "Reed-Muller Code",
-        "r"
+        "AL SIGNALING OVER AGNC",
+        "N = 256"
       ],
       [
-        "RPA_RM Decoding Function",
-        "c_0"
+        "AL SIGNALING OVER AGNC",
+        "AL Signaling Over AGNC Performance Table"
       ],
       [
-        "一阶里德-穆勒码",
-        "软判决FHT译码器"
+        "Generator Matrix",
+        "rth Order RM Code"
       ],
       [
-        "Reed-Muller Codes",
-        "Sidel'nikov-Pershakov Decoding Algorithm"
+        "G_RM(3,3)",
+        "Reed-Muller Codes"
       ],
       [
-        "RPA decoding algorithm",
-        "Reed-Muller codes"
+        "AGNC",
+        "Antipodal Signaling"
+      ],
+      [
+        "Antipodal Signaling",
+        "Polar Code (N=256)"
+      ],
+      [
+        "Rate",
+        "TABLE VII"
+      ],
+      [
+        "AL SIGNALING OVER AGNC",
+        "MAX. ITER. = 60"
+      ],
+      [
+        "Full RM(n,n) Code",
+        "Polar Code"
+      ],
+      [
+        "Polar Code",
+        "Rate"
+      ],
+      [
+        "Polar Coding",
+        "RM Coding Order n=5"
+      ],
+      [
+        "Polar Coding",
+        "RM Coding Order n=4"
+      ],
+      [
+        "AGNC",
+        "AL SIGNALING OVER AGNC"
+      ],
+      [
+        "极化码",
+        "计算复杂度O(N log N)"
+      ],
+      [
+        "RM Codes",
+        "Table VI"
+      ],
+      [
+        "I. Reed",
+        "RM Code"
+      ],
+      [
+        "AL Signaling Over AGNC Performance Table",
+        "Rate"
+      ],
+      [
+        "TRIALS=1000",
+        "Table V"
+      ],
+      [
+        "Capacity-Achieving Codes",
+        "Polar Codes"
+      ],
+      [
+        "AGNC",
+        "Polar Code (N=256)"
+      ],
+      [
+        "Bilkent University",
+        "Erdal Arıkan"
+      ],
+      [
+        "Polar Code (32,16)",
+        "Table I"
+      ],
+      [
+        "RM Code",
+        "TABLE VIII"
+      ],
+      [
+        "Max. Iter.=60",
+        "RM Code"
+      ],
+      [
+        "MAX. ITER. = 60",
+        "Table IV"
       ]
     ],
-    "count": 682,
-    "create_time": 1778843358,
-    "update_time": 1778843358,
-    "_id": "doc-b5515cd71622f7b6d62f979b2cde9c40"
+    "count": 122,
+    "create_time": 1778918031,
+    "update_time": 1778918031,
+    "_id": "doc-8c265c0e55db1ee795344f3f5df9c346"
   }
 }

@@ -38,6 +38,12 @@ class MilvusSettings(BaseSettings):
         default="lightrag_chunks",
         description="業務展示用集合名稱；LightRAG 會依 namespace 自行建 collection",
     )
+    client_timeout: float = Field(
+        default=120.0,
+        ge=5.0,
+        le=600.0,
+        description="pymilvus MilvusClient 的 gRPC 連線就緒超時（秒）；LightRAG 未傳 timeout 時由專案 patch 注入",
+    )
 
 
 class LLMSettings(BaseSettings):
@@ -147,6 +153,10 @@ class PathsSettings(BaseSettings):
     lightrag_working_dir: str = Field(default="data/lightrag_workdir")
     sqlite_path: str = Field(default="data/meta/app_kv.sqlite3")
     logging_conf: str = Field(default="config/logging.conf")
+    document_manifest_path: str = Field(
+        default="data/meta/document_manifest.json",
+        description="以 doc_id 為鍵的側車/資源路徑清單；刪除文檔索引後依此刪除 images、.mineru.json 等",
+    )
 
 
 class ModelsSettings(BaseSettings):
@@ -225,7 +235,18 @@ class MultimodalSettings(BaseSettings):
         default=None,
         description="視覺模型名；未設則沿用 OPENAI_MODEL / LLM_MODEL_NAME",
     )
-    max_images_per_query: int = Field(default=8, ge=0, le=32)
+    max_images_per_query: int = Field(
+        default=3,
+        ge=0,
+        le=32,
+        description="多模態：從「最終參考片段」中解析的本地圖片數上限；達到後不再掃描後續片段/地址",
+    )
+    reference_context_max_chars: int = Field(
+        default=28_000,
+        ge=2_000,
+        le=500_000,
+        description="多模態/純檢索上下文：在 LightRAG 已 rerank、去噪與 token 截斷後，再對 chunks 做字數預算（近似 token 上限）",
+    )
     max_image_bytes: int = Field(default=4_000_000, ge=50_000, le=20_000_000)
     system_prompt: str | None = Field(
         default=None,
@@ -355,6 +376,7 @@ def apply_settings_to_environ(settings: Settings | None = None) -> None:
 
     os.environ.setdefault("MILVUS_URI", s.milvus.uri)
     os.environ.setdefault("MILVUS_DB_NAME", s.milvus.db_name)
+    os.environ.setdefault("MILVUS_CLIENT_TIMEOUT", str(s.milvus.client_timeout))
 
     api_key = (s.openai_api_key or s.llm.api_key or "").strip()
     if api_key:

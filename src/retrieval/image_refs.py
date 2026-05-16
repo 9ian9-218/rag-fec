@@ -10,21 +10,37 @@ _MD_IMG = re.compile(r"!\[[^\]]*]\(([^)]+)\)")
 _HTML_IMG = re.compile(r"<img[^>]+src=[\"']([^\"']+)[\"']", re.I)
 
 
-def extract_image_refs(text: str) -> list[str]:
-    """回傳原始路徑字串（可為相對路徑 ``images/...`` 或 URL）。"""
+def extract_image_refs(text: str, *, max_refs: int | None = None) -> list[str]:
+    """回傳原始路徑字串（可為相對路徑 ``images/...`` 或 URL）。
+
+    ``max_refs``：達到數量後立即停止正則掃描（用於多模態「僅取前 N 張」）。
+    """
     if not text:
         return []
     seen: set[str] = set()
     out: list[str] = []
     for pat in (_MD_IMG, _HTML_IMG):
         for m in pat.finditer(text):
+            if max_refs is not None and len(out) >= max_refs:
+                return out
             u = (m.group(1) or "").strip()
             if not u or u.startswith(("http://", "https://", "data:")):
                 continue
             if u not in seen:
                 seen.add(u)
                 out.append(u)
+                if max_refs is not None and len(out) >= max_refs:
+                    return out
     return out
+
+
+def strip_image_markup(text: str) -> str:
+    """移除 Markdown 圖片與常見 HTML ``img``，供「抽圖後」的純文字參考上下文。"""
+    if not text:
+        return ""
+    text = _MD_IMG.sub("", text)
+    text = _HTML_IMG.sub("", text)
+    return text
 
 
 def resolve_local_image_path(ref: str, chunk_file_path: str | None, project_root: Path) -> Path | None:

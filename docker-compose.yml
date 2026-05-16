@@ -1,3 +1,5 @@
+# 僅啟動 Neo4j 與 Milvus（standalone）及其依賴（etcd、minio）。
+# 應用請在本機執行：python main.py 或 uvicorn src.service.api:app --reload
 services:
   etcd:
     container_name: milvus-etcd
@@ -9,7 +11,15 @@ services:
       - ETCD_SNAPSHOT_COUNT=50000
     volumes:
       - etcd_data:/etcd
-    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    # 須對 Docker 網路內其他容器廣播可解析位址；若曾用 127.0.0.1 建過 etcd 卷，需刪除 etcd_data 後再起
+    command:
+      - etcd
+      - -advertise-client-urls=http://etcd:2379
+      - -listen-client-urls=http://0.0.0.0:2379
+      - -listen-peer-urls=http://0.0.0.0:2380
+      - -initial-advertise-peer-urls=http://etcd:2380
+      - -initial-cluster=default=http://etcd:2380
+      - -data-dir=/etcd
 
   minio:
     image: minio/minio:RELEASE.2023-03-20T20-16-18Z
@@ -49,30 +59,6 @@ services:
       timeout: 10s
       retries: 15
       start_period: 40s
-
-  rag:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    env_file:
-      - .env
-    environment:
-      WAIT_NEO4J_HOST: neo4j
-      WAIT_NEO4J_PORT: "7687"
-      WAIT_MILVUS_HOST: milvus
-      WAIT_MILVUS_PORT: "19530"
-      NEO4J_URI: bolt://neo4j:7687
-      MILVUS_URI: http://milvus:19530
-    volumes:
-      - ./data:/app/data
-      - ./models:/app/models
-    ports:
-      - "8000:8000"
-    depends_on:
-      neo4j:
-        condition: service_healthy
-      milvus:
-        condition: service_started
 
 volumes:
   etcd_data:

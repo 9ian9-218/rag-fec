@@ -1,4 +1,18 @@
-"""檢索完成後：從 chunk 解析 ``![](images/...)``，讀取本地圖片並送入支援 vision 的 API；否則告警並純文字作答。"""
+"""檢索完成後：從 chunk 解析 ``![](images/...)``，讀取本地圖片並送入支援 vision 的 API；否則告警並純文字作答。
+
+**與 LightRAG 管線的順序（以 ``rag.aquery_data`` / ``aquery`` 為準）**
+
+1. **關鍵詞與檢索**：依 ``QueryParam.mode``（如 ``mix``：圖譜 + 向量 chunk；``hybrid``：local+global
+   結果 **round-robin** 合併，見 LightRAG ``kg_query``）。
+2. **Rerank 與低分去噪**：若 ``enable_rerank`` 且已注入 ``rerank_model_func``（本專案為 BGE
+   CrossEncoder），對候選 chunk 做 rerank；再以 ``min_rerank_score`` / ``MIN_RERANK_SCORE``
+   做歸一化分數閾值過濾；最後按 ``chunk_top_k`` 等截斷——**以上均在 LightRAG 內完成**，
+   ``aquery_data`` 回傳的 ``chunks`` 已是「將送 LLM 前」的處理結果（含 ``metadata.processing_info`` 可觀測數量變化）。
+3. **本模組（多模態）後處理**：在拿到上述 **最終 chunks** 之後，再依設定做
+   ``max_reference_chunks`` + ``reference_context_max_chars`` 的參考長度預算（與向量側 token 上限互補、避免上下文膨脹）；
+   **僅在該子集上**用正則提取本地圖片路徑，且受 ``max_images_per_query`` 限制，**滿額後不再解析後續地址**；
+   最後對送入模型的「檢索上下文」字串做 ``strip_image_markup``，避免正文中重複堆疊圖片語法（圖檔仍以 image_url 單獨傳）。
+"""
 
 from __future__ import annotations
 
@@ -10,7 +24,11 @@ from typing import Any
 from openai import APIError, AsyncOpenAI, BadRequestError
 
 from config.settings import Settings
-from src.retrieval.image_refs import extract_image_refs, resolve_local_image_path
+from src.retrieval.image_refs import (
+    extract_image_refs,
+    resolve_local_image_path,
+    strip_image_markup,
+)
 from src.retrieval.result_processor import kg_dict_to_bullets
 from src.utils.logger import get_logger
 
@@ -46,12 +64,47 @@ def _extract_chunks_and_kg(bundle: dict[str, Any]) -> tuple[list[dict[str, Any]]
     return [c for c in chunks if isinstance(c, dict)], kg_text
 
 
-def _build_context_from_chunks(chunks: list[dict[str, Any]], kg_prefix: str) -> str:
+def _trim_chunks_for_reference(
+    chunks: list[dict[str, Any]],
+    *,
+    max_chunk_count: int,
+    max_chars: int,
+) -> list[dict[str, Any]]:
+    """在 LightRAG 已輸出最終 chunks 之後，再按條數與字數預算截斷（供參考上下文與抽圖）。"""
+    if max_chunk_count <= 0 or not chunks:
+        return []
+    out: list[dict[str, Any]] = []
+    total = 0
+    for c in chunks[:max_chunk_count]:
+        content = str(c.get("content") or "")
+        if not content.strip() and not str(c.get("file_path") or "").strip():
+            continue
+        L = len(content)
+        if not out and L > max_chars:
+            c2 = dict(c)
+            c2["content"] = content[:max_chars]
+            out.append(c2)
+            break
+        if total + L > max_chars:
+            break
+        out.append(c)
+        total += L
+    return out
+
+
+def _build_context_from_chunks(
+    chunks: list[dict[str, Any]],
+    kg_prefix: str,
+    *,
+    strip_images: bool = False,
+) -> str:
     parts: list[str] = []
     if kg_prefix.strip():
         parts.append("【知識圖譜摘要】\n" + kg_prefix.strip())
     for i, c in enumerate(chunks, start=1):
         content = str(c.get("content") or "").strip()
+        if strip_images:
+            content = strip_image_markup(content).strip()
         fp = str(c.get("file_path") or "").strip()
         if not content:
             continue
@@ -101,6 +154,12 @@ async def _chat_completion_text(
     return (choice or "").strip()
 
 
+def _reference_trim_params(settings: Settings) -> tuple[int, int]:
+    max_chars = int(settings.multimodal.reference_context_max_chars)
+    max_chunks = int(settings.retrieval.top_k)
+    return max_chunks, max_chars
+
+
 async def answer_with_retrieved_text_only(
     *,
     settings: Settings,
@@ -108,13 +167,21 @@ async def answer_with_retrieved_text_only(
     bundle: dict[str, Any],
     history_messages: list[dict[str, str]] | None = None,
 ) -> str:
-    """僅將檢索到的文字上下文（含 chunk 內 Markdown，可能含圖片語法但不含圖檔）送主 LLM。"""
+    """僅將檢索到的文字上下文送主 LLM（與多模態共用「先截斷參考、再去圖片語法」策略）。"""
     chunks, kg_text = _extract_chunks_and_kg(bundle)
-    context = _build_context_from_chunks(chunks, kg_text)
+    mc, mch = _reference_trim_params(settings)
+    trimmed = _trim_chunks_for_reference(chunks, max_chunk_count=mc, max_chars=mch)
+    logger.info(
+        "多模態/純文字參考：chunks %d → 截斷後 %d（rerank/去噪/top_k 由 LightRAG 完成後再套字數預算 %d）",
+        len(chunks),
+        len(trimmed),
+        mch,
+    )
+    context = _build_context_from_chunks(trimmed, kg_text, strip_images=True)
     if not context.strip():
         raise ValueError("純文字回答：檢索上下文為空")
     user_text = (
-        "請根據以下檢索到的文字材料回答用戶問題（材料中可能含圖片鏈接語法，若無圖片則依文字推理）。\n\n"
+        "請根據以下檢索到的文字材料回答用戶問題（材料中已移除圖片鏈接語法，請依文字推理）。\n\n"
         f"【問題】\n{question}\n\n【檢索上下文】\n{context}"
     )
     model = settings.resolved_llm_model_name()
@@ -136,17 +203,21 @@ def _collect_local_image_paths(
     settings: Settings,
     chunks: list[dict[str, Any]],
 ) -> list[Path]:
+    """僅掃描 ``chunks``（須已為截斷後子集）；圖片達 ``max_images_per_query`` 後立即停止正則與解析。"""
     root = Path(settings.paths.project_root).resolve()
     image_paths: list[Path] = []
     seen: set[str] = set()
     max_n = max(0, settings.multimodal.max_images_per_query)
+    if max_n == 0:
+        return []
     max_bytes = max(10_000, settings.multimodal.max_image_bytes)
     for c in chunks:
         if len(image_paths) >= max_n:
             break
         content = str(c.get("content") or "")
         fp = str(c.get("file_path") or "").strip() or None
-        for ref in extract_image_refs(content):
+        remaining = max_n - len(image_paths)
+        for ref in extract_image_refs(content, max_refs=remaining):
             if len(image_paths) >= max_n:
                 break
             lp = resolve_local_image_path(ref, fp, root)
@@ -163,6 +234,8 @@ def _collect_local_image_paths(
                 continue
             seen.add(key)
             image_paths.append(lp)
+            if len(image_paths) >= max_n:
+                break
     return image_paths
 
 
@@ -174,16 +247,25 @@ async def answer_with_retrieved_images(
     history_messages: list[dict[str, str]] | None = None,
 ) -> str:
     """
-    使用 ``aquery_data`` 的 ``chunks`` + 圖譜摘要：解析 ``![](images/...)`` 讀取本地檔，
-    以 ``data:`` URL 送入視覺模型；若無圖、或端點/模型不支援圖片輸入，則 **warning** 後改走
-    :func:`answer_with_retrieved_text_only`（僅文字）。
+    使用 ``aquery_data`` 的 ``chunks`` + 圖譜摘要：在 **LightRAG 已完成 rerank、低分去噪與 chunk 截斷**
+    之後，再按 ``reference_context_max_chars`` / ``top_k`` 截參考子集；於該子集上解析圖片（有上限且滿額即停）；
+    構造送 LLM 的正文時移除圖片 Markdown/HTML，圖檔以 ``image_url`` 單獨附加。
     """
     chunks, kg_text = _extract_chunks_and_kg(bundle)
-    context = _build_context_from_chunks(chunks, kg_text)
+    mc, mch = _reference_trim_params(settings)
+    trimmed = _trim_chunks_for_reference(chunks, max_chunk_count=mc, max_chars=mch)
+    logger.info(
+        "多模態抽圖：於最終 chunks %d 中截為 %d 條後再正則取圖（每查詢最多 %d 張）",
+        len(chunks),
+        len(trimmed),
+        settings.multimodal.max_images_per_query,
+    )
+
+    image_paths = _collect_local_image_paths(settings=settings, chunks=trimmed)
+    context = _build_context_from_chunks(trimmed, kg_text, strip_images=True)
     if not context.strip():
         raise ValueError("多模態回答：檢索上下文為空")
 
-    image_paths = _collect_local_image_paths(settings=settings, chunks=chunks)
     if not image_paths:
         logger.warning(
             "多模態請求：未從檢索 chunk 解析到可讀的本地圖片（請確認含 ![](images/...) 且 file_path 指向對應 .md 同目錄 images/）。"

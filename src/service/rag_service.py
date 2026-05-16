@@ -77,10 +77,16 @@ class RAGService:
 
     async def delete_document_by_id(self, doc_id: str) -> dict[str, Any]:
         from src.incremental.cascade_cleaner import cascade_delete_document
+        from src.incremental.document_manifest import legacy_cleanup_markdown_sidecars, purge_for_doc_id
         from src.storage.lightrag_init import get_lightrag
 
+        row = self._kv.get_doc_by_id(doc_id)
+        manifest_out = purge_for_doc_id(doc_id)
         rag = await get_lightrag()
-        return await cascade_delete_document(rag, doc_id, self._kv)
+        result = await cascade_delete_document(rag, doc_id, self._kv)
+        if manifest_out.get("skipped") and row and isinstance(row.get("source_path"), str):
+            legacy_cleanup_markdown_sidecars(row["source_path"])
+        return result
 
     def list_documents(self) -> list[dict[str, Any]]:
         return self._kv.list_documents()

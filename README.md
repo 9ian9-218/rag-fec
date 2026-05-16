@@ -1,6 +1,6 @@
 # Graph RAG（LightRAG + Neo4j + Milvus）
 
-生產導向的圖 RAG 專案：文件解析與分塊、LightRAG 管線、Neo4j 圖儲存、Milvus 向量儲存、應用層 SQLite 元資料、增量更新與 FastAPI 服務，並提供 Docker Compose 一鍵啟動依賴服務。
+生產導向的圖 RAG 專案：文件解析與分塊、LightRAG 管線、Neo4j 圖儲存、Milvus 向量儲存、應用層 SQLite 元資料、增量更新與 FastAPI 服務；Docker Compose 僅用於啟動 Neo4j 與 Milvus（及 Milvus 依賴的 etcd、minio），應用在本機執行。
 
 ## 技術要點
 
@@ -28,20 +28,21 @@
 - PDF→Markdown（MinerU，可選）：`python scripts/convert_pdf_mineru.py your.pdf -o out/your.md`
 - 本地問答：`python scripts/query.py "問題"`；多模態：`python scripts/query.py "問題" --multimodal`（需 `MULTIMODAL_VISION_MODEL` 等支援 vision 的端點）（答案 ROUGE1/2/L、EM、分詞/字元 F1；可選 `gold_doc_ids`/`retrieved_doc_ids` 檢索與 `gold_entities` 等圖欄位，見報告內 `schema`）
 
-## Docker Compose 一鍵部署
+## Docker Compose（僅資料庫依賴）
 
 1. `cp .env.example .env`，至少設定 **`OPENAI_API_KEY`**（DeepSeek）。
-2. 在專案根目錄執行：`docker compose up --build`
-3. 服務：`rag`（8000）、`neo4j`（7474/7687）、`milvus`（19530），以及 Milvus 依賴的 `etcd`、`minio`。
-4. 入口腳本會 **TCP 等待** Neo4j 7687 與 Milvus 19530 後再啟動 Uvicorn。
+2. 在專案根目錄執行：`docker compose up -d`（**不構建**應用映像；僅拉取官方映像）。
+3. 埠對應：`neo4j`（7474 / 7687）、`milvus`（19530），以及 Milvus standalone 依賴的 `etcd`、`minio`。
+4. API 在本機啟動：`python main.py` 或 `uvicorn src.service.api:app --reload`（`.env` 中 **`NEO4J_URI`**、**`MILVUS_URI`** 預設已指向 `127.0.0.1`）。
 
-**注意**：容器內若要連本機 Ollama / vLLM，請將 `LLM_BASE_URL` 設為 `http://host.docker.internal:11434/v1`（Linux 可能需額外 `extra_hosts`）。
+**注意**：本機進程若要連容器內服務以外的本機 Ollama / vLLM，**`LLM_BASE_URL`** 維持 `http://127.0.0.1:11434/v1` 即可；僅在「應用跑在另一個容器裡」時才需要 `http://host.docker.internal:...`（Linux 可能需 `extra_hosts`）。
 
 ## 增量更新說明
 
 - 將 PDF / Markdown / Word / TXT 放入 `data/raw`（可子目錄）。
 - 首次或週期執行：`POST /api/rag/incremental-update` 或 `python scripts/incremental_update.py`。
 - `data/hash_cache.json` 記錄路徑 → MD5；**修改**會先刪除舊 `doc_id` 再寫入；**刪除**會從索引與快取移除。
+- **`data/meta/document_manifest.json`**（可 `PATHS_DOCUMENT_MANIFEST_PATH` 覆寫）：每次成功入庫後登記該 `doc_id` 的 MinerU 元數據、**`images/` 下實際檔案**等路徑；從磁碟刪除文檔或呼叫 API 刪除索引後，會依清單刪除側車檔案（**不刪除**你放在 `data/raw` 的主 `.md`/`.pdf` 本體，除非你自己刪）。
 
 ## API 摘要
 
@@ -68,13 +69,13 @@ pytest -q
 
 ## 常見問題
 
-1. **Neo4j 連不上**：確認 `NEO4J_URI` 與防火牆。**在主機執行** `python scripts/...` 時請用 `bolt://127.0.0.1:7687`（或本機 Neo4j 位址）；`neo4j` 主機名只在 **Docker 網路內** 有效，`rag` 容器會由 compose 自動覆寫。
-2. **Milvus 連不上**：同上，主機腳本請用 `http://127.0.0.1:19530`；容器內為 `http://milvus:19530`。Standalone 啟動較慢時可看 `rag` 日誌。
+1. **Neo4j 連不上**：確認 `NEO4J_URI` 與防火牆。**在主機執行** 腳本或 API 時請用 `bolt://127.0.0.1:7687`（compose 已將 7687 映射到主機）。
+2. **Milvus 連不上**：主機請用 `http://127.0.0.1:19530`。Standalone 啟動較慢時可查看 `docker compose logs -f milvus`。
 3. **嵌入維度錯誤**：`EMBEDDING_DIMENSION` 必須與模型輸出一致（bge-m3 為 1024）。首次載入會下載/載入模型，可調大 `EMBEDDING_LIGHTRAG_EMBEDDING_TIMEOUT`。
-4. **`.env` 不存在導致 Compose 失敗**：請先 `cp .env.example .env`。
+4. **`.env` 缺失**：Compose 不再掛載應用 `env_file`；若尚未建立 `.env`，請 `cp .env.example .env` 供本機 Python 使用。
 5. **`PermissionError: data/logs/app.log`**：若曾用 Docker 寫過日誌，`data/logs` 可能屬於 root。可執行 `sudo chown -R "$USER:$USER" data/logs`（或刪除該目錄後再啟動）。程式已改為：**無法寫檔時僅輸出到終端機**，不影響啟動。
 6. **瀏覽器打開根路徑 `/`**：已導向 **`/docs`**（Swagger）；亦可直接訪問 `/api/rag/health`。
 
-與需求一致：`config/`、`data/`、`src/`（含 `data_processing`、`storage`、`incremental`、`retrieval`、`service`、`utils`）、`scripts/`、`tests/`、`docker/`、`main.py`。
+與需求一致：`config/`、`data/`、`src/`（含 `data_processing`、`storage`、`incremental`、`retrieval`、`service`、`utils`）、`scripts/`、`tests/`、`docker-compose.yml`、`main.py`。
 
 更多 curl 範例見 `examples/example_usage.py`。

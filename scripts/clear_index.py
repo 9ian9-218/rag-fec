@@ -68,6 +68,7 @@ def main() -> None:
     wipe_wd = args.all or args.working_dir
     wipe_sql = args.all or args.sqlite
     wipe_neo = args.all or args.neo4j
+    s = get_settings()
 
     if wipe_neo:
         from src.storage.neo4j_client import Neo4jClient
@@ -75,6 +76,9 @@ def main() -> None:
         Neo4jClient().detach_delete_all_nodes()
 
     if wipe_wd or wipe_sql:
+        from src.incremental.document_manifest import wipe_manifest_file
+
+        wipe_manifest_file(s)
         asyncio.run(_async_clear(wipe_working_dir=wipe_wd, wipe_sqlite=wipe_sql))
 
 

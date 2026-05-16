@@ -181,9 +181,43 @@ def ensure_pdf_markdown_beside_source(
 
 
 def remove_mineru_sidecars_for_pdf(pdf_path: Path) -> None:
-    """增量刪除 PDF 時，清理同目錄 ``.md``、元資料及該 md 引用的 ``images/`` 檔案。"""
-    pdf_path = pdf_path.resolve()
+    """當 PDF 從磁碟消失且曾由 MinerU 轉檔時，清理同目錄 ``.md``、元數據與 ``images/``。
+
+    若不存在 ``.{stem}.mineru.json``，視為**從未由本管線產出該 PDF 的側車**（例如 conversion_cache
+    陳項、或使用者僅自行放置 ``.md``），**不刪除** ``.md``／圖片，以免誤刪使用者檔案。
+    """
+    pdf_path = pdf_path.expanduser()
+    try:
+        pdf_path = pdf_path.resolve(strict=False)
+    except TypeError:
+        pdf_path = pdf_path.resolve()
     out_md, images_dir, meta_path = mineru_sidecar_paths(pdf_path)
+    if not meta_path.is_file():
+        logger.info(
+            "略過 PDF 側車檔案刪除（無 MinerU 元數據 %s）；僅同步 conversion_cache",
+            meta_path,
+        )
+        return
+    try:
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as e:
+        logger.warning("讀取 MinerU 元數據失敗 %s: %s，僅刪元數據檔", meta_path, e)
+        meta_path.unlink(missing_ok=True)
+        return
+    meta_pdf = meta.get("pdf")
+    if meta_pdf:
+        mp = Path(str(meta_pdf)).expanduser()
+        if not mp.is_absolute():
+            mp = (out_md.parent / mp.name).resolve()
+        else:
+            mp = mp.resolve()
+        if mp.stem != pdf_path.stem:
+            logger.warning(
+                "MinerU 元數據中的 PDF 與當前路徑 stem 不一致（%s vs %s），不刪 Markdown",
+                mp.stem,
+                pdf_path.stem,
+            )
+            return
     if out_md.is_file():
         try:
             from src.retrieval.image_refs import extract_image_refs
@@ -197,6 +231,77 @@ def remove_mineru_sidecars_for_pdf(pdf_path: Path) -> None:
         out_md.unlink(missing_ok=True)
     if meta_path.is_file():
         meta_path.unlink(missing_ok=True)
+    if images_dir.is_dir():
+        try:
+            if not any(images_dir.iterdir()):
+                images_dir.rmdir()
+        except OSError:
+            pass
+
+
+def remove_mineru_sidecars_for_markdown(md_path: Path) -> None:
+    """刪除/已刪除索引的 Markdown 時，清理同目錄 ``.{stem}.mineru.json`` 與 MinerU ``images/``。
+
+    - 若 ``.md`` 仍在：依正文 ``![](...)`` 刪除 ``images/`` 下對應檔案後刪除 ``.md``。
+    - 若使用者已先手刪 ``.md`` 但留有 MinerU 元數據：讀 ``.{stem}.mineru.json`` 的 ``images_dir``，
+      僅在該路徑等同於 ``<parent>/images`` 時整目錄移除（避免誤刪同層其他結構）。
+    """
+    raw = md_path.expanduser()
+    try:
+        md = raw.resolve(strict=False)
+    except TypeError:
+        md = raw.resolve()
+    parent = md.parent
+    stem = md.stem
+    meta_path = parent / f".{stem}.mineru.json"
+    images_dir = parent / "images"
+    md_file = parent / f"{stem}.md"
+    target = md_file if md_file.is_file() else md
+
+    if target.is_file():
+        try:
+            from src.retrieval.image_refs import extract_image_refs
+
+            text = target.read_text(encoding="utf-8", errors="replace")
+            for ref in extract_image_refs(text):
+                img = (target.parent / ref).resolve()
+                if img.is_file() and images_dir in img.parents:
+                    img.unlink(missing_ok=True)
+        except OSError as e:
+            logger.warning("清理 Markdown 圖片引用失敗 %s: %s", target, e)
+        target.unlink(missing_ok=True)
+        try:
+            meta_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+    elif meta_path.is_file():
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            idir_raw = meta.get("images_dir")
+            if idir_raw:
+                idir = Path(str(idir_raw)).expanduser()
+                if not idir.is_absolute():
+                    idir = (parent / idir).resolve()
+                else:
+                    idir = idir.resolve()
+                if idir.is_dir():
+                    try:
+                        if idir.resolve() == images_dir.resolve():
+                            shutil.rmtree(idir, ignore_errors=True)
+                    except OSError as e:
+                        logger.warning("移除 MinerU images 目錄失敗 %s: %s", idir, e)
+        except (json.JSONDecodeError, OSError, TypeError) as e:
+            logger.warning("讀取 MinerU 元數據失敗 %s: %s", meta_path, e)
+        try:
+            meta_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+    else:
+        try:
+            meta_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
     if images_dir.is_dir():
         try:
             if not any(images_dir.iterdir()):

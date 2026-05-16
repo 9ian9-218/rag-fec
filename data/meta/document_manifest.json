@@ -1,0 +1,30 @@
+{
+  "doc-0f78da8d62102a9a83a98730e0e9150f": {
+    "indexed_path": "/home/z9ian9/myproject/rag-fec/data/raw/差错控制编码_第05章.md",
+    "ingest_input_path": "/home/z9ian9/myproject/rag-fec/data/raw/差错控制编码_第05章.md",
+    "artifact_files": [],
+    "updated_at": "2026-05-16T07:17:18.577460+00:00"
+  },
+  "doc-8c265c0e55db1ee795344f3f5df9c346": {
+    "indexed_path": "/home/z9ian9/myproject/rag-fec/data/raw/A_performance_comparison_of_polar_codes_and_Reed-Muller_codes.md",
+    "ingest_input_path": "/home/z9ian9/myproject/rag-fec/data/raw/A_performance_comparison_of_polar_codes_and_Reed-Muller_codes.md",
+    "artifact_files": [
+      "/home/z9ian9/myproject/rag-fec/data/raw/.A_performance_comparison_of_polar_codes_and_Reed-Muller_codes.mineru.json",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/305bee2050484c9816946be3a755ababb0188ff6b42037f7b02b1bc634b46ba2.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/36c49e746ba9c9ec7cab138c3efd4b085e64d2dcbf8e372be77f8b53fb41be70.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/3d8fb78a93370ac2be26c3c595264a8c09d8ae7535880fd6b2c9d289923fffaf.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/4f03e1e753a20da4f6de8a93854e54fb191cee99aacad236df7ef6e2d5754b2e.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/66876397b1b4c978a39a7ba8756716d8e42ac5f96cb125e480fb45b8f21e8379.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/77939b0ce95ab8e7e30a476c94ef7de7c00d20f40cbcef69af19f0c9e368996b.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/7c0c1325d49860de83dfa9c6de70bd7db49695356b7c94ad50a258bbfd82fe18.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/a452dbff9ad04ef4c4378f8d972f3f9cadcf8cacbfc8ebe4576577d32bd70e14.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/b05c711c4436e911827ee6587059f4f9d8d2d1c27f0c54fb84b4f54390171917.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/d355ebea343520bc515d95ad9750d16286e98e1874c27dd44ca86ff756d2e823.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/d9229519ed57513c171d3669d1c92ff62ef9450fa08ce4b60e17c5db76fbc9f8.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/dda05cdc97d1a0fb4f376e4bd512c3d9bebdfe036d3a24a13ef509c9e6a3476d.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/e221f0a588dff96281844e76d636f84732612224bd2a677ce7087a2d2fc23eec.jpg",
+      "/home/z9ian9/myproject/rag-fec/data/raw/images/e8593985a3ac8b418650e817f17a0d56b801af95557eaf3ca034cb794438a61a.jpg"
+    ],
+    "updated_at": "2026-05-16T07:53:51.597474+00:00"
+  }
+}

@@ -1,15 +1,18 @@
 {
   "processed_paths": [
-    "/home/z9ian9/myproject/my_rag/data/raw/差错控制编码_第05章.md",
-    "/home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.pdf",
-    "/home/z9ian9/myproject/rag-fec/data/raw/Recursive_Projection-Aggregation_Decoding_of_Reed-Muller_Codes.md"
+    "/home/z9ian9/myproject/rag-fec/data/raw/0-32.md",
+    "/home/z9ian9/myproject/rag-fec/data/raw/A_performance_comparison_of_polar_codes_and_Reed-Muller_codes.pdf",
+    "/home/z9ian9/myproject/rag-fec/data/raw/0-32.md",
+    "/home/z9ian9/myproject/rag-fec/data/raw/A_performance_comparison_of_polar_codes_and_Reed-Muller_codes.pdf",
+    "/home/z9ian9/myproject/rag-fec/data/raw/差错控制编码_第05章.md",
+    "/home/z9ian9/myproject/rag-fec/data/raw/A_performance_comparison_of_polar_codes_and_Reed-Muller_codes.md"
   ],
   "cursor": 0,
   "stats": {
-    "added": 0,
+    "added": 1,
     "modified": 0,
     "removed": 0,
     "errors": 0
   },
-  "updated_at": 1778843403.7284539
+  "updated_at": 1778918031.598224
 }

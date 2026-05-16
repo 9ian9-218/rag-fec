@@ -217,10 +217,12 @@ def _build_llm_func(settings: Settings):
 
 def build_lightrag(settings: Settings | None = None) -> "LightRAG":
     """依設定建立 ``LightRAG``（尚未 ``initialize_storages``）。"""
-    from lightrag import LightRAG
-
     s = settings or get_settings()
     apply_settings_to_environ(s)
+    from src.storage.pymilvus_timeout_patch import ensure_pymilvus_connection_timeout
+
+    ensure_pymilvus_connection_timeout()
+    from lightrag import LightRAG
 
     root = _project_root()
     working_dir = str(root / s.paths.lightrag_working_dir)

@@ -19,12 +19,13 @@ class MilvusAdminClient:
         s = get_settings()
         self._uri = uri or s.milvus.uri
         self._db = db_name or s.milvus.db_name
+        self._timeout = s.milvus.client_timeout
         self._client: MilvusClient | None = None
 
     @property
     def client(self) -> MilvusClient:
         if self._client is None:
-            self._client = MilvusClient(uri=self._uri, db_name=self._db)
+            self._client = MilvusClient(uri=self._uri, db_name=self._db, timeout=self._timeout)
         return self._client
 
     def delete_by_doc_id(self, collection_name: str, doc_id: str) -> None:
