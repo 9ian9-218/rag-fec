@@ -21,16 +21,6 @@ def test_normalize_answer() -> None:
     assert "test" in normalize_answer("The Test.")
 
 
-def test_retrieval_prf_and_mrr() -> None:
-    from src.evaluation.retrieval_metrics import hit_at_k, reciprocal_rank, retrieval_precision_recall_f1
-
-    prf = retrieval_precision_recall_f1(["a", "b"], ["b", "c"])
-    assert prf["precision"] == 0.5
-    assert prf["recall"] == 0.5
-    assert reciprocal_rank(["a"], ["x", "a", "y"]) == 0.5
-    assert hit_at_k(["a"], ["x", "a"], 2) == 1.0
-
-
 def test_build_report_from_sample_file() -> None:
     pytest.importorskip("rouge_score")
     from src.evaluation.runner import build_report_from_path
@@ -40,8 +30,8 @@ def test_build_report_from_sample_file() -> None:
     assert report["counts"]["rows_total"] >= 1
     assert "answer" in report
     assert "rouge_avg" in report["answer"]
-    assert "retrieval" in report
     assert "graph" in report
+    assert "retrieval" not in report
 
 
 def test_build_report_answer_only(tmp_path: Path) -> None:
@@ -57,9 +47,7 @@ def test_build_report_answer_only(tmp_path: Path) -> None:
         + "\n",
         encoding="utf-8",
     )
-    r = build_report_from_path(
-        f, include_answer=True, include_retrieval=False, include_graph=False
-    )
+    r = build_report_from_path(f, include_answer=True, include_graph=False)
     assert r["counts"]["answer_evaluated"] == 1
     assert "retrieval" not in r
     assert "graph" not in r

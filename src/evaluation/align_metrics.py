@@ -289,36 +289,3 @@ def ranked_metrics_bundle_aligned(
         else:
             raise ValueError(kind)
     return out
-
-
-def doc_retrieval_prf_aligned(gold_docs: list[str], retrieved_docs: list[str]) -> dict[str, float]:
-    g = [str(x) for x in gold_docs if str(x).strip()]
-    r = [str(x) for x in retrieved_docs if str(x).strip()]
-    if not g and not r:
-        return {"precision": 1.0, "recall": 1.0, "f1": 1.0}
-    if not g or not r:
-        return {"precision": 0.0, "recall": 0.0, "f1": 0.0}
-    hit_g = sum(1 for item in g if any(doc_match(item, rd) for rd in r))
-    hit_r = sum(1 for rd in r if any(doc_match(item, rd) for item in g))
-    rec = hit_g / len(g)
-    p = hit_r / len(r)
-    f1 = 2 * p * rec / (p + rec) if (p + rec) > 0 else 0.0
-    return {"precision": p, "recall": rec, "f1": f1}
-
-
-def hit_at_k_docs_aligned(gold_docs: list[str], ranked_docs: list[str], k: int) -> float:
-    g = [str(x) for x in gold_docs if str(x).strip()]
-    if not g:
-        return 1.0
-    top = _ranked_slice(ranked_docs, k)
-    return 1.0 if any(doc_match(item, rd) for item in g for rd in top) else 0.0
-
-
-def reciprocal_rank_docs_aligned(gold_docs: list[str], ranked_docs: list[str]) -> float:
-    g = [str(x) for x in gold_docs if str(x).strip()]
-    if not g:
-        return 1.0
-    for i, rd in enumerate(ranked_docs):
-        if any(doc_match(item, rd) for item in g):
-            return 1.0 / float(i + 1)
-    return 0.0

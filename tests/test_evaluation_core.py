@@ -6,8 +6,17 @@ from pathlib import Path
 import pytest
 
 
-def test_build_core_metrics_report(tmp_path: Path) -> None:
+def test_build_core_metrics_report(tmp_path: Path, monkeypatch) -> None:
     from src.evaluation.runner import build_report_from_path
+
+    def _fake_batch(samples, **kwargs):
+        return [
+            {"context_recall": 0.8, "context_precision": 0.7, "faithfulness": 0.9}
+            for _ in samples
+        ]
+
+    monkeypatch.setattr("src.evaluation.runner.compute_ragas_batch", _fake_batch)
+    monkeypatch.setattr("src.evaluation.runner.build_ragas_llm", lambda: object())
 
     row = {
         "id": "t1",

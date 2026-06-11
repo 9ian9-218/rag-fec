@@ -1,205 +1,99 @@
-"""RAGAS 風格端到端指標：v2 改進啟發式 + 可選 LLM 裁判。"""
+"""RAGAS 端到端指標：基於 ragas Python 包。"""
 
 from __future__ import annotations
 
-import re
+import logging
+import math
 from typing import Any
 
-from src.evaluation.answer_metrics import char_f1, token_f1
-from src.evaluation.context_utils import extract_chunk_sections, split_claim_sentences
-from src.evaluation.text_utils import normalize_answer
+logger = logging.getLogger(__name__)
 
-_EMBED_MODEL: Any = None
+_RAGAS_METRICS: list[Any] | None = None
 
 
-def _jieba_tokens(text: str) -> list[str]:
-    try:
-        import jieba  # type: ignore[import-untyped]
+def _get_ragas_metrics() -> list[Any]:
+    """取得與 ragas.evaluate 相容的預建指標單例。"""
+    global _RAGAS_METRICS
+    if _RAGAS_METRICS is None:
+        # collections 指標與 evaluate 的 isinstance 檢查不兼容，使用 v1 單例
+        from ragas.metrics import context_precision, context_recall, faithfulness
 
-        return [t.strip() for t in jieba.cut(text) if t.strip()]
-    except ImportError:
-        return [t for t in text.split() if t]
-
-
-def _token_set(text: str) -> set[str]:
-    return set(_jieba_tokens(normalize_answer(text)))
+        _RAGAS_METRICS = [context_recall, context_precision, faithfulness]
+    return _RAGAS_METRICS
 
 
-def _ngrams(tokens: list[str], n: int) -> set[tuple[str, ...]]:
-    if len(tokens) < n:
-        return set()
-    return {tuple(tokens[i : i + n]) for i in range(len(tokens) - n + 1)}
+def build_ragas_llm(settings: Any = None) -> Any:
+    """從專案設定建立 ragas LLM（OpenAI 相容端點）。"""
+    from openai import OpenAI
+    from ragas.llms import llm_factory
+
+    from config.settings import get_settings
+
+    s = settings or get_settings()
+    key = (s.openai_api_key or s.llm.api_key or s.multimodal.api_key or "").strip()
+    base = (
+        s.openai_base_url or s.llm.base_url or s.multimodal.base_url or "https://api.openai.com/v1"
+    ).rstrip("/")
+    model = s.resolved_llm_model_name()
+    if not model:
+        raise RuntimeError("RAGAS 需要配置 LLM 模型（OPENAI_MODEL / LLM_MODEL_NAME）")
+    if not base:
+        raise RuntimeError(
+            "RAGAS 需要配置 LLM base_url（OPENAI_API_BASE / LLM_BASE_URL / MULTIMODAL_BASE_URL）"
+        )
+    # 本機 OpenAI 相容端點允許 api_key 為 none
+    client = OpenAI(api_key=key or "none", base_url=base)
+    # 評測裁判輸出 JSON，需足夠 token 避免截斷
+    return llm_factory(model, client=client, max_tokens=4096)
 
 
-def _claim_supported(claim: str, support_text: str, *, char_threshold: float = 0.42) -> bool:
-    c = normalize_answer(claim)
-    s = normalize_answer(support_text)
-    if not c or not s:
-        return False
-    if c in s:
-        return True
-    if char_f1(claim, support_text)["f1"] >= char_threshold:
-        return True
-    if token_f1(claim, support_text, use_jieba=True)["f1"] >= 0.38:
-        return True
-    return _overlap_ratio(claim, support_text) >= 0.45
-
-
-def context_recall(
+def build_ragas_reference(
     reference: str,
-    retrieved_context: str,
     *,
-    gold_evidence_texts: list[str] | None = None,
     reference_bullets: list[str] | None = None,
-) -> float:
-    """v2：以中文參考句 + 可選要點為 claim，在上下文中做字符/詞面支撐判斷。"""
-    ctx = retrieved_context or ""
-    if not ctx.strip():
-        return 0.0
-    claims: list[str] = []
+    gold_evidence_texts: list[str] | None = None,
+) -> str:
+    """合併參考答案、要點與金標 evidence，作為 ragas reference。"""
+    parts: list[str] = []
+    if reference.strip():
+        parts.append(reference.strip())
     if reference_bullets:
-        claims.extend(str(x) for x in reference_bullets if str(x).strip())
-    claims.extend(split_claim_sentences(reference))
+        parts.extend(str(x).strip() for x in reference_bullets if str(x).strip())
     if gold_evidence_texts:
-        claims.extend(str(e) for e in gold_evidence_texts if str(e).strip())
-    # 去重（按 normalize）
-    seen: set[str] = set()
-    uniq: list[str] = []
-    for c in claims:
-        k = normalize_answer(c)
-        if k and k not in seen:
-            seen.add(k)
-            uniq.append(c)
-    if not uniq:
-        return 1.0
-    hits = sum(1 for c in uniq if _claim_supported(c, ctx))
-    return hits / len(uniq)
+        parts.extend(str(x).strip() for x in gold_evidence_texts if str(x).strip())
+    return "\n".join(parts)
 
 
-def context_precision(
-    retrieved_context: str,
-    *,
-    gold_evidence_texts: list[str] | None = None,
-    reference: str = "",
-    reference_bullets: list[str] | None = None,
-    chunks_only: bool = True,
-) -> float:
-    """v2：預設僅對 chunk 正文分句，避免 KG 摘要拉低 precision。"""
-    ctx = extract_chunk_sections(retrieved_context) if chunks_only else (retrieved_context or "")
-    ctx = ctx.strip()
-    if not ctx:
-        return 0.0
-    sents = [s.strip() for s in re.split(r"[\n。！？!?]+", ctx) if s.strip()]
-    if not sents:
-        return 0.0
-    gold_parts: list[str] = list(reference_bullets or []) if reference_bullets else []
-    gold_parts.extend(split_claim_sentences(reference))
-    if gold_evidence_texts:
-        gold_parts.extend(str(x) for x in gold_evidence_texts if str(x).strip())
-    if not gold_parts:
-        return 1.0
-    rel = sum(
-        1
-        for s in sents
-        if any(_claim_supported(g, s, char_threshold=0.35) for g in gold_parts)
-    )
-    return rel / len(sents)
-
-
-def faithfulness_ngram(prediction: str, retrieved_context: str, *, kg_text: str = "") -> float:
-    """保留舊版 n-gram 覆蓋（偏嚴，僅作對照）。"""
-    pred = normalize_answer(prediction)
-    if not pred:
-        return 0.0
-    support = normalize_answer((retrieved_context or "") + "\n" + (kg_text or ""))
-    if not support.strip():
-        return 0.0
-    pred_toks = _jieba_tokens(pred)
-    if not pred_toks:
-        return 1.0
-    sup_toks = _jieba_tokens(support)
-    tri = _ngrams(pred_toks, 3) or _ngrams(pred_toks, 2) or {(pred_toks[0],)}
-    sup_tri = _ngrams(sup_toks, 3) | _ngrams(sup_toks, 2)
-    if not tri:
-        return 0.0
-    return len(tri & sup_tri) / len(tri)
-
-
-def faithfulness_claim(prediction: str, retrieved_context: str, *, kg_text: str = "") -> float:
-    """v2：按預測答案拆句，每句是否可由上下文+圖譜支撐。"""
-    pred = (prediction or "").strip()
-    if not pred:
-        return 0.0
-    support = ((retrieved_context or "") + "\n" + (kg_text or "")).strip()
-    if not support:
-        return 0.0
-    sents = split_claim_sentences(pred) or [pred]
-    if len(pred) > 80 and len(sents) == 1:
-        sents = re.split(r"\n{2,}|\n(?=#)", pred)
-        sents = [x.strip() for x in sents if len(x.strip()) >= 10] or sents
-    hits = sum(1 for s in sents if _claim_supported(s, support, char_threshold=0.38))
-    return hits / len(sents)
-
-
-def _get_embed_model():
-    global _EMBED_MODEL
-    if _EMBED_MODEL is not None:
-        return _EMBED_MODEL
-    try:
-        from config.model_paths import resolve_embedding_model_load_path
-        from config.settings import get_settings
-        from sentence_transformers import SentenceTransformer
-
-        path = resolve_embedding_model_load_path(get_settings())
-        _EMBED_MODEL = SentenceTransformer(path, trust_remote_code=True)
-        return _EMBED_MODEL
-    except Exception:
-        return None
-
-
-def faithfulness_embedding(
-    prediction: str,
+def build_ragas_contexts(
     retrieved_context: str,
     *,
     kg_text: str = "",
-    threshold: float = 0.55,
-) -> float:
-    """可選：句級嵌入相似度（更貼近語義忠實）。"""
-    model = _get_embed_model()
-    if model is None:
-        return faithfulness_claim(prediction, retrieved_context, kg_text=kg_text)
-    import numpy as np
+    chunks_only: bool = True,
+) -> list[str]:
+    """構建 ragas retrieved_contexts；chunk 正文與 KG 分開以便 precision 評估。"""
+    from src.evaluation.context_utils import extract_chunk_sections
 
-    pred = (prediction or "").strip()
-    support = ((retrieved_context or "") + "\n" + (kg_text or ""))[:12000]
-    if not pred or not support.strip():
-        return 0.0
-    pred_sents = split_claim_sentences(pred) or [pred[:500]]
-    ctx_sents = split_claim_sentences(support)
-    if not ctx_sents:
-        ctx_sents = [support[:2000]]
-    pe = model.encode(pred_sents, normalize_embeddings=True, show_progress_bar=False)
-    ce = model.encode(ctx_sents, normalize_embeddings=True, show_progress_bar=False)
-    pe = np.asarray(pe)
-    ce = np.asarray(ce)
-    if pe.ndim == 1:
-        pe = pe.reshape(1, -1)
-    if ce.ndim == 1:
-        ce = ce.reshape(1, -1)
-    sims = pe @ ce.T
-    hits = sum(1 for i in range(len(pred_sents)) if float(sims[i].max()) >= threshold)
-    return hits / len(pred_sents)
+    ctx = (retrieved_context or "").strip()
+    if not ctx and not (kg_text or "").strip():
+        return []
+    contexts: list[str] = []
+    if chunks_only and "【片段" in ctx:
+        body = extract_chunk_sections(ctx)
+        if body.strip():
+            contexts.append(body.strip())
+        elif ctx:
+            contexts.append(ctx)
+    elif ctx:
+        contexts.append(ctx)
+    kg = (kg_text or "").strip()
+    if kg:
+        contexts.append(kg)
+    return contexts or ([ctx] if ctx else [])
 
 
-def _overlap_ratio(a: str, b: str) -> float:
-    ta, tb = _token_set(a), _token_set(b)
-    if not ta or not tb:
-        return 0.0
-    return len(ta & tb) / len(ta)
-
-
-def compute_ragas_row(
+def row_to_ragas_sample(
     *,
+    question: str,
     reference: str,
     prediction: str,
     retrieved_context: str,
@@ -207,64 +101,91 @@ def compute_ragas_row(
     kg_text: str = "",
     reference_bullets: list[str] | None = None,
     chunks_only_precision: bool = True,
-    use_embedding_faithfulness: bool = True,
-) -> dict[str, float]:
-    faith = (
-        faithfulness_embedding(prediction, retrieved_context, kg_text=kg_text)
-        if use_embedding_faithfulness
-        else faithfulness_claim(prediction, retrieved_context, kg_text=kg_text)
-    )
+) -> dict[str, Any]:
+    """將評估 JSONL 單行映射為 ragas Dataset 樣本。"""
     return {
-        "context_recall": context_recall(
-            reference,
+        "user_input": question or "",
+        "response": prediction or "",
+        "retrieved_contexts": build_ragas_contexts(
             retrieved_context,
-            gold_evidence_texts=gold_evidence_texts,
-            reference_bullets=reference_bullets,
-        ),
-        "context_precision": context_precision(
-            retrieved_context,
-            gold_evidence_texts=gold_evidence_texts,
-            reference=reference,
+            kg_text=kg_text,
             chunks_only=chunks_only_precision,
         ),
-        "faithfulness": faith,
-        "faithfulness_ngram_legacy": faithfulness_ngram(prediction, retrieved_context, kg_text=kg_text),
-        "faithfulness_claim": faithfulness_claim(prediction, retrieved_context, kg_text=kg_text),
+        "reference": build_ragas_reference(
+            reference,
+            reference_bullets=reference_bullets,
+            gold_evidence_texts=gold_evidence_texts,
+        ),
     }
 
 
-async def compute_ragas_row_llm(
+def _safe_float(value: Any) -> float:
+    try:
+        num = float(value)
+    except (TypeError, ValueError):
+        return 0.0
+    return 0.0 if math.isnan(num) else num
+
+
+def compute_ragas_batch(
+    samples: list[dict[str, Any]],
+    *,
+    llm: Any = None,
+    settings: Any = None,
+) -> list[dict[str, float]]:
+    """批量計算 RAGAS 三項指標，返回與 samples 同序的分數。"""
+    if not samples:
+        return []
+    from datasets import Dataset
+    from ragas import evaluate
+
+    ragas_llm = llm or build_ragas_llm(settings)
+    dataset = Dataset.from_list(samples)
+    result = evaluate(
+        dataset,
+        metrics=_get_ragas_metrics(),
+        llm=ragas_llm,
+        show_progress=False,
+        raise_exceptions=False,
+    )
+    df = result.to_pandas()
+    return [
+        {
+            "context_recall": _safe_float(row.get("context_recall")),
+            "context_precision": _safe_float(row.get("context_precision")),
+            "faithfulness": _safe_float(row.get("faithfulness")),
+        }
+        for _, row in df.iterrows()
+    ]
+
+
+def compute_ragas_row(
     *,
     reference: str,
     prediction: str,
     retrieved_context: str,
-    question: str,
-    client: Any,
-    model: str,
+    question: str = "",
+    gold_evidence_texts: list[str] | None = None,
+    kg_text: str = "",
+    reference_bullets: list[str] | None = None,
+    chunks_only_precision: bool = True,
+    use_embedding_faithfulness: bool = True,
+    llm: Any = None,
+    settings: Any = None,
 ) -> dict[str, float]:
-    prompt = (
-        "你是 RAG 評估裁判。僅根據檢索上下文判斷，輸出 JSON："
-        '{"context_recall":0-1,"context_precision":0-1,"faithfulness":0-1}。\n'
-        "context_recall：參考答案中的關鍵結論是否都能從上下文推出。\n"
-        "context_precision：上下文中與問題相關且必要的內容占比。\n"
-        "faithfulness：模型答案是否無幻覺、可由上下文支持。\n"
-        f"問題：{question}\n參考答案：{reference}\n模型答案：{prediction}\n"
-        f"檢索上下文：{retrieved_context[:12000]}"
+    """單條樣本 RAGAS 評分（內部走 batch 以复用 ragas.evaluate）。"""
+    del use_embedding_faithfulness  # ragas 包下由 LLM 裁判，保留參數僅為兼容舊調用
+    sample = row_to_ragas_sample(
+        question=question,
+        reference=reference,
+        prediction=prediction,
+        retrieved_context=retrieved_context,
+        gold_evidence_texts=gold_evidence_texts,
+        kg_text=kg_text,
+        reference_bullets=reference_bullets,
+        chunks_only_precision=chunks_only_precision,
     )
-    resp = await client.chat.completions.create(
-        model=model,
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.0,
-    )
-    import json
-
-    text = (resp.choices[0].message.content or "").strip()
-    start, end = text.find("{"), text.rfind("}")
-    if start < 0 or end <= start:
-        raise ValueError("LLM judge did not return JSON")
-    data = json.loads(text[start : end + 1])
-    return {
-        "context_recall": float(data.get("context_recall", 0)),
-        "context_precision": float(data.get("context_precision", 0)),
-        "faithfulness": float(data.get("faithfulness", 0)),
-    }
+    scores = compute_ragas_batch([sample], llm=llm, settings=settings)
+    if scores:
+        return scores[0]
+    return {"context_recall": 0.0, "context_precision": 0.0, "faithfulness": 0.0}

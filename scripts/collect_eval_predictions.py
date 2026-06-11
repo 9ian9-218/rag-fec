@@ -15,7 +15,14 @@ from config.settings import apply_settings_to_environ, get_settings
 from src.evaluation.context_utils import build_llm_context_from_bundle, extract_chunk_sections
 from src.evaluation.extract_retrieval import extract_ranked_from_bundle
 from src.evaluation.runner import load_jsonl_rows
+from src.evaluation.text_utils import to_simplified_chinese
 from src.retrieval.retriever import GraphRAGRetriever
+
+# 與金標 reference 語言一致，避免繁簡差異拉低生成類指標
+_EVAL_SYSTEM_PROMPT = (
+    "你是 FEC 領域專業助手。請基於檢索材料準確作答，使用简体中文，"
+    "条理清晰，避免无依据的推测。"
+)
 
 
 async def _run_row(
@@ -49,12 +56,14 @@ async def _run_row(
         out["mode_selection"] = mode_selection
     if selected_mode:
         out["selected_mode"] = selected_mode
-    out["prediction"] = await retriever.query(
+    answer = await retriever.query(
         q,
         mode=selected_mode if isinstance(selected_mode, str) else mode,  # type: ignore[arg-type]
         multimodal=multimodal,
         use_llm_router=False,
+        system_prompt=_EVAL_SYSTEM_PROMPT,
     )
+    out["prediction"] = to_simplified_chinese(str(answer or ""))
     return out
 
 

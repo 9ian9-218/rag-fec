@@ -21,11 +21,9 @@ def main() -> None:
     p.add_argument("--input", type=Path, required=True, help="輸入 JSONL（建議 eval_predictions.jsonl）")
     p.add_argument("--out", type=Path, default=Path("data/test/eval_report.json"), help="報告 JSON 路徑")
     p.add_argument("--eval-k", default="5,10", help="Recall/Precision/NDCG 的 K 列表")
-    p.add_argument("--hit-k", default="1,5,10", help="文檔 Hit@K 的 K 列表")
     p.add_argument("--include-answer", action="store_true", help="額外計算 ROUGE/F1")
     p.add_argument("--rouge", default="rouge1,rouge2,rougeL")
     p.add_argument("--stemmer", action="store_true")
-    p.add_argument("--no-retrieval", action="store_true")
     p.add_argument("--no-graph", action="store_true")
     p.add_argument("--max-details", type=int, default=100)
     p.add_argument("--print-full", action="store_true")
@@ -35,9 +33,14 @@ def main() -> None:
         help="忠實度僅用 claim 匹配，不載入嵌入模型",
     )
     p.add_argument(
+        "--no-ragas",
+        action="store_true",
+        help="跳過 RAGAS 三項（預設使用 ragas 包 + 專案 LLM 配置）",
+    )
+    p.add_argument(
         "--ragas-llm",
         action="store_true",
-        help="RAGAS 三項改用 LLM 裁判（需 OPENAI_*，較慢）",
+        help="（已棄用，預設即啟用 ragas LLM 評估）",
     )
     args = p.parse_args()
 
@@ -49,21 +52,18 @@ def main() -> None:
             sys.exit(1)
 
     rouge_types = tuple(x.strip() for x in args.rouge.split(",") if x.strip())
-    hit_ks_t: tuple[int, ...] = tuple(int(x.strip()) for x in args.hit_k.split(",") if x.strip())
     eval_ks_t: tuple[int, ...] = tuple(int(x.strip()) for x in args.eval_k.split(",") if x.strip())
 
     report = build_report_from_path(
         args.input,
         rouge_types=rouge_types,
         use_stemmer=args.stemmer,
-        hit_ks=hit_ks_t,
         eval_ks=eval_ks_t,
         include_answer=args.include_answer,
-        include_retrieval=False if args.no_retrieval else None,
         include_graph=False if args.no_graph else None,
         max_detail_rows=max(0, args.max_details),
         use_embedding_faithfulness=not args.no_embedding_faithfulness,
-        ragas_llm=args.ragas_llm,
+        ragas_llm=not args.no_ragas,
     )
 
     args.out.parent.mkdir(parents=True, exist_ok=True)

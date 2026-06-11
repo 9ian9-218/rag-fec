@@ -43,7 +43,7 @@ def main() -> None:
             "ragas": _strip_details(offline.get("ragas")),
             "multihop": _strip_details(offline.get("multihop")),
             "answer": _strip_details(offline.get("answer")),
-            "document_hit": _strip_details(offline.get("document_hit")),
+            "graph": _strip_details(offline.get("graph")),
         },
         "online": online_summary,
         "notes": {

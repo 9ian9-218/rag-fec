@@ -9,23 +9,16 @@ from typing import Any
 from src.evaluation.answer_metrics import compute_answer_row
 from src.evaluation.context_utils import resolve_eval_context
 from src.evaluation.multihop_metrics import multihop_correct
-from src.evaluation.ragas_metrics import compute_ragas_row, compute_ragas_row_llm
-from src.evaluation.align_metrics import (
-    hit_at_k_docs_aligned,
-    ordered_sources_from_context,
-    reciprocal_rank_docs_aligned,
-    ranked_metrics_bundle_aligned,
-    doc_retrieval_prf_aligned,
-)
-from src.evaluation.retrieval_metrics import hit_at_k, reciprocal_rank, retrieval_precision_recall_f1
+from src.evaluation.ragas_metrics import build_ragas_llm, compute_ragas_batch, row_to_ragas_sample
+from src.evaluation.align_metrics import ordered_sources_from_context, ranked_metrics_bundle_aligned
 from src.evaluation.set_metrics import multiset_precision_recall_f1, set_jaccard
 
 
 EVAL_SCHEMA = {
     "placement": "data/test/eval_gold.jsonl",
         "alignment": (
-            "實體/關係/文檔/Chunk 使用 align_metrics；"
-            "RAGAS v2 使用 context_for_llm、chunk-only precision、claim/embedding faithfulness；"
+            "實體/關係/Chunk 使用 align_metrics；"
+            "RAGAS 使用 ragas 包 + context_for_llm、chunk 正文與 KG 分離的 retrieved_contexts；"
             "多跳以要點/別名/字符級匹配"
         ),
     "required_core": {
@@ -37,7 +30,6 @@ EVAL_SCHEMA = {
         "ragas": ["reference", "prediction", "retrieved_context", "gold_evidence_texts (recommended)"],
         "multihop": ["multihop: true", "reference", "prediction", "multihop_answer_aliases (optional)"],
     },
-    "optional_legacy": ["gold_doc_ids", "retrieved_doc_ids"],
 }
 
 
@@ -127,21 +119,14 @@ def build_report(
     *,
     rouge_types: tuple[str, ...] = ("rouge1", "rouge2", "rougeL"),
     use_stemmer: bool = False,
-    hit_ks: tuple[int, ...] = (1, 5, 10),
     eval_ks: tuple[int, ...] = (5, 10),
     include_answer: bool = False,
-    include_retrieval: bool | None = None,
     include_graph: bool | None = None,
     max_detail_rows: int = 100,
     use_embedding_faithfulness: bool = True,
-    ragas_llm_client: Any = None,
-    ragas_llm_model: str | None = None,
+    ragas_llm: bool = True,
+    ragas_llm_override: Any = None,
 ) -> dict[str, Any]:
-    if include_retrieval is None:
-        include_retrieval = any(
-            isinstance(r.get("gold_doc_ids"), list) and isinstance(r.get("retrieved_doc_ids"), list)
-            for r in rows
-        )
     if include_graph is None:
         include_graph = any(
             (
@@ -156,13 +141,11 @@ def build_report(
         )
 
     answer_details: list[dict[str, Any]] = []
-    retr_details: list[dict[str, Any]] = []
     graph_details: list[dict[str, Any]] = []
-    ragas_details: list[dict[str, Any]] = []
+    ragas_pending: list[tuple[dict[str, Any], dict[str, Any]]] = []
     multihop_details: list[dict[str, Any]] = []
 
     n_answer = 0
-    n_retr = 0
     n_graph_ent = 0
     n_graph_rel = 0
     n_ragas = 0
@@ -184,32 +167,22 @@ def build_report(
         ev_list = [str(x) for x in evidences] if isinstance(evidences, list) else None
         bullets = r.get("reference_bullets")
         bl_list = [str(x) for x in bullets] if isinstance(bullets, list) else None
-        if ref and pred and ctx_full:
-            if ragas_llm_client is not None and ragas_llm_model:
-                import asyncio
-
-                rg = asyncio.run(
-                    compute_ragas_row_llm(
-                        reference=ref,
-                        prediction=pred,
-                        retrieved_context=ctx_full,
-                        question=str(q),
-                        client=ragas_llm_client,
-                        model=ragas_llm_model,
-                    )
+        if ragas_llm and ref and pred and ctx_full:
+            sample = row_to_ragas_sample(
+                question=str(q),
+                reference=ref,
+                prediction=pred,
+                retrieved_context=ctx_full,
+                gold_evidence_texts=ev_list,
+                kg_text=kg,
+                reference_bullets=bl_list,
+            )
+            ragas_pending.append(
+                (
+                    {"id": r.get("id"), "question": q},
+                    sample,
                 )
-            else:
-                rg = compute_ragas_row(
-                    reference=ref,
-                    prediction=pred,
-                    retrieved_context=ctx_full,
-                    gold_evidence_texts=ev_list,
-                    kg_text=kg,
-                    reference_bullets=bl_list,
-                    use_embedding_faithfulness=use_embedding_faithfulness,
-                )
-            ragas_details.append({"id": r.get("id"), "question": q, **rg})
-            n_ragas += 1
+            )
 
         if r.get("multihop") and ref and pred:
             aliases = r.get("multihop_answer_aliases")
@@ -222,24 +195,6 @@ def build_report(
             )
             multihop_details.append({"id": r.get("id"), "question": q, "correct": score})
             n_multihop += 1
-
-        if include_retrieval:
-            gd = r.get("gold_doc_ids")
-            rd = r.get("retrieved_doc_ids")
-            if isinstance(gd, list) and isinstance(rd, list) and len(gd) > 0:
-                prf = doc_retrieval_prf_aligned([str(x) for x in gd], [str(x) for x in rd])
-                ranked = r.get("retrieved_doc_ids_ranked")
-                if not isinstance(ranked, list):
-                    ranked = [str(x) for x in rd]
-                else:
-                    ranked = [str(x) for x in ranked]
-                rr = reciprocal_rank_docs_aligned([str(x) for x in gd], ranked)
-                hits = {
-                    f"hit@{hk}": hit_at_k_docs_aligned([str(x) for x in gd], ranked, hk)
-                    for hk in hit_ks
-                }
-                retr_details.append({"question": q, "doc_p_r_f1": prf, "mrr": rr, **hits})
-                n_retr += 1
 
         if include_graph:
             ge = r.get("gold_entities")
@@ -266,6 +221,21 @@ def build_report(
                 n_graph_rel += 1
             if row_g is not None:
                 graph_details.append(row_g)
+
+    ragas_details: list[dict[str, Any]] = []
+    if ragas_pending:
+        try:
+            ragas_llm_client = ragas_llm_override or build_ragas_llm()
+            ragas_scores = compute_ragas_batch(
+                [sample for _, sample in ragas_pending],
+                llm=ragas_llm_client,
+            )
+            for (meta, _), scores in zip(ragas_pending, ragas_scores):
+                ragas_details.append({**meta, **scores})
+            n_ragas = len(ragas_details)
+        except Exception as exc:
+            logger = __import__("logging").getLogger(__name__)
+            logger.warning("RAGAS 評估跳過：%s", exc)
 
     ent_details, n_ent = _eval_ranked_rows(
         rows,
@@ -294,7 +264,6 @@ def build_report(
         "counts": {
             "rows_total": len(rows),
             "answer_evaluated": n_answer,
-            "retrieval_evaluated": n_retr,
             "graph_entity_rows": n_graph_ent,
             "graph_relation_rows": n_graph_rel,
             "retrieval_entity_rows": n_ent,
@@ -334,15 +303,19 @@ def build_report(
         }
 
     if n_ragas:
+        try:
+            import ragas
+
+            ragas_version = ragas.__version__
+        except Exception:
+            ragas_version = "unknown"
         report["ragas"] = {
-            "mode": "llm_judge" if ragas_llm_client else "v2_heuristic",
+            "mode": "ragas",
+            "ragas_version": ragas_version,
             "context_for_eval": "context_for_llm or retrieved_context",
             "context_recall_mean": _nested_mean(ragas_details, ["context_recall"]),
             "context_precision_mean": _nested_mean(ragas_details, ["context_precision"]),
             "faithfulness_mean": _nested_mean(ragas_details, ["faithfulness"]),
-            "faithfulness_ngram_legacy_mean": _nested_mean(
-                ragas_details, ["faithfulness_ngram_legacy"]
-            ),
             "details": ragas_details[:max_detail_rows],
         }
 
@@ -368,16 +341,6 @@ def build_report(
             "details": answer_details[:max_detail_rows],
         }
 
-    if include_retrieval and n_retr:
-        report["retrieval"] = {
-            "doc_precision_mean": _nested_mean(retr_details, ["doc_p_r_f1", "precision"]),
-            "doc_recall_mean": _nested_mean(retr_details, ["doc_p_r_f1", "recall"]),
-            "doc_f1_mean": _nested_mean(retr_details, ["doc_p_r_f1", "f1"]),
-            "mrr_mean": _nested_mean(retr_details, ["mrr"]),
-            **{f"{hk}_mean": _nested_mean(retr_details, [hk]) for hk in [f"hit@{k}" for k in hit_ks]},
-            "details": retr_details[:max_detail_rows],
-        }
-
     if include_graph and graph_details:
         ent_rows = [d for d in graph_details if "entity_multiset_f1" in d]
         gm: dict[str, Any] = {"details": graph_details[:max_detail_rows]}
@@ -398,41 +361,22 @@ def build_report_from_path(
     *,
     rouge_types: tuple[str, ...] = ("rouge1", "rouge2", "rougeL"),
     use_stemmer: bool = False,
-    hit_ks: tuple[int, ...] = (1, 5, 10),
     eval_ks: tuple[int, ...] = (5, 10),
     include_answer: bool = False,
-    include_retrieval: bool | None = None,
     include_graph: bool | None = None,
     max_detail_rows: int = 100,
     use_embedding_faithfulness: bool = True,
-    ragas_llm: bool = False,
+    ragas_llm: bool = True,
 ) -> dict[str, Any]:
     rows = load_jsonl_rows(path)
-    llm_client = None
-    llm_model: str | None = None
-    if ragas_llm:
-        from openai import AsyncOpenAI
-
-        from config.settings import get_settings
-
-        s = get_settings()
-        key = (s.openai_api_key or s.llm.api_key or "").strip()
-        if not key:
-            raise RuntimeError("ragas_llm 需要 OPENAI_API_KEY / LLM_API_KEY")
-        base = (s.openai_base_url or s.llm.base_url or "https://api.openai.com/v1").rstrip("/")
-        llm_client = AsyncOpenAI(api_key=key, base_url=base)
-        llm_model = s.resolved_llm_model_name()
     return build_report(
         rows,
         rouge_types=rouge_types,
         use_stemmer=use_stemmer,
-        hit_ks=hit_ks,
         eval_ks=eval_ks,
         include_answer=include_answer,
-        include_retrieval=include_retrieval,
         include_graph=include_graph,
         max_detail_rows=max_detail_rows,
         use_embedding_faithfulness=use_embedding_faithfulness,
-        ragas_llm_client=llm_client,
-        ragas_llm_model=llm_model,
+        ragas_llm=ragas_llm,
     )
