@@ -20,7 +20,7 @@ from src.retrieval.retriever import GraphRAGRetriever
 
 # 與金標 reference 語言一致，避免繁簡差異拉低生成類指標
 _EVAL_SYSTEM_PROMPT = (
-    "你是 FEC 領域專業助手。請基於檢索材料準確作答，使用简体中文，"
+    "你是 FEC 领域专家助手。请完全基于检索材料，准确回答问题，使用简体中文，"
     "条理清晰，避免无依据的推测。"
 )
 
