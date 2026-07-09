@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph RAG 智能问答</title>
+    <link rel="stylesheet" href="/front/style.css">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>Graph RAG</h1>
+                <button id="new-chat-btn" class="btn-primary">+ 新对话</button>
+            </div>
+            <div class="sidebar-section">
+                <h3>文档管理</h3>
+                <div class="upload-area" id="upload-area">
+                    <input type="file" id="file-input" multiple accept=".pdf,.md,.txt,.docx">
+                    <p>点击或拖拽上传文件</p>
+                    <small>支持 PDF, MD, TXT, DOCX</small>
+                </div>
+                <div class="doc-list" id="doc-list"></div>
+            </div>
+            <div class="sidebar-section">
+                <h3>系统操作</h3>
+                <button id="incremental-btn" class="btn-secondary">增量更新索引</button>
+            </div>
+            <div class="sidebar-footer">
+                <a href="/docs" target="_blank">API 文档</a>
+            </div>
+        </aside>
+
+        <main class="main">
+            <div class="chat-container" id="chat-container">
+                <div class="welcome" id="welcome">
+                    <h2>Graph RAG 智能问答系统</h2>
+                    <p>基于 LightRAG + Neo4j + Milvus 构建</p>
+                    <div class="welcome-tips">
+                        <div class="tip">📚 上传文档后自动索引</div>
+                        <div class="tip">🔍 支持多模式检索（naive/local/global/hybrid/mix）</div>
+                        <div class="tip">🧠 LLM 智能路由自动选择最佳检索策略</div>
+                        <div class="tip">🖼️ 支持多模态视觉问答</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="settings-bar">
+                    <label>
+                        模式
+                        <select id="mode-select">
+                            <option value="">智能路由</option>
+                            <option value="naive">Naive</option>
+                            <option value="local">Local</option>
+                            <option value="global">Global</option>
+                            <option value="hybrid">Hybrid</option>
+                            <option value="mix">Mix</option>
+                        </select>
+                    </label>
+                    <label class="toggle">
+                        <input type="checkbox" id="stream-toggle" checked>
+                        <span>流式输出</span>
+                    </label>
+                    <label class="toggle">
+                        <input type="checkbox" id="multimodal-toggle">
+                        <span>多模态</span>
+                    </label>
+                </div>
+                <div class="input-box">
+                    <textarea id="question-input" placeholder="输入您的问题..." rows="1"></textarea>
+                    <button id="send-btn" class="btn-send" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="toast" id="toast"></div>
+    <script src="/front/app.js"></script>
+</body>
+</html>

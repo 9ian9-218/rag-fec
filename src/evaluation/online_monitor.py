@@ -16,6 +16,7 @@ logger = get_logger("evaluation.online_monitor")
 
 GRAPH_MODES = frozenset({"local", "global", "hybrid", "mix"})
 DEFAULT_METRICS_LOG = Path("data/logs/query_metrics.jsonl")
+DEFAULT_FEEDBACK_LOG = Path("data/logs/feedback_metrics.jsonl")
 
 rerank_stats_ctx: ContextVar[dict[str, int] | None] = ContextVar("rerank_stats_ctx", default=None)
 
@@ -268,3 +269,56 @@ class QueryTimer:
 
     def elapsed_ms(self) -> float:
         return (time.perf_counter() - self._t0) * 1000.0
+
+
+@dataclass
+class FeedbackTelemetry:
+    """用戶回答反饋遙測。"""
+
+    question: str
+    answer: str
+    feedback: str  # "correct" or "wrong"
+    session_id: str | None = None
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+def append_feedback(
+    telemetry: FeedbackTelemetry,
+    *,
+    log_path: Path | None = None,
+) -> None:
+    path = log_path or DEFAULT_FEEDBACK_LOG
+    path.parent.mkdir(parents=True, exist_ok=True)
+    line = json.dumps(telemetry.to_dict(), ensure_ascii=False)
+    with path.open("a", encoding="utf-8") as f:
+        f.write(line + "\n")
+    logger.info("feedback received: %s", telemetry.feedback)
+
+
+def aggregate_feedback_jsonl(path: Path) -> dict[str, Any]:
+    """匯總 ``feedback_metrics.jsonl`` 為監控面板用摘要。"""
+    if not path.is_file():
+        return {"count": 0, "correct": 0, "wrong": 0}
+    rows: list[dict[str, Any]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            rows.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    if not rows:
+        return {"count": 0, "correct": 0, "wrong": 0}
+
+    correct = sum(1 for r in rows if r.get("feedback") == "correct")
+    wrong = sum(1 for r in rows if r.get("feedback") == "wrong")
+    return {
+        "count": len(rows),
+        "correct": correct,
+        "wrong": wrong,
+        "correct_rate": round(correct / len(rows), 4) if rows else 0.0,
+    }

@@ -9,7 +9,8 @@ from typing import Any, AsyncIterator
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from config.settings import get_settings
@@ -45,6 +46,15 @@ class IncrementalBody(BaseModel):
     """可擴充的增量請求體（目前無必填欄位）。"""
 
     pass
+
+
+class FeedbackBody(BaseModel):
+    """回答反饋請求體。"""
+
+    question: str = Field(..., min_length=1)
+    answer: str = Field(..., min_length=1)
+    feedback: str = Field(..., pattern="^(correct|wrong)$")
+    session_id: str | None = None
 
 
 _rag: RAGService | None = None
@@ -87,9 +97,16 @@ def create_app() -> FastAPI:
             allow_headers=["*"],
         )
 
+    front_dir = Path(__file__).resolve().parent.parent.parent / "front"
+    if front_dir.is_dir():
+        app.mount("/front", StaticFiles(directory=str(front_dir)), name="front")
+
     @app.get("/", include_in_schema=False)
-    async def root_redirect():
-        return RedirectResponse(url="/docs")
+    async def root():
+        index = front_dir / "index.html"
+        if index.is_file():
+            return FileResponse(str(index))
+        return JSONResponse({"message": "Graph RAG API is running", "docs": "/docs"})
 
     @app.get("/api/rag/health")
     async def health() -> dict[str, str]:
@@ -198,6 +215,27 @@ def create_app() -> FastAPI:
         rag = get_rag()
         result = await rag.incremental_update()
         return JSONResponse(result)
+
+    @app.post("/api/rag/feedback")
+    async def feedback(body: FeedbackBody):
+        from src.evaluation.online_monitor import append_feedback, FeedbackTelemetry
+
+        telem = FeedbackTelemetry(
+            question=body.question,
+            answer=body.answer,
+            feedback=body.feedback,
+            session_id=body.session_id,
+        )
+        append_feedback(telem)
+        return JSONResponse({"status": "ok"})
+
+    @app.get("/api/rag/telemetry")
+    async def telemetry():
+        from src.evaluation.online_monitor import aggregate_metrics_jsonl, DEFAULT_METRICS_LOG, aggregate_feedback_jsonl, DEFAULT_FEEDBACK_LOG
+
+        query_metrics = aggregate_metrics_jsonl(DEFAULT_METRICS_LOG)
+        feedback_metrics = aggregate_feedback_jsonl(DEFAULT_FEEDBACK_LOG)
+        return JSONResponse({"query": query_metrics, "feedback": feedback_metrics})
 
     return app
 

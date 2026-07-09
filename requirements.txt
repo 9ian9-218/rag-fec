@@ -25,5 +25,3 @@ nltk>=3.8.1
 opencc-python-reimplemented>=0.1.7
 ragas>=0.4.3
 datasets>=2.14.0
-sentence-transformers>=3.0.0
-huggingface_hub>=0.23.0

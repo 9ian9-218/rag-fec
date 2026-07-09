@@ -8,7 +8,6 @@ import threading
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from config.model_paths import resolve_embedding_model_load_path, resolve_reranker_model_load_path
 from config.settings import Settings, apply_settings_to_environ, get_settings
 from src.utils.logger import get_logger
 
@@ -117,61 +116,14 @@ if TYPE_CHECKING:
 
 _lightrag_instance: Any = None
 _init_lock = asyncio.Lock()
-_st_model_lock = threading.Lock()
-_st_models: dict[str, Any] = {}
 
-
-def _get_sentence_transformer(model_key: str) -> Any:
-    """程序內單例載入；``model_key`` 為實際載入路徑或 Hub id。"""
-    with _st_model_lock:
-        if model_key not in _st_models:
-            from sentence_transformers import SentenceTransformer
-
-            logger.info("Loading SentenceTransformer model: %s", model_key)
-            _st_models[model_key] = SentenceTransformer(model_key, trust_remote_code=True)
-        return _st_models[model_key]
-
-
-def _warm_sentence_transformer(settings: Settings) -> None:
-    load_path = resolve_embedding_model_load_path(settings)
-    _get_sentence_transformer(load_path)
 
 
 def _project_root() -> Path:
     return Path(get_settings().paths.project_root).resolve()
 
 
-def _build_embedding_func(settings: Settings):
-    from lightrag.utils import wrap_embedding_func_with_attrs
 
-    import numpy as np
-
-    s = settings
-    dim = s.embedding.dimension
-    model_id = s.embedding.model_name
-    load_path = resolve_embedding_model_load_path(s)
-
-    def _encode_sync(texts: list[str]) -> np.ndarray:
-        m = _get_sentence_transformer(load_path)
-        arr = m.encode(
-            texts,
-            normalize_embeddings=True,
-            batch_size=s.embedding.batch_size,
-            convert_to_numpy=True,
-            show_progress_bar=False,
-        )
-        return np.asarray(arr, dtype=np.float32)
-
-    @wrap_embedding_func_with_attrs(
-        embedding_dim=dim,
-        max_token_size=8192,
-        model_name=model_id,
-        send_dimensions=False,
-    )
-    async def _embed(texts: list[str], **_kwargs: Any) -> Any:
-        return await asyncio.to_thread(_encode_sync, texts)
-
-    return _embed
 
 
 def _keyword_json_from_lists(prompt: str, hl: list, ll: list, settings: Settings) -> str:
@@ -287,33 +239,54 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
     working_dir = str(root / s.paths.lightrag_working_dir)
     os.makedirs(working_dir, exist_ok=True)
 
-    _warm_sentence_transformer(s)
-    embedding_func = _build_embedding_func(s)
+    # Embedding: 仅支持线上 API
+    from src.storage.remote_embedding import build_remote_embedding_func
+
+    if not s.embedding.api_enabled:
+        raise RuntimeError(
+            "Embedding API 未启用。本项目现已移除本地模型支持，必须使用线上 API。\n"
+            "请在 .env 中设置：\n"
+            "  EMBEDDING_API_ENABLED=true\n"
+            "  EMBEDDING_API_KEY=your-api-key\n"
+            "  EMBEDDING_API_BASE_URL=https://api.siliconflow.cn\n"
+            "  EMBEDDING_API_MODEL_NAME=BAAI/bge-m3\n"
+            "  EMBEDDING_DIMENSION=1024"
+        )
+
+    embedding_func = build_remote_embedding_func(s)
     logger.info(
-        "Embedding backend: sentence-transformers, model=%s, load_path=%s, dim=%d",
-        s.embedding.model_name,
-        resolve_embedding_model_load_path(s),
+        "Embedding backend: remote API, model=%s, base_url=%s, dim=%d",
+        s.embedding.api_model_name,
+        s.embedding.api_base_url,
         s.embedding.dimension,
     )
     llm_model_func = _build_llm_func(s)
 
+    # Rerank: 仅支持线上 API
     rerank_model_func = None
-    if s.models.rerank_enabled and s.rerank_runtime_available():
-        from src.storage.bge_rerank import build_bge_rerank_model_func
 
-        rerank_model_func = build_bge_rerank_model_func(s)
-        logger.info(
-            "Rerank enabled: model=%s load_path=%s min_score=%s",
-            s.models.rerank_model_name,
-            resolve_reranker_model_load_path(s),
-            s.retrieval.rerank_min_score,
+    if not s.models.rerank_api_enabled:
+        logger.warning(
+            "Rerank API 未启用。本项目现已移除本地模型支持。\n"
+            "如需启用 rerank，请在 .env 中设置：\n"
+            "  MODELS_RERANK_API_ENABLED=true\n"
+            "  MODELS_RERANK_API_KEY=your-api-key\n"
+            "  MODELS_RERANK_API_BASE_URL=https://api.siliconflow.cn\n"
+            "  MODELS_RERANK_API_MODEL_NAME=BAAI/bge-reranker-v2-m3"
         )
     else:
-        logger.info(
-            "Rerank skipped (rerank_enabled=%s runtime_available=%s)",
-            s.models.rerank_enabled,
-            s.rerank_runtime_available(),
-        )
+        from src.storage.remote_rerank import build_remote_rerank_model_func
+
+        rerank_model_func = build_remote_rerank_model_func(s)
+        if rerank_model_func is not None:
+            logger.info(
+                "Rerank enabled: remote API, model=%s base_url=%s min_score=%s",
+                s.models.rerank_api_model_name,
+                s.models.rerank_api_base_url,
+                s.retrieval.rerank_min_score,
+            )
+        else:
+            logger.warning("Remote rerank API 初始化失敗，将跳过 rerank")
 
     lr = s.lightrag
     max_graph_nodes = min(1000, max(64, int(lr.max_graph_nodes)))

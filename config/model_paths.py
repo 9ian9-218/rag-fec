@@ -66,59 +66,7 @@ def resolve_hub_model_dir(repo_id: str, settings: Settings | None = None) -> Pat
     return None
 
 
-def resolve_reranker_model_load_path(settings: Settings | None = None) -> str:
-    """
-    Reranker（CrossEncoder）載入路徑：優先 ``MODELS_RERANK_LOCAL_PATH``，其次 Hub 快照，最後為模型 id。
-    """
-    s = settings or get_settings()
-    override = (s.models.rerank_local_path or "").strip()
-    if override:
-        p = Path(override).expanduser()
-        if not p.is_absolute():
-            p = resolve_project_root(s) / p
-        if p.is_dir():
-            return str(p.resolve())
-    hub_dir = resolve_hub_model_dir(s.models.rerank_model_name, s)
-    if hub_dir is not None:
-        return str(hub_dir)
-    return s.models.rerank_model_name
 
-
-def resolve_embedding_model_load_path(settings: Settings | None = None) -> str:
-    """
-    嵌入模型載入路徑：優先本地 Hub 快照，否則回傳 Hub 模型 id（如 ``BAAI/bge-m3``）。
-    """
-    s = settings or get_settings()
-    override = (s.models.embedding_local_path or "").strip()
-    if override:
-        p = Path(override).expanduser()
-        if not p.is_absolute():
-            p = resolve_project_root(s) / p
-        if p.is_dir():
-            return str(p.resolve())
-    snap = resolve_hub_snapshot(s.embedding.model_name, s)
-    if snap is not None:
-        return str(snap)
-    return s.embedding.model_name
-
-
-def apply_models_to_environ(settings: Settings | None = None, *, offline: bool | None = None) -> None:
-    """啟動前注入 HF 路徑；``offline`` 預設取自 ``MODELS_OFFLINE``（僅建議用於嵌入等已完整快照的組件）。"""
-    s = settings or get_settings()
-    models_root = resolve_models_root(s)
-    hub = resolve_hf_hub_dir(s)
-    os.environ["HF_HOME"] = str(models_root)
-    os.environ["HF_HUB_CACHE"] = str(hub)
-    os.environ.pop("TRANSFORMERS_CACHE", None)
-    if s.models.hf_endpoint:
-        os.environ.setdefault("HF_ENDPOINT", s.models.hf_endpoint.strip())
-    use_offline = s.models.offline if offline is None else offline
-    if use_offline:
-        os.environ["HF_HUB_OFFLINE"] = "1"
-        os.environ["TRANSFORMERS_OFFLINE"] = "1"
-    else:
-        os.environ.pop("HF_HUB_OFFLINE", None)
-        os.environ.pop("TRANSFORMERS_OFFLINE", None)
 
 
 def mineru_subprocess_environ(settings: Settings | None = None) -> dict[str, str]:

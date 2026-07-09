@@ -62,24 +62,48 @@ class LLMSettings(BaseSettings):
 
 
 class EmbeddingSettings(BaseSettings):
-    """嵌入模型：本機 sentence-transformers（預設 BAAI/bge-m3，1024 維）。"""
+    """嵌入模型：仅支持第三方线上 API。"""
 
     model_config = SettingsConfigDict(env_prefix="EMBEDDING_", env_file=".env", extra="ignore")
 
-    model_name: str = Field(default="BAAI/bge-m3")
+    # 线上 API 配置（必填）
+    api_enabled: bool = Field(
+        default=True,
+        description="是否启用第三方线上 embedding API（必须为 true）",
+    )
+    api_key: str = Field(
+        default="",
+        description="第三方 embedding API 密鑰（如 SiliconFlow、智谱等）",
+    )
+    api_base_url: str | None = Field(
+        default=None,
+        description="第三方 embedding API 端点（如 https://api.siliconflow.cn）",
+    )
+    api_model_name: str = Field(
+        default="",
+        description="第三方 embedding API 模型名称（如 BAAI/bge-m3、text-embedding-3-large）",
+    )
+    api_timeout: int = Field(
+        default=60,
+        ge=10,
+        le=300,
+        description="API 请求超时时间（秒）",
+    )
+
+    # 模型参数
     dimension: int = Field(default=1024, ge=32, le=4096)
     batch_size: int = Field(default=16, ge=1, le=256)
     lightrag_embedding_timeout: int = Field(
         default=300,
         ge=30,
         le=7200,
-        description="傳入 LightRAG default_embedding_timeout（秒）；首次載入模型時須足夠大",
+        description="传入 LightRAG default_embedding_timeout（秒）",
     )
     max_async: int = Field(
         default=2,
         ge=1,
         le=16,
-        description="嵌入並發上限（對應 LightRAG embedding_func_max_async）；建議較低以避免重複載入模型",
+        description="嵌入并发上限（对应 LightRAG embedding_func_max_async）",
     )
 
 
@@ -261,40 +285,32 @@ class PathsSettings(BaseSettings):
 
 
 class ModelsSettings(BaseSettings):
-    """本機模型根目錄（預設專案下 ``models/``，Hub 快照在 ``models/hub/``）。"""
+    """Rerank 线上 API 配置。"""
 
     model_config = SettingsConfigDict(env_prefix="MODELS_", env_file=".env", extra="ignore")
 
-    dir: str = Field(default="models", description="相對 project_root 的模型根目錄")
-    hf_endpoint: str | None = Field(
-        default="https://hf-mirror.com",
-        description="Hugging Face 鏡像；未設則不覆寫環境變數",
+    # 线上 Rerank API 配置
+    rerank_api_enabled: bool = Field(
+        default=False,
+        description="是否启用第三方线上 rerank API",
     )
-    offline: bool = Field(
-        default=True,
-        description="為 True 時設 HF_HUB_OFFLINE，優先使用 models/hub 已有快照",
+    rerank_api_key: str = Field(
+        default="",
+        description="第三方 rerank API 密钥",
     )
-    embedding_local_path: str | None = Field(
+    rerank_api_base_url: str | None = Field(
         default=None,
-        description="可選：嵌入模型目錄，覆寫自動解析的 Hub 快照路徑",
+        description="第三方 rerank API 端点",
     )
-    rerank_enabled: bool = Field(
-        default=True,
-        description="是否啟用本機 CrossEncoder rerank；關閉時不注入 rerank_model_func 並關閉 RERANK_BY_DEFAULT",
+    rerank_api_model_name: str = Field(
+        default="",
+        description="第三方 rerank API 模型名称（如 BAAI/bge-reranker-v2-m3）",
     )
-    rerank_model_name: str = Field(
-        default="BAAI/bge-reranker-v2-m3",
-        description="HuggingFace 模型 id；權重下載至 models/hub 後自動解析快照路徑",
-    )
-    rerank_local_path: str | None = Field(
-        default=None,
-        description="可選：reranker 目錄，覆寫 Hub 快照（與 EMBEDDING 的 *_LOCAL_PATH 一致）",
-    )
-    rerank_batch_size: int = Field(
-        default=8,
-        ge=1,
-        le=128,
-        description="CrossEncoder.predict 批次大小",
+    rerank_api_timeout: int = Field(
+        default=60,
+        ge=10,
+        le=300,
+        description="Rerank API 请求超时时间（秒）",
     )
 
 
@@ -453,23 +469,7 @@ class Settings(BaseSettings):
     def resolved_multimodal_temperature(self) -> float:
         return float(self.multimodal.temperature)
 
-    def rerank_runtime_available(self) -> bool:
-        """本機 rerank 是否應開啟（關閉開關、離線且無快照時為 False）。"""
-        if not self.models.rerank_enabled:
-            return False
-        from pathlib import Path
 
-        from config.model_paths import resolve_hub_model_dir, resolve_project_root
-
-        lp = (self.models.rerank_local_path or "").strip()
-        if lp:
-            p = Path(lp).expanduser()
-            if not p.is_absolute():
-                p = resolve_project_root(self) / p
-            return p.is_dir()
-        if resolve_hub_model_dir(self.models.rerank_model_name, self) is not None:
-            return True
-        return not self.models.offline
 
 
 @lru_cache(maxsize=1)
@@ -483,9 +483,6 @@ def apply_settings_to_environ(settings: Settings | None = None) -> None:
     import json
 
     s = settings or get_settings()
-    from config.model_paths import apply_models_to_environ
-
-    apply_models_to_environ(s)
 
     os.environ.setdefault("NEO4J_URI", s.neo4j.uri)
     os.environ.setdefault("NEO4J_USERNAME", s.neo4j.username)
