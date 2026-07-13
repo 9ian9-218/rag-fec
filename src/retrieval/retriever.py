@@ -112,7 +112,7 @@ class GraphRAGRetriever:
         *,
         mode: RetrievalMode | None = None,
         top_k: int | None = None,
-        system_prompt: str | None = None,
+        custom_instructions: str | None = None,
         history: list[dict[str, str]] | None = None,
         stream: bool = False,
         multimodal: bool = False,
@@ -135,6 +135,7 @@ class GraphRAGRetriever:
             top_k=top_k or self._settings.retrieval.top_k,
             stream=stream,
             conversation_history=history or [],
+            user_prompt=custom_instructions,
         )
 
         if multimodal and stream:
@@ -145,6 +146,7 @@ class GraphRAGRetriever:
                 top_k=top_k or self._settings.retrieval.top_k,
                 stream=False,
                 conversation_history=history or [],
+                user_prompt=custom_instructions,
             )
 
         clear_rerank_stats()
@@ -212,13 +214,39 @@ class GraphRAGRetriever:
                     except Exception as e2:
                         logger.warning("僅文字檢索作答仍失敗，降級為 LightRAG aquery: %s", e2)
 
-        out = await rag.aquery(question, param, system_prompt=system_prompt)
+        bundle = await rag.aquery_data(question, param)
+        if isinstance(bundle, dict):
+            bundle = await refine_retrieval_bundle(question, bundle, settings=self._settings)
+        sources = extract_sources(bundle if isinstance(bundle, dict) else {})
+        kg_text = ""
+        if isinstance(bundle, dict):
+            ent = bundle.get("entities") or []
+            rel = bundle.get("relationships") or []
+            if isinstance(ent, list) and isinstance(rel, list):
+                kg_text = kg_dict_to_bullets(ent, rel)
+
+        out: str | AsyncIterator[str]
+        if not stream:
+            from src.retrieval.multimodal_answer import answer_with_retrieved_text_only
+            try:
+                out = await answer_with_retrieved_text_only(
+                    settings=self._settings,
+                    question=question,
+                    bundle=bundle,
+                    history_messages=history,
+                )
+            except Exception as e:
+                logger.warning("自定义文字回答失败，降级为 LightRAG aquery: %s", e)
+                out = await rag.aquery(question, param)
+        else:
+            out = await rag.aquery(question, param)
         append_telemetry(
             build_telemetry(
                 question=question,
                 mode=str(m),
-                bundle=None,
+                bundle=bundle if isinstance(bundle, dict) else {},
                 latency_ms=timer.elapsed_ms(),
+                kg_text=kg_text,
                 min_rerank_score=float(self._settings.retrieval.rerank_min_score),
             )
         )

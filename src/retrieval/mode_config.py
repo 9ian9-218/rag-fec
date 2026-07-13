@@ -39,6 +39,7 @@ def build_query_param(
     stream: bool = False,
     only_need_context: bool = False,
     conversation_history: list[dict[str, str]] | None = None,
+    user_prompt: str | None = None,
 ) -> QueryParam:
     """建立 ``QueryParam``，並套用模式預設。"""
     settings = get_settings()
@@ -49,6 +50,7 @@ def build_query_param(
         stream=stream,
         only_need_context=only_need_context,
         conversation_history=conversation_history or [],
+        user_prompt=user_prompt,
         **lr_over,  # type: ignore[arg-type]
     )
     base_top_k = top_k if top_k is not None else settings.retrieval.top_k
@@ -65,9 +67,33 @@ def build_query_param(
 
 
 def suggest_mode_from_question(question: str) -> RetrievalMode:
-    """極簡啟發式：含「總結、整體、全書」偏 global，否則 mix。"""
+    """改進啟發式：根據關鍵詞選擇模式，不再默認 mix。"""
     q = question.strip().lower()
-    keys = ("總結", "整體", "全書", "概述", "global summary", "overview")
-    if any(k.lower() in q for k in keys):
+
+    # Global：總結、概述、宏觀、對比趨勢
+    global_keys = (
+        "總結", "整體", "全書", "概述", "全局", "趨勢", "對比", "比較", "宏觀",
+        "global summary", "overview", "compare", "comparison", "contrast",
+    )
+    if any(k in q for k in global_keys):
         return "global"
-    return "mix"
+
+    # Naive：簡單事實、定義查詢、直接提問
+    naive_keys = (
+        "什麼是", "什麼叫", "定義", "概念", "簡述", "簡單說", "一句話",
+        "what is", "define", "meaning of", "什麼意思",
+    )
+    if any(k in q for k in naive_keys):
+        return "naive"
+
+    # Local：具體實體、算法細節、性質、參數
+    local_keys = (
+        "算法", "步驟", "流程", "性質", "參數", "複雜度", "時間", "空間",
+        "algorithm", "step", "procedure", "property", "complexity", "parameter",
+        "如何", "怎麼", "方法", "具體",
+    )
+    if any(k in q for k in local_keys):
+        return "local"
+
+    # 默認 hybrid（比 mix 更輕量，但仍能利用圖譜結構）
+    return "hybrid"

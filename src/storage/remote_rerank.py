@@ -90,23 +90,34 @@ def build_remote_rerank_model_func(settings: Settings | None = None) -> Callable
         )
 
         # 注意：不同服务商的 rerank API 格式可能不同
-        # 这里使用通用的 OpenAI 相容格式（如 SiliconFlow rerank API）
-        # 如果服务商使用不同格式，需要在此适配
-        try:
-            response = await client.rerank.create(
-                model=api_model_name,
-                query=q,
-                documents=documents,
-                top_n=top_n or len(documents),
-            )
+        # SiliconFlow / Jina 等使用原生 HTTP POST /v1/rerank，非 OpenAI SDK 的 rerank.create
+        import httpx
 
-            # 解析返回结果（不同服务商可能结构不同）
-            # OpenAI/SiliconFlow 格式：response.data 包含 list of {index, relevance_score}
+        rerank_url = f"{api_base_url}/rerank" if "/rerank" not in api_base_url else api_base_url
+        payload = {
+            "model": api_model_name,
+            "query": q,
+            "documents": documents,
+            "top_n": top_n or len(documents),
+        }
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=api_timeout) as http_client:
+                resp = await http_client.post(rerank_url, json=payload, headers=headers)
+                resp.raise_for_status()
+                data = resp.json()
+
+            # SiliconFlow 格式: { "results": [ { "index": 0, "relevance_score": 0.9, "document": { "text": "..." } } ] }
+            raw_results = data.get("results") or []
             results = []
-            for item in response.data:
+            for item in raw_results:
                 results.append({
-                    "index": item.index,
-                    "relevance_score": float(item.relevance_score),
+                    "index": int(item.get("index", 0)),
+                    "relevance_score": float(item.get("relevance_score", 0.0)),
                 })
 
             # 按分数排序
@@ -126,28 +137,20 @@ def build_remote_rerank_model_func(settings: Settings | None = None) -> Callable
 
             return [{"index": r["index"], "relevance_score": float(norm[i])} for i, r in enumerate(results)]
 
-        except AttributeError:
-            # 如果 API 不支持 rerank.create，尝试使用 embeddings 相似度作为替代
-            logger.warning(
-                "Rerank API 不支持 rerank.create，尝试使用 embedding 相似度作为替代方案"
-            )
+        except Exception as e:
+            logger.warning("Rerank API 調用失敗 (%s)，嘗試使用 embedding 相似度作为替代方案", e)
             return await _fallback_with_embedding_similarity(
                 client=client,
-                model=api_model_name,
                 query=q,
                 documents=documents,
                 top_n=top_n,
             )
-        except Exception as e:
-            logger.error("Rerank API 調用失敗: %s", e)
-            return []
 
     return rerank_model_func
 
 
 async def _fallback_with_embedding_similarity(
     client,
-    model: str,
     query: str,
     documents: list[str],
     top_n: int | None,
@@ -155,9 +158,15 @@ async def _fallback_with_embedding_similarity(
     """当 rerank API 不可用时，使用 embedding 余弦相似度作为降级方案。"""
     try:
         # 获取 query 和所有 documents 的 embeddings
+        # 必须使用 embedding 模型，而非 rerank 模型
+        embed_model = get_settings().embedding.api_model_name
+        if not embed_model:
+            logger.warning("未配置 EMBEDDING_API_MODEL_NAME，降级方案无法执行")
+            return []
+
         all_texts = [query] + documents
         response = await client.embeddings.create(
-            model=model,
+            model=embed_model,
             input=all_texts,
             encoding_format="float",
         )

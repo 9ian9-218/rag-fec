@@ -300,36 +300,48 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
         "related_relation_chunk_number": lr.related_relation_chunk_number,
     }
 
-    rag = LightRAG(
-        working_dir=working_dir,
-        workspace=s.lightrag_workspace or "",
-        llm_model_func=llm_model_func,
-        llm_model_name=s.resolved_llm_model_name(),
-        llm_model_kwargs={"temperature": s.resolved_llm_temperature()},
-        embedding_func=embedding_func,
-        kv_storage="JsonKVStorage",
-        vector_storage="MilvusVectorDBStorage",
-        graph_storage="Neo4JStorage",
-        doc_status_storage="JsonDocStatusStorage",
-        chunk_token_size=s.chunk.chunk_size,
-        chunk_overlap_token_size=s.chunk.chunk_overlap,
-        top_k=s.retrieval.top_k,
-        chunk_top_k=chunk_top_k,
-        max_entity_tokens=lr.max_entity_tokens,
-        max_relation_tokens=lr.max_relation_tokens,
-        max_total_tokens=lr.max_total_tokens,
-        related_chunk_number=lr.related_entity_chunk_number,
-        kg_chunk_pick_method=lr.kg_chunk_pick_method.strip().upper(),
-        max_graph_nodes=max_graph_nodes,
-        cosine_better_than_threshold=float(lr.cosine_better_than_threshold),
-        entity_extract_max_gleaning=lr.entity_extract_max_gleaning,
-        embedding_batch_num=s.embedding.batch_size,
-        default_embedding_timeout=s.embedding.lightrag_embedding_timeout,
-        embedding_func_max_async=s.embedding.max_async,
-        addon_params=addon_params,
-        rerank_model_func=rerank_model_func,
-        min_rerank_score=s.retrieval.rerank_min_score,
-    )
+    import inspect
+
+    _lightrag_sig = inspect.signature(LightRAG.__init__)
+    _lightrag_params = set(_lightrag_sig.parameters.keys())
+
+    _rag_kwargs = {
+        "working_dir": working_dir,
+        "workspace": s.lightrag_workspace or "",
+        "llm_model_func": llm_model_func,
+        "llm_model_name": s.resolved_llm_model_name(),
+        "llm_model_kwargs": {"temperature": s.resolved_llm_temperature()},
+        "embedding_func": embedding_func,
+        "kv_storage": "JsonKVStorage",
+        "vector_storage": "MilvusVectorDBStorage",
+        "graph_storage": "Neo4JStorage",
+        "doc_status_storage": "JsonDocStatusStorage",
+        "chunk_token_size": s.chunk.chunk_size,
+        "chunk_overlap_token_size": s.chunk.chunk_overlap,
+        "top_k": s.retrieval.top_k,
+        "chunk_top_k": chunk_top_k,
+        "max_entity_tokens": lr.max_entity_tokens,
+        "max_relation_tokens": lr.max_relation_tokens,
+        "max_total_tokens": lr.max_total_tokens,
+        "related_chunk_number": lr.related_entity_chunk_number,
+        "max_graph_nodes": max_graph_nodes,
+        "cosine_better_than_threshold": float(lr.cosine_better_than_threshold),
+        "entity_extract_max_gleaning": lr.entity_extract_max_gleaning,
+        "embedding_batch_num": s.embedding.batch_size,
+        "embedding_func_max_async": s.embedding.max_async,
+        "addon_params": addon_params,
+        "rerank_model_func": rerank_model_func,
+    }
+
+    # 可选参数：依 LightRAG 版本動態加入
+    if "kg_chunk_pick_method" in _lightrag_params:
+        _rag_kwargs["kg_chunk_pick_method"] = lr.kg_chunk_pick_method.strip().upper()
+    if "default_embedding_timeout" in _lightrag_params:
+        _rag_kwargs["default_embedding_timeout"] = s.embedding.lightrag_embedding_timeout
+    if "min_rerank_score" in _lightrag_params:
+        _rag_kwargs["min_rerank_score"] = s.retrieval.rerank_min_score
+
+    rag = LightRAG(**_rag_kwargs)
     logger.info(
         "LightRAG runtime: top_k=%s chunk_top_k=%s max_total_tokens=%s "
         "max_entity_tokens=%s max_relation_tokens=%s related_chunk_number=%s "
@@ -340,7 +352,6 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
         lr.max_entity_tokens,
         lr.max_relation_tokens,
         lr.related_entity_chunk_number,
-        lr.related_relation_chunk_number,
         lr.kg_chunk_pick_method,
         max_graph_nodes,
         s.retrieval.rerank_min_score,

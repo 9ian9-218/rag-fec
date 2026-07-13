@@ -61,6 +61,45 @@ def _keyword_overlap_score(text: str, keywords: list[str]) -> float:
     return hits / max(1, len(keywords))
 
 
+def _online_rerank_available(settings: Settings) -> bool:
+    m = settings.models
+    return bool(
+        m.rerank_api_enabled
+        and m.rerank_api_key
+        and m.rerank_api_base_url
+        and m.rerank_api_model_name
+    )
+
+
+async def _rerank_relations_online(
+    question: str,
+    relations: list[dict[str, Any]],
+    *,
+    settings: Settings,
+) -> list[tuple[dict[str, Any], float]]:
+    """优先使用线上 Rerank API 对关系重排；不可用则回退到本地 CrossEncoder。"""
+    from src.storage.remote_rerank import build_remote_rerank_model_func
+
+    rerank_fn = build_remote_rerank_model_func(settings)
+    if rerank_fn is None:
+        return await asyncio.to_thread(
+            _rerank_relations_sync, question, relations, settings=settings
+        )
+
+    docs = [_relation_text(r) or " " for r in relations]
+    if not docs:
+        return []
+
+    results = await rerank_fn(query=question, documents=docs, top_n=len(docs))
+    scored: list[tuple[dict[str, Any], float]] = []
+    for item in results:
+        idx = int(item.get("index", 0))
+        score = float(item.get("relevance_score", 0.0))
+        if 0 <= idx < len(relations):
+            scored.append((relations[idx], score))
+    return scored
+
+
 def _rerank_relations_sync(
     question: str,
     relations: list[dict[str, Any]],
@@ -120,14 +159,9 @@ async def filter_relationships(
             scored_kw.sort(key=lambda x: x[1], reverse=True)
             deduped = [r for r, _ in scored_kw[: max(1, lr.relation_top_k)]]
 
-    if lr.relation_rerank_enabled and s.rerank_runtime_available() and deduped:
+    if lr.relation_rerank_enabled and (_online_rerank_available(s) or s.rerank_runtime_available()) and deduped:
         try:
-            ranked = await asyncio.to_thread(
-                _rerank_relations_sync,
-                q,
-                deduped,
-                settings=s,
-            )
+            ranked = await _rerank_relations_online(q, deduped, settings=s)
             min_rr = float(lr.relation_min_rerank_score)
             ranked = [(r, sc) for r, sc in ranked if sc >= min_rr]
             ranked.sort(key=lambda x: x[1], reverse=True)

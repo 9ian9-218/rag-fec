@@ -19,7 +19,7 @@ def resolve_project_root(settings: Settings | None = None) -> Path:
 def resolve_models_root(settings: Settings | None = None) -> Path:
     """``models/`` 根目錄；HF Hub 快照在 ``models/hub/``。"""
     s = settings or get_settings()
-    rel = (s.models.dir or "models").strip() or "models"
+    rel = (s.paths.models_dir or "models").strip() or "models"
     p = Path(rel)
     if not p.is_absolute():
         p = resolve_project_root(s) / p
@@ -67,6 +67,27 @@ def resolve_hub_model_dir(repo_id: str, settings: Settings | None = None) -> Pat
 
 
 
+
+
+def resolve_reranker_model_load_path(settings: Settings | None = None) -> str:
+    """解析本地 CrossEncoder 重排模型加載路徑。
+
+    優先檢查本地 HF Hub 快取；若無則回傳預設 HuggingFace 模型 ID，
+    由 sentence-transformers 自動從 Hub 下載。
+    """
+    s = settings or get_settings()
+    # 若配置中指定了本地路徑則優先使用
+    custom_path = (getattr(s.models, "reranker_local_path", None) or "").strip()
+    if custom_path:
+        p = Path(custom_path).expanduser()
+        if p.is_dir() or p.is_file():
+            return str(p.resolve())
+
+    repo_id = "BAAI/bge-reranker-v2-m3"
+    local = resolve_hub_model_dir(repo_id, settings=s)
+    if local is not None:
+        return str(local)
+    return repo_id
 
 
 def mineru_subprocess_environ(settings: Settings | None = None) -> dict[str, str]:

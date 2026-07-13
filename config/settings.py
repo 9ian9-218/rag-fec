@@ -273,6 +273,7 @@ class PathsSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="PATHS_", env_file=".env", extra="ignore")
 
     project_root: str = Field(default=".", description="專案根目錄（相對 cwd）")
+    models_dir: str = Field(default="models", description="本地模型存放目錄（相對 project_root）")
     data_raw: str = Field(default="data/raw")
     data_processed: str = Field(default="data/processed")
     lightrag_working_dir: str = Field(default="data/lightrag_workdir")
@@ -469,7 +470,13 @@ class Settings(BaseSettings):
     def resolved_multimodal_temperature(self) -> float:
         return float(self.multimodal.temperature)
 
-
+    def rerank_runtime_available(self) -> bool:
+        """檢查本地 CrossEncoder 運行時是否可用（sentence-transformers 是否已安裝）。"""
+        try:
+            import sentence_transformers
+            return True
+        except ImportError:
+            return False
 
 
 @lru_cache(maxsize=1)
@@ -521,7 +528,5 @@ def apply_settings_to_environ(settings: Settings | None = None) -> None:
     root = os.path.abspath(s.paths.project_root)
     os.environ.setdefault("LIGHTRAG_WORKDIR", os.path.join(root, s.paths.lightrag_working_dir))
 
-    # FEC 領域：實體類型與摘要語言（若使用者已在環境中設定 ENTITY_TYPES / SUMMARY_LANGUAGE 則不覆寫）
+    # FEC 領域：摘要語言（entity_types 已透過 addon_params 傳入 LightRAG）
     os.environ.setdefault("SUMMARY_LANGUAGE", s.fec.summary_language)
-    if not os.environ.get("ENTITY_TYPES"):
-        os.environ["ENTITY_TYPES"] = json.dumps(s.fec.resolve_entity_types(), ensure_ascii=False)

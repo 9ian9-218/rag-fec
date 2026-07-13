@@ -1,4 +1,4 @@
-"""檢索前 LLM 路由：評估問題難度/複雜度/上下文需求，並選擇 LightRAG 模式。"""
+"""检索前 LLM 路由：评估问题难度/复杂度/上下文需求，并选择 LightRAG 模式。"""
 
 from __future__ import annotations
 
@@ -20,33 +20,33 @@ ROUTABLE_MODES: tuple[str, ...] = ("naive", "local", "global", "hybrid", "mix")
 _MODE_SPECS: list[dict[str, str]] = [
     {
         "mode": "naive",
-        "summary": "僅向量庫檢索文本 Chunk，不使用知識圖譜。",
-        "when": "事實簡單、表述直接、只需局部段落即可回答；不需實體關係推理。",
-        "params": f"預設參數：{MODE_DEFAULTS.get('naive', {})}",
+        "summary": "仅向量库检索文本 Chunk，不使用知识图谱。",
+        "when": "事实简单、表述直接、只需局部段落即可回答；不需实体关系推理。",
+        "params": f"预设参数：{MODE_DEFAULTS.get('naive', {})}",
     },
     {
         "mode": "local",
-        "summary": "以低層關鍵詞聚焦「實體」及其鄰域 Chunk（圖+局部上下文）。",
-        "when": "問具體概念、定義、某算法/碼型的性質、單點事實。",
-        "params": f"預設參數：{MODE_DEFAULTS.get('local', {})}",
+        "summary": "以低层关键词聚焦「实体」及其邻域 Chunk（图+局部上下文）。",
+        "when": "问具体概念、定义、某算法/码型的性质、单点事实。",
+        "params": f"预设参数：{MODE_DEFAULTS.get('local', {})}",
     },
     {
         "mode": "global",
-        "summary": "以高層關鍵詞聚焦「關係」與社群級結構（圖譜全局視角）。",
-        "when": "問整體趨勢、全書/全章總結、跨主題比較、宏觀結論。",
-        "params": f"預設參數：{MODE_DEFAULTS.get('global', {})}",
+        "summary": "以高层关键词聚焦「关系」与社群级结构（图谱全局视角）。",
+        "when": "问整体趋势、全书/全章总结、跨主题比较、宏观结论。",
+        "params": f"预设参数：{MODE_DEFAULTS.get('global', {})}",
     },
     {
         "mode": "hybrid",
-        "summary": "local + global 兩路圖譜結果按 round-robin 合併，再與 Chunk 融合。",
-        "when": "需同時用到具體實體細節與關係/結構信息，但可不依賴額外向量補充。",
-        "params": f"預設參數：{MODE_DEFAULTS.get('hybrid', {})}",
+        "summary": "local + global 两路图谱结果按 round-robin 合并，再与 Chunk 融合。",
+        "when": "需同时用到具体实体细节与关系/结构信息，但可不依赖额外向量补充。",
+        "params": f"预设参数：{MODE_DEFAULTS.get('hybrid', {})}",
     },
     {
         "mode": "mix",
-        "summary": "知識圖譜（實體+關係）與向量 Chunk 雙路召回並融合（本專案 KG-RAG 默認推薦）。",
-        "when": "問題中等以上複雜、需圖譜+原文證據、性能對比、多條件綜合分析。",
-        "params": f"預設參數：{MODE_DEFAULTS.get('mix', {})}",
+        "summary": "知识图谱（实体+关系）与向量 Chunk 双路召回并融合。",
+        "when": "问题结构复杂、需同时利用图谱推理和大量原始文本证据；涉及性能对比、多条件综合分析、需要逐字引用原文。仅在问题明显超出其他四种模式能力时选择。",
+        "params": f"预设参数：{MODE_DEFAULTS.get('mix', {})}",
     },
 ]
 
@@ -56,7 +56,7 @@ def mode_catalog_text() -> str:
     for spec in _MODE_SPECS:
         lines.append(
             f"- **{spec['mode']}**：{spec['summary']}\n"
-            f"  適用：{spec['when']}\n"
+            f"  适用：{spec['when']}\n"
             f"  {spec['params']}"
         )
     return "\n".join(lines)
@@ -86,18 +86,49 @@ def _llm_client(settings: Settings) -> tuple[AsyncOpenAI, str, str]:
     return AsyncOpenAI(api_key=api_key, base_url=base), base, model
 
 
+_ROUTER_FEW_SHOT = """
+## 路由示例（请严格按照以下格式输出）
+
+Q: "RPA_RM 译码的时间复杂度是多少？"
+→ {"difficulty":"medium","complexity":"low","context_richness":"low","mode":"local","reason":"单点事实查询，问具体算法属性"}
+
+Q: "比较 RPA_RM 和 Chase 列表译码的性能差异"
+→ {"difficulty":"medium","complexity":"medium","context_richness":"medium","mode":"mix","reason":"需对比两种译码算法，需图谱+原文证据"}
+
+Q: "什么是 Reed-Muller 码？"
+→ {"difficulty":"easy","complexity":"low","context_richness":"low","mode":"naive","reason":"基础概念定义，简单直接"}
+
+Q: "本文在译码器设计上的主要贡献是什么？"
+→ {"difficulty":"hard","complexity":"high","context_richness":"high","mode":"global","reason":"需全局视角总结全文贡献"}
+
+Q: "给出算法1的伪代码步骤"
+→ {"difficulty":"medium","complexity":"low","context_richness":"medium","mode":"naive","reason":"需要原文段落直接回答，不需图谱推理"}
+"""
+
+
 def _build_router_prompt(question: str) -> list[dict[str, str]]:
     catalog = mode_catalog_text()
     system = (
-        "你是 KG-RAG 檢索模式路由器。先分析用戶問題，再在 naive、local、global、hybrid、mix 五種模式中選一種。\n"
-        "評估維度：\n"
-        "1. difficulty（easy/medium/hard）：回答所需領域深度與推理難度\n"
-        "2. complexity（low/medium/high）：問題結構複雜度（單跳/多跳/多條件）\n"
-        "3. context_richness（low/medium/high）：為答對所需召回上下文的豐富程度\n"
-        "僅輸出一個 JSON 對象，不要 markdown，字段：\n"
-        '{"difficulty":"...","complexity":"...","context_richness":"...","mode":"naive|local|global|hybrid|mix","reason":"一句中文理由"}'
+        "你是 KG-RAG 检索模式路由器。任务：分析用户问题，从 naive、local、global、hybrid、mix 中选择最适合的检索模式。\n\n"
+        "## 决策优先级（从上到下判断）\n"
+        "1. 问题是否简单直接、只需原文片段即可回答？ → naive\n"
+        "2. 是否仅围绕单一实体/概念展开，不需要全局结构？ → local\n"
+        "3. 是否关注整体趋势、全书总结、宏观关系结构？ → global\n"
+        "4. 是否需要同时关注实体细节和关系结构，但不需要大量原文引用？ → hybrid\n"
+        "5. 是否问题结构复杂、需图谱+大量原文证据、性能对比？ → mix\n\n"
+        "## 输出要求\n"
+        "- 禁止输出任何思考过程、解释说明或 <think> 标签\n"
+        "- 仅输出一个纯 JSON 对象，不要 markdown 代码块\n"
+        "- 字段：difficulty、complexity、context_richness、mode、reason\n"
+        "- mode 只能是：naive、local、global、hybrid、mix 之一\n"
+        "- reason 用一句中文简要说明选择理由"
     )
-    user = f"## LightRAG 五種模式說明\n{catalog}\n\n## 用戶問題\n{question.strip()}"
+    user = (
+        f"## LightRAG 五种模式说明\n{catalog}\n"
+        f"{_ROUTER_FEW_SHOT}\n\n"
+        f"## 用户问题\n{question.strip()}\n\n"
+        "请直接输出 JSON（不要任何其他内容）："
+    )
     return [
         {"role": "system", "content": system},
         {"role": "user", "content": user},
@@ -108,14 +139,42 @@ def parse_mode_router_response(text: str) -> dict[str, Any]:
     raw = (text or "").strip()
     if not raw:
         return {}
-    start, end = raw.find("{"), raw.rfind("}")
-    if start >= 0 and end > start:
-        try:
-            data = json.loads(raw[start : end + 1])
-            if isinstance(data, dict):
-                return data
-        except json.JSONDecodeError:
-            pass
+
+    # 先尝试从原始文本（含 think 内外）提取 JSON
+    def _try_extract_json(source: str) -> dict[str, Any] | None:
+        # 兼容 markdown 代码块
+        code_match = re.search(r"```(?:json)?\s*([\s\S]*?)```", source)
+        candidate = code_match.group(1).strip() if code_match else source
+        start, end = candidate.find("{"), candidate.rfind("}")
+        if start >= 0 and end > start:
+            try:
+                data = json.loads(candidate[start : end + 1])
+                if isinstance(data, dict):
+                    return data
+            except json.JSONDecodeError:
+                pass
+        return None
+
+    # 1) 先尝试去除 <think> 后的文本
+    no_think = re.sub(r"<think>[\s\S]*?</think>", "", raw).strip()
+    if no_think:
+        parsed = _try_extract_json(no_think)
+        if parsed is not None:
+            return parsed
+
+    # 2) 若去除 think 后为空，尝试从 <think> 内部提取 JSON（deepseek-v4-flash 可能把 JSON 放在 think 中）
+    think_match = re.search(r"<think>([\s\S]*?)</think>", raw)
+    if think_match:
+        parsed = _try_extract_json(think_match.group(1))
+        if parsed is not None:
+            return parsed
+
+    # 3) 全文再试一次（兜底）
+    parsed = _try_extract_json(raw)
+    if parsed is not None:
+        return parsed
+
+    # 4) 最后回退：关键词匹配
     lowered = raw.lower()
     for m in ROUTABLE_MODES:
         if re.search(rf"\b{re.escape(m)}\b", lowered):
@@ -150,13 +209,13 @@ async def route_mode_with_llm(
         model=model,
         messages=messages,  # type: ignore[arg-type]
         temperature=temp,
-        max_tokens=256,
+        max_tokens=512,
     )
     content = (resp.choices[0].message.content or "").strip()
     parsed = parse_mode_router_response(content)
     mode = normalize_mode(str(parsed.get("mode") or ""))
     if mode is None:
-        logger.warning("模式路由 LLM 解析失敗，回退啟發式: %s", content[:200])
+        logger.warning("模式路由 LLM 解析失败，回退启发式: %s", content[:200])
         mode = suggest_mode_from_question(question)
         source = "heuristic_fallback"
     else:
@@ -170,7 +229,7 @@ async def route_mode_with_llm(
         source=source,
     )
     logger.info(
-        "模式路由結果 mode=%s difficulty=%s complexity=%s context_richness=%s source=%s reason=%s",
+        "模式路由结果 mode=%s difficulty=%s complexity=%s context_richness=%s source=%s reason=%s",
         result.mode,
         result.difficulty,
         result.complexity,
@@ -189,21 +248,21 @@ async def resolve_retrieval_mode(
     use_llm_router: bool = True,
 ) -> ModeRouteResult:
     """
-    解析最終檢索模式：顯式 ``mode`` 優先；否則在啟用時走 LLM 路由；最後回退默認/啟發式。
+    解析最终检索模式：显式 ``mode`` 优先；否则在启用时走 LLM 路由；最后回退默认/启发式。
     """
     s = settings or get_settings()
     forced = normalize_mode(explicit_mode, allow_bypass=True)
     if forced is not None:
-        return ModeRouteResult(mode=forced, reason="用戶顯式指定模式", source="explicit")
+        return ModeRouteResult(mode=forced, reason="用户显式指定模式", source="explicit")
 
     default_m = normalize_mode(s.retrieval.default_mode)
     if use_llm_router and s.retrieval.llm_mode_router_enabled:
         try:
             return await route_mode_with_llm(question, settings=s)
         except Exception as e:
-            logger.warning("LLM 模式路由失敗，回退: %s", e)
+            logger.warning("LLM 模式路由失败，回退: %s", e)
 
     if default_m is not None:
-        return ModeRouteResult(mode=default_m, reason="設定默認模式", source="default")
+        return ModeRouteResult(mode=default_m, reason="设置默认模式", source="default")
     mode = suggest_mode_from_question(question)
-    return ModeRouteResult(mode=mode, reason="關鍵詞啟發式", source="heuristic")
+    return ModeRouteResult(mode=mode, reason="关键词启发式", source="heuristic")

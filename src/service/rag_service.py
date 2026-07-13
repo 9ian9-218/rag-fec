@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import uuid
-from collections import defaultdict
 from pathlib import Path
 from typing import Any, AsyncIterator
 
@@ -24,11 +23,6 @@ class RAGService:
         self._settings = get_settings()
         self._retriever = GraphRAGRetriever()
         self._kv = KVClient()
-        self._history: dict[str, list[dict[str, str]]] = defaultdict(list)
-
-    def _hist(self, session_id: str | None) -> list[dict[str, str]]:
-        sid = session_id or "default"
-        return self._history[sid]
 
     def set_llm_mode_router(self, enabled: bool) -> None:
         """開關檢索前 LLM 智能路由（與 ``RETRIEVAL_LLM_MODE_ROUTER_ENABLED`` 共同生效）。"""
@@ -49,20 +43,26 @@ class RAGService:
         multimodal: bool = False,
         use_llm_router: bool | None = None,
     ) -> str | AsyncIterator[str]:
-        hist = self._hist(session_id)
-        hist.append({"role": "user", "content": question})
+        # 每次問答僅使用本次檢索結果，不再將歷史對話作為上下文傳給 LLM
+        custom_instructions = (
+            "你是專業助手，請基於提供的檢索材料作答，尽量使用简体中文来进行回答。"
+            "【嚴格規則】你只能使用下方提供的檢索材料中的信息來回答用戶問題；"
+            "如果檢索材料中沒有足夠信息，你必須明確說明『根據提供的檢索材料，無法找到足夠的信息來回答該問題』，"
+            "絕對不要使用你自身的知識來補充、推測或編造答案。"
+        )
+
         out = await self._retriever.query(
             question,
             mode=mode,  # type: ignore[arg-type]
-            history=hist[:-1],
+            history=[],  # 不傳入任何歷史對話輪次，確保每次僅使用本次檢索結果
             stream=stream,
             multimodal=multimodal,
             use_llm_router=use_llm_router,
+            custom_instructions=custom_instructions,
         )
         if stream:
             return out  # type: ignore[return-value]
 
-        hist.append({"role": "assistant", "content": str(out)})
         return str(out)
 
     async def query_with_context(self, question: str, **kw: Any) -> dict[str, Any]:
@@ -106,6 +106,4 @@ class RAGService:
         return self._kv.get_doc_by_id(doc_id)
 
     def new_session(self) -> str:
-        sid = str(uuid.uuid4())
-        self._history[sid] = []
-        return sid
+        return str(uuid.uuid4())

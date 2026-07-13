@@ -74,10 +74,7 @@ def build_remote_embedding_func(settings: Settings | None = None):
                     encoding_format="float",
                 )
                 # 按照返回順序組裝（API 保證順序與輸入一致）
-                batch_embeddings = sorted(
-                    [item.embedding for item in response.data],
-                    key=lambda x: getattr(x, "index", 0),
-                )
+                batch_embeddings = [item.embedding for item in response.data]
                 all_embeddings.extend(batch_embeddings)
             except Exception as e:
                 logger.error("Embedding API 調用失敗 (batch %d-%d): %s", i, i + len(batch), e)
@@ -107,4 +104,13 @@ def build_remote_embedding_func(settings: Settings | None = None):
             logger.error("Remote embedding 失敗: %s", e)
             raise
 
-    return _embed
+    try:
+        from lightrag.utils import EmbeddingFunc
+        return EmbeddingFunc(
+            embedding_dim=dimension,
+            max_token_size=8192,
+            func=_embed,
+            model_name=api_model_name,
+        )
+    except Exception:
+        return _embed

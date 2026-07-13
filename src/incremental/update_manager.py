@@ -77,6 +77,15 @@ class UpdateManager:
         else:
             report = detect_changes([self._raw], recursive=True)
         rag = await get_lightrag()
+
+        # 數據完整性修復：對標記為 unchanged 的文件，若數據庫中無有效數據則視為新增
+        for path_str in list(report.unchanged):
+            doc_id = stable_doc_id(Path(path_str))
+            existing = await rag.full_docs.get_by_id(doc_id) if rag.full_docs else None
+            if existing is None:
+                logger.info("文件 %s 在 hash_cache 中但數據庫無數據，視為新增重新入庫", path_str)
+                report.added.append(Path(path_str))
+                report.unchanged.remove(path_str)
         ingested_ok: list[Path] = []
         interval = max(1, s.incremental.checkpoint_interval)
         cp = self._cp.load()
@@ -112,15 +121,26 @@ class UpdateManager:
             nonlocal stats, cp
             doc_id = stable_doc_id(path)
             try:
-                if is_modify:
-                    await cascade_delete_document(rag, doc_id, self._kv)
-                    purge_for_doc_id(doc_id)
                 loaded = load_document(path)
                 text = loaded.text
                 if not text.strip():
                     logger.warning("文件為空，略過索引: %s", path)
                     stats["errors"] += 1
                     return
+                # 檢查是否需要強制重新入庫（數據庫無有效數據但 doc_status 有殘留）
+                if not is_modify:
+                    existing = await rag.full_docs.get_by_id(doc_id) if rag.full_docs else None
+                    if existing is None:
+                        logger.info("文件 %s 在數據庫中無有效數據，清理後重新入庫", path)
+                        await cascade_delete_document(rag, doc_id, self._kv)
+                        purge_for_doc_id(doc_id)
+                        cleared = await self._clear_doc_status_by_file_path(rag, path.name)
+                        if cleared:
+                            logger.info("清理 doc_status 同名舊記錄: %s", cleared)
+                        is_modify = True
+                if is_modify:
+                    await cascade_delete_document(rag, doc_id, self._kv)
+                    purge_for_doc_id(doc_id)
                 await rag.ainsert(text, ids=doc_id, file_paths=str(loaded.lightrag_file_path()))
                 from lightrag.base import DocStatus
 
@@ -168,6 +188,24 @@ class UpdateManager:
         logger.info("增量更新完成: %s", stats)
         return {"stats": stats, "report": _serialize_report(report)}
 
+    async def _clear_doc_status_by_file_path(self, rag, file_path: str) -> list[str]:
+        """清理 doc_status 中所有与指定文件路径匹配的旧记录（基于 basename），避免 LightRAG 去重失败。"""
+        if rag.doc_status is None:
+            return []
+        from lightrag.base import DocStatus
+        basename = Path(file_path).name
+        all_statuses = [
+            DocStatus.PENDING, DocStatus.PARSING, DocStatus.ANALYZING,
+            DocStatus.PROCESSING, DocStatus.PREPROCESSED, DocStatus.PROCESSED, DocStatus.FAILED,
+        ]
+        docs = await rag.doc_status.get_docs_by_statuses(all_statuses)
+        deleted_ids = []
+        for doc_id, doc_data in docs.items():
+            if getattr(doc_data, 'file_path', None) == basename:
+                await rag.doc_status.delete([doc_id])
+                deleted_ids.append(doc_id)
+        return deleted_ids
+
     def _resolve_index_path(self, path: Path) -> Path:
         """兩階段模式下上傳 PDF 時，改為索引同目錄已轉好的 Markdown。"""
         path = path.expanduser().resolve()
@@ -187,6 +225,19 @@ class UpdateManager:
         path = self._resolve_index_path(path)
         rag = await get_lightrag()
         doc_id = stable_doc_id(path)
+
+        # 若數據庫中無該文檔有效數據（可能之前因 DUPLICATE 失敗且已被清理），強制重新入庫
+        if not replace:
+            existing = await rag.full_docs.get_by_id(doc_id) if rag.full_docs else None
+            if existing is None:
+                logger.info("文檔 %s 在數據庫中無有效數據，強制清理後重新入庫", doc_id)
+                await cascade_delete_document(rag, doc_id, self._kv)
+                purge_for_doc_id(doc_id)
+                cleared = await self._clear_doc_status_by_file_path(rag, path.name)
+                if cleared:
+                    logger.info("清理 doc_status 同名舊記錄: %s", cleared)
+                replace = True
+
         if replace:
             await cascade_delete_document(rag, doc_id, self._kv)
             purge_for_doc_id(doc_id)

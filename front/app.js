@@ -39,6 +39,23 @@ function escapeHtml(s) {
     return div.innerHTML;
 }
 
+function renderMath(element) {
+    if (typeof renderMathInElement === 'undefined') return;
+    try {
+        renderMathInElement(element, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\(', right: '\\)', display: false},
+                {left: '\\[', right: '\\]', display: true}
+            ],
+            throwOnError: false
+        });
+    } catch (e) {
+        console.error('KaTeX render failed:', e);
+    }
+}
+
 function markdownToHtml(md) {
     let html = escapeHtml(md);
     html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (_, lang, code) => {
@@ -70,6 +87,7 @@ function addMessage(role, content, meta) {
     `;
     container.appendChild(msg);
     container.scrollTop = container.scrollHeight;
+    renderMath(msg.querySelector('.message-content'));
     return msg;
 }
 
@@ -169,6 +187,7 @@ async function sendQuestion() {
                 bodyEl.innerHTML = markdownToHtml(answerText);
                 $('#chat-container').scrollTop = $('#chat-container').scrollHeight;
             }
+            renderMath(bodyEl);
 
             const metaParts = [];
             if (mode) metaParts.push(`模式: ${mode}`);

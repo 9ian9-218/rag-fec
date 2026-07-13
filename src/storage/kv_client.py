@@ -118,12 +118,17 @@ class KVClient:
             conn.execute("DELETE FROM documents WHERE doc_id = ?", (doc_id,))
             conn.commit()
 
+    def _row_with_file_name(self, row: sqlite3.Row) -> dict[str, Any]:
+        d = dict(row)
+        d["file_name"] = Path(str(d.get("source_path") or "")).name or d.get("doc_id")
+        return d
+
     def list_documents(self) -> list[dict[str, Any]]:
         with self._connect() as conn:
             rows = conn.execute(
                 "SELECT doc_id, source_path, content_hash, size_bytes, updated_at FROM documents"
             ).fetchall()
-            return [dict(r) for r in rows]
+            return [self._row_with_file_name(r) for r in rows]
 
     def get_doc_by_path(self, source_path: str) -> dict[str, Any] | None:
         with self._connect() as conn:
@@ -131,7 +136,7 @@ class KVClient:
                 "SELECT doc_id, source_path, content_hash, size_bytes, updated_at FROM documents WHERE source_path = ?",
                 (source_path,),
             ).fetchone()
-            return dict(row) if row else None
+            return self._row_with_file_name(row) if row else None
 
     def get_doc_by_id(self, doc_id: str) -> dict[str, Any] | None:
         with self._connect() as conn:
@@ -139,4 +144,4 @@ class KVClient:
                 "SELECT doc_id, source_path, content_hash, size_bytes, updated_at FROM documents WHERE doc_id = ?",
                 (doc_id,),
             ).fetchone()
-            return dict(row) if row else None
+            return self._row_with_file_name(row) if row else None

@@ -191,7 +191,12 @@ async def answer_with_retrieved_text_only(
     model = settings.resolved_llm_model_name()
     sys_prompt = (
         settings.multimodal.system_prompt
-        or "你是專業助手，請基於提供的檢索材料作答，使用繁體中文或使用者語言。"
+        or (
+            "你是專業助手，請基於提供的檢索材料作答，尽量使用简体中文来进行回答。"
+            "【嚴格規則】你只能使用下方提供的檢索材料中的信息來回答用戶問題；"
+            "如果檢索材料中沒有足夠信息，你必須明確說明『根據提供的檢索材料，無法找到足夠的信息來回答該問題』，"
+            "絕對不要使用你自身的知識來補充、推測或編造答案。"
+        )
     ).strip()
     return await _chat_completion_text(
         settings=settings,
@@ -307,7 +312,15 @@ async def answer_with_retrieved_images(
 
     messages: list[dict[str, Any]] = []
     sys_prompt = (
-        settings.multimodal.system_prompt or "你是專業助手，請基於提供的材料與圖片作答，使用繁體中文或使用者語言。"
+        (
+            settings.multimodal.system_prompt
+            or (
+                "你是專業助手，請基於提供的材料與圖片作答，尽量使用简体中文来进行回答。"
+                "【嚴格規則】你只能使用下方提供的檢索材料中的信息來回答用戶問題；"
+                "如果檢索材料中沒有足夠信息，你必須明確說明『根據提供的檢索材料，無法找到足夠的信息來回答該問題』，"
+                "絕對不要使用你自身的知識來補充、推測或編造答案。"
+            )
+        )
     ).strip()
     if sys_prompt:
         messages.append({"role": "system", "content": sys_prompt})
