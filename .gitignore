@@ -66,3 +66,12 @@ data/logs/*
 
 # Logs
 *.log
+
+# macOS
+.DS_Store
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
