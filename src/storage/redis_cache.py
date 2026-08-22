@@ -51,6 +51,37 @@ def build_query_cache_key(
     return f"rag:query:{digest}"
 
 
+def build_retrieval_cache_key(
+    *,
+    question: str,
+    mode: str,
+    top_k: int,
+    chunk_top_k: int,
+) -> str:
+    """构造检索上下文缓存 key。"""
+    import hashlib
+
+    parts = "|".join(
+        [
+            question.strip(),
+            mode,
+            str(top_k),
+            str(chunk_top_k),
+            get_index_version(),
+        ]
+    )
+    digest = hashlib.sha1(parts.encode("utf-8")).hexdigest()
+    return f"rag:retrieval:{digest}"
+
+
+async def get_retrieval_cache(key: str) -> Any | None:
+    return await get_json_cache(key)
+
+
+async def set_retrieval_cache(key: str, bundle: Any, ttl: int = DEFAULT_TTL_SECONDS) -> bool:
+    return await set_json_cache(key, bundle, ttl=ttl)
+
+
 async def get_cache(key: str) -> str | None:
     client = get_redis_client()
     if client is None:

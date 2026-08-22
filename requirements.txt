@@ -27,3 +27,4 @@ ragas==0.4.3
 datasets==5.0.0
 sentence-transformers==5.6.0
 redis==5.2.1
+mineru[core]==3.4.5

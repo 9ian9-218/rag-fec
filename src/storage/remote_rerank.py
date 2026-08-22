@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 from typing import Any, Callable
 
 import numpy as np
@@ -15,6 +16,7 @@ from src.evaluation.online_monitor import set_rerank_stats
 from src.utils.client_cache import get_httpx_client, get_openai_client
 from src.utils.concurrency import get_semaphore
 from src.utils.logger import get_logger
+from src.storage.redis_cache import get_json_cache, set_json_cache
 from src.utils.retry import call_with_retry
 
 logger = get_logger("storage.remote_rerank")
@@ -81,6 +83,22 @@ def build_remote_rerank_model_func(settings: Settings | None = None) -> Callable
         if not q:
             return [{"index": i, "relevance_score": 1.0} for i in range(len(documents))]
 
+        cache_key = (
+            "rag:rerank:"
+            + hashlib.sha1(
+                (
+                    q
+                    + "\x00"
+                    + "\x01".join(documents)
+                    + "\x00"
+                    + str(top_n or len(documents))
+                ).encode("utf-8")
+            ).hexdigest()
+        )
+        cached = await get_json_cache(cache_key)
+        if isinstance(cached, list):
+            return cached
+
         client = get_openai_client(
             api_key=api_key,
             base_url=f"{api_base_url}/v1" if "/v1" not in api_base_url else api_base_url,
@@ -140,16 +158,28 @@ def build_remote_rerank_model_func(settings: Settings | None = None) -> Callable
                 below_min_score=below_min,
             )
 
-            return [{"index": r["index"], "relevance_score": float(norm[i])} for i, r in enumerate(results)]
+            output = [{"index": r["index"], "relevance_score": float(norm[i])} for i, r in enumerate(results)]
+            await set_json_cache(
+                cache_key,
+                output,
+                ttl=int(s.redis.cache_ttl_seconds),
+            )
+            return output
 
         except Exception as e:
             logger.warning("Rerank API 調用失敗 (%s)，嘗試使用 embedding 相似度作为替代方案", e)
-            return await _fallback_with_embedding_similarity(
+            fallback = await _fallback_with_embedding_similarity(
                 client=client,
                 query=q,
                 documents=documents,
                 top_n=top_n,
             )
+            await set_json_cache(
+                cache_key,
+                fallback,
+                ttl=int(s.redis.cache_ttl_seconds),
+            )
+            return fallback
 
     return rerank_model_func
 

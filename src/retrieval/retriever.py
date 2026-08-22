@@ -19,6 +19,11 @@ from src.retrieval.mode_router import ModeRouteResult, resolve_retrieval_mode
 from src.retrieval.relation_optimizer import refine_retrieval_bundle
 from src.retrieval.result_processor import compact_retrieval_payload, extract_sources, kg_dict_to_bullets
 from src.storage.lightrag_init import get_lightrag
+from src.storage.redis_cache import (
+    build_retrieval_cache_key,
+    get_retrieval_cache,
+    set_retrieval_cache,
+)
 from src.utils.logger import get_logger
 
 logger = get_logger("retrieval.retriever")
@@ -62,6 +67,37 @@ class GraphRAGRetriever:
         _last_mode_route_ctx.set(route)
         return route
 
+    async def _get_retrieval_bundle(
+        self,
+        question: str,
+        param,
+        mode: str,
+        top_k: int | None,
+    ) -> dict[str, Any]:
+        """获取检索上下文，优先命中 Redis 检索缓存；未命中则执行 LightRAG 检索并写回。"""
+        cache_key = build_retrieval_cache_key(
+            question=question,
+            mode=mode,
+            top_k=top_k or self._settings.retrieval.top_k,
+            chunk_top_k=int(param.chunk_top_k or self._settings.retrieval.top_k),
+        )
+        cached = await get_retrieval_cache(cache_key)
+        if cached is not None and isinstance(cached, dict):
+            return cached
+
+        rag = await self._rag()
+        data = await rag.aquery_data(question, param)
+        if isinstance(data, dict):
+            data = await refine_retrieval_bundle(question, data, settings=self._settings)
+
+        if isinstance(data, dict):
+            await set_retrieval_cache(
+                cache_key,
+                data,
+                ttl=int(self._settings.redis.cache_ttl_seconds),
+            )
+        return data if isinstance(data, dict) else {}
+
     async def retrieve_data(
         self,
         question: str,
@@ -74,7 +110,6 @@ class GraphRAGRetriever:
         use_llm_router: bool | None = None,
     ) -> dict[str, Any]:
         """呼叫 ``aquery_data``，回傳結構化檢索結果。"""
-        rag = await self._rag()
         route = await self._resolve_mode(question, mode, use_llm_router=use_llm_router)
         m = route.mode
         param = build_query_param(
@@ -86,9 +121,7 @@ class GraphRAGRetriever:
         )
         clear_rerank_stats()
         timer = QueryTimer()
-        data = await rag.aquery_data(question, param)
-        if isinstance(data, dict):
-            data = await refine_retrieval_bundle(question, data, settings=self._settings)
+        data = await self._get_retrieval_bundle(question, param, str(m), top_k)
         sources = extract_sources(data if isinstance(data, dict) else {})
         kg_text = ""
         if isinstance(data, dict):
@@ -162,9 +195,7 @@ class GraphRAGRetriever:
         clear_rerank_stats()
         timer = QueryTimer()
         if multimodal and m != "bypass":
-            bundle = await rag.aquery_data(question, param)
-            if isinstance(bundle, dict):
-                bundle = await refine_retrieval_bundle(question, bundle, settings=self._settings)
+            bundle = await self._get_retrieval_bundle(question, param, str(m), top_k)
             if isinstance(bundle, dict) and bundle.get("status") == "success":
                 from src.retrieval.multimodal_answer import (
                     _extract_chunks_and_kg,
@@ -224,9 +255,7 @@ class GraphRAGRetriever:
                     except Exception as e2:
                         logger.warning("僅文字檢索作答仍失敗，降級為 LightRAG aquery: %s", e2)
 
-        bundle = await rag.aquery_data(question, param)
-        if isinstance(bundle, dict):
-            bundle = await refine_retrieval_bundle(question, bundle, settings=self._settings)
+        bundle = await self._get_retrieval_bundle(question, param, str(m), top_k)
         sources = extract_sources(bundle if isinstance(bundle, dict) else {})
         kg_text = ""
         if isinstance(bundle, dict):
