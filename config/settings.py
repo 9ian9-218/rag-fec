@@ -22,6 +22,18 @@ class Neo4jSettings(BaseSettings):
     username: str = Field(default="neo4j")
     password: str = Field(default="changeme")
     database: str = Field(default="neo4j")
+    max_connection_pool_size: int = Field(
+        default=50,
+        ge=1,
+        le=500,
+        description="Neo4j 连接池大小",
+    )
+    connection_timeout: float = Field(
+        default=30.0,
+        ge=1.0,
+        le=300.0,
+        description="Neo4j 连接超时（秒）",
+    )
 
 
 class MilvusSettings(BaseSettings):
@@ -44,6 +56,29 @@ class MilvusSettings(BaseSettings):
         le=600.0,
         description="pymilvus MilvusClient 的 gRPC 連線就緒超時（秒）；LightRAG 未傳 timeout 時由專案 patch 注入",
     )
+    consistency_level: str = Field(
+        default="Bounded",
+        description="Milvus 查询一致性级别（Bounded/Strong/Session）",
+    )
+
+
+class RedisSettings(BaseSettings):
+    """Redis 连接配置（用于缓存 / 分布式限流 / 分布式锁）。"""
+
+    model_config = SettingsConfigDict(env_prefix="REDIS_", env_file=".env", extra="ignore")
+
+    enabled: bool = Field(default=False, description="是否启用 Redis")
+    host: str = Field(default="127.0.0.1")
+    port: int = Field(default=6379, ge=1, le=65535)
+    db: int = Field(default=0, ge=0, le=15)
+    password: str = Field(default="")
+    socket_timeout: float = Field(default=5.0, ge=0.1, le=60.0)
+    cache_ttl_seconds: int = Field(
+        default=300,
+        ge=1,
+        le=86400,
+        description="Redis 缓存默认 TTL（秒）",
+    )
 
 
 class LLMSettings(BaseSettings):
@@ -59,6 +94,24 @@ class LLMSettings(BaseSettings):
     base_url: str | None = Field(default=None, description="例如 http://host.docker.internal:11434/v1")
     model_name: str = Field(default="gpt-4o-mini")
     temperature: float = Field(default=0.2, ge=0.0, le=2.0)
+    max_concurrent_calls: int = Field(
+        default=8,
+        ge=1,
+        le=256,
+        description="LLM API 最大并发调用数",
+    )
+    timeout: float = Field(
+        default=180.0,
+        ge=1.0,
+        le=600.0,
+        description="LLM API 请求超时时间（秒）",
+    )
+    max_retries: int = Field(
+        default=2,
+        ge=0,
+        le=5,
+        description="LLM API 失败最大重试次数",
+    )
 
 
 class EmbeddingSettings(BaseSettings):
@@ -89,6 +142,12 @@ class EmbeddingSettings(BaseSettings):
         le=300,
         description="API 请求超时时间（秒）",
     )
+    max_retries: int = Field(
+        default=2,
+        ge=0,
+        le=5,
+        description="Embedding API 失败最大重试次数",
+    )
 
     # 模型参数
     dimension: int = Field(default=1024, ge=32, le=4096)
@@ -104,6 +163,12 @@ class EmbeddingSettings(BaseSettings):
         ge=1,
         le=16,
         description="嵌入并发上限（对应 LightRAG embedding_func_max_async）",
+    )
+    api_max_concurrency: int = Field(
+        default=4,
+        ge=1,
+        le=128,
+        description="Embedding API 请求最大并发数（查询期背压）",
     )
 
 
@@ -265,6 +330,38 @@ class ServiceSettings(BaseSettings):
         default="*",
         description="逗號分隔來源，或 *",
     )
+    max_concurrent_queries: int = Field(
+        default=32,
+        ge=1,
+        le=10000,
+        description="API 全局同时在途查询数上限",
+    )
+    rate_limit_enabled: bool = Field(
+        default=False,
+        description="是否启用进程内令牌桶限流",
+    )
+    rate_limit_per_second: float = Field(
+        default=50.0,
+        ge=0.1,
+        le=100000.0,
+        description="进程内限流速率（请求/秒）",
+    )
+    rate_limit_burst: int = Field(
+        default=100,
+        ge=1,
+        le=100000,
+        description="进程内限流桶容量（突发上限）",
+    )
+    async_document_processing_enabled: bool = Field(
+        default=False,
+        description="启用后文档上传/增量更新返回 202 + task_id 异步处理",
+    )
+    workers: int = Field(
+        default=1,
+        ge=1,
+        le=32,
+        description="Uvicorn worker 进程数（生产环境可 >1）",
+    )
 
 
 class PathsSettings(BaseSettings):
@@ -312,6 +409,18 @@ class ModelsSettings(BaseSettings):
         ge=10,
         le=300,
         description="Rerank API 请求超时时间（秒）",
+    )
+    max_concurrent_calls: int = Field(
+        default=4,
+        ge=1,
+        le=128,
+        description="Rerank API 最大并发调用数",
+    )
+    max_retries: int = Field(
+        default=2,
+        ge=0,
+        le=5,
+        description="Rerank API 失败最大重试次数",
     )
 
 
@@ -420,6 +529,7 @@ class Settings(BaseSettings):
 
     neo4j: Neo4jSettings = Field(default_factory=Neo4jSettings)
     milvus: MilvusSettings = Field(default_factory=MilvusSettings)
+    redis: RedisSettings = Field(default_factory=RedisSettings)
     llm: LLMSettings = Field(default_factory=LLMSettings)
     embedding: EmbeddingSettings = Field(default_factory=EmbeddingSettings)
     chunk: ChunkSettings = Field(default_factory=ChunkSettings)

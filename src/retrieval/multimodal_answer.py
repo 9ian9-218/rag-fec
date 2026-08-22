@@ -10,6 +10,9 @@ from typing import Any
 from openai import APIError, AsyncOpenAI, BadRequestError
 
 from config.settings import Settings
+from src.utils.client_cache import get_openai_client
+from src.utils.concurrency import get_semaphore
+from src.utils.retry import call_with_retry
 from src.retrieval.image_refs import (
     extract_image_refs,
     resolve_local_image_path,
@@ -115,7 +118,7 @@ def _main_llm_client_and_base(settings: Settings) -> tuple[AsyncOpenAI, str]:
     base = (settings.openai_base_url or settings.llm.base_url or "").strip().rstrip("/")
     if not base:
         base = "https://api.openai.com/v1"
-    return AsyncOpenAI(api_key=api_key, base_url=base), base
+    return get_openai_client(api_key=api_key, base_url=base), base
 
 
 def _multimodal_vision_client_and_base(settings: Settings) -> tuple[AsyncOpenAI, str]:
@@ -126,7 +129,7 @@ def _multimodal_vision_client_and_base(settings: Settings) -> tuple[AsyncOpenAI,
     base = (settings.multimodal.base_url or "").strip().rstrip("/")
     if not base:
         base = "https://api.openai.com/v1"
-    return AsyncOpenAI(api_key=api_key, base_url=base), base
+    return get_openai_client(api_key=api_key, base_url=base), base
 
 
 async def _chat_completion_text(
@@ -149,11 +152,15 @@ async def _chat_completion_text(
             if role in ("user", "assistant") and isinstance(content, str) and content.strip():
                 messages.append({"role": role, "content": content})
     messages.append({"role": "user", "content": user_text})
-    resp = await client.chat.completions.create(
-        model=model,
-        temperature=float(settings.resolved_llm_temperature()),
-        messages=messages,
-    )
+    async def _do_chat() -> Any:
+        async with get_semaphore("llm", int(settings.llm.max_concurrent_calls)):
+            return await client.chat.completions.create(
+                model=model,
+                temperature=float(settings.resolved_llm_temperature()),
+                messages=messages,
+            )
+
+    resp = await call_with_retry(_do_chat, max_retries=int(settings.llm.max_retries))
     choice = resp.choices[0].message.content
     return (choice or "").strip()
 
@@ -335,11 +342,15 @@ async def answer_with_retrieved_images(
     client, vision_base = _multimodal_vision_client_and_base(settings)
     logger.info("多模態 vision：base=%s", vision_base)
     try:
-        resp = await client.chat.completions.create(
-            model=vision_model,
-            temperature=float(settings.resolved_multimodal_temperature()),
-            messages=messages,
-        )
+        async def _do_vision() -> Any:
+            async with get_semaphore("llm", int(settings.llm.max_concurrent_calls)):
+                return await client.chat.completions.create(
+                    model=vision_model,
+                    temperature=float(settings.resolved_multimodal_temperature()),
+                    messages=messages,
+                )
+
+        resp = await call_with_retry(_do_vision, max_retries=int(settings.llm.max_retries))
         choice = resp.choices[0].message.content
         return (choice or "").strip()
     except (BadRequestError, APIError) as e:

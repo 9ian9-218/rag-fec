@@ -30,9 +30,12 @@ class Neo4jClient:
     def sync_driver(self):
         """延遲建立同步 Driver。"""
         if self._sync_driver is None:
+            s = get_settings()
             self._sync_driver = GraphDatabase.driver(
                 self._uri,
                 auth=(self._user, self._password),
+                max_connection_pool_size=s.neo4j.max_connection_pool_size,
+                connection_timeout=s.neo4j.connection_timeout,
             )
         return self._sync_driver
 
@@ -59,4 +62,6 @@ class Neo4jClient:
         return AsyncGraphDatabase.driver(
             s.neo4j.uri,
             auth=(s.neo4j.username, s.neo4j.password),
+            max_connection_pool_size=s.neo4j.max_connection_pool_size,
+            connection_timeout=s.neo4j.connection_timeout,
         )

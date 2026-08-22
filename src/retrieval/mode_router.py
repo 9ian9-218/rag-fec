@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 from dataclasses import asdict, dataclass
@@ -11,7 +12,11 @@ from openai import AsyncOpenAI
 
 from config.settings import Settings, get_settings
 from src.retrieval.mode_config import MODE_DEFAULTS, RetrievalMode, suggest_mode_from_question
+from src.utils.client_cache import get_openai_client
+from src.utils.concurrency import get_semaphore
 from src.utils.logger import get_logger
+from src.storage.redis_cache import get_json_cache, set_json_cache
+from src.utils.retry import call_with_retry
 
 logger = get_logger("retrieval.mode_router")
 
@@ -83,7 +88,7 @@ def _llm_client(settings: Settings) -> tuple[AsyncOpenAI, str, str]:
     if not base:
         base = "https://api.openai.com/v1"
     model = settings.resolved_llm_model_name()
-    return AsyncOpenAI(api_key=api_key, base_url=base), base, model
+    return get_openai_client(api_key=api_key, base_url=base), base, model
 
 
 _ROUTER_FEW_SHOT = """
@@ -205,12 +210,16 @@ async def route_mode_with_llm(
     temp = float(s.retrieval.llm_mode_router_temperature)
     messages = _build_router_prompt(question)
     logger.info("模式路由 LLM：model=%s base=%s", model, base)
-    resp = await client.chat.completions.create(
-        model=model,
-        messages=messages,  # type: ignore[arg-type]
-        temperature=temp,
-        max_tokens=512,
-    )
+    async def _do_route() -> Any:
+        async with get_semaphore("llm", int(s.llm.max_concurrent_calls)):
+            return await client.chat.completions.create(
+                model=model,
+                messages=messages,  # type: ignore[arg-type]
+                temperature=temp,
+                max_tokens=512,
+            )
+
+    resp = await call_with_retry(_do_route, max_retries=int(s.llm.max_retries))
     content = (resp.choices[0].message.content or "").strip()
     parsed = parse_mode_router_response(content)
     mode = normalize_mode(str(parsed.get("mode") or ""))
@@ -240,6 +249,11 @@ async def route_mode_with_llm(
     return result
 
 
+def _mode_cache_key(question: str) -> str:
+    digest = hashlib.sha1(question.strip().encode("utf-8")).hexdigest()
+    return f"rag:mode:{digest}"
+
+
 async def resolve_retrieval_mode(
     question: str,
     explicit_mode: str | None,
@@ -257,8 +271,18 @@ async def resolve_retrieval_mode(
 
     default_m = normalize_mode(s.retrieval.default_mode)
     if use_llm_router and s.retrieval.llm_mode_router_enabled:
+        cache_key = _mode_cache_key(question)
+        cached = await get_json_cache(cache_key)
+        if isinstance(cached, dict) and "mode" in cached:
+            return ModeRouteResult(**cached)
         try:
-            return await route_mode_with_llm(question, settings=s)
+            route = await route_mode_with_llm(question, settings=s)
+            await set_json_cache(
+                cache_key,
+                route.to_dict(),
+                ttl=int(s.redis.cache_ttl_seconds),
+            )
+            return route
         except Exception as e:
             logger.warning("LLM 模式路由失败，回退: %s", e)
 

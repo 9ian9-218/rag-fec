@@ -12,7 +12,10 @@ import numpy as np
 
 from config.settings import Settings, get_settings
 from src.evaluation.online_monitor import set_rerank_stats
+from src.utils.client_cache import get_httpx_client, get_openai_client
+from src.utils.concurrency import get_semaphore
 from src.utils.logger import get_logger
+from src.utils.retry import call_with_retry
 
 logger = get_logger("storage.remote_rerank")
 
@@ -78,12 +81,7 @@ def build_remote_rerank_model_func(settings: Settings | None = None) -> Callable
         if not q:
             return [{"index": i, "relevance_score": 1.0} for i in range(len(documents))]
 
-        try:
-            from openai import AsyncOpenAI
-        except ImportError:
-            raise ImportError("請安裝 openai: pip install openai")
-
-        client = AsyncOpenAI(
+        client = get_openai_client(
             api_key=api_key,
             base_url=f"{api_base_url}/v1" if "/v1" not in api_base_url else api_base_url,
             timeout=api_timeout,
@@ -91,8 +89,6 @@ def build_remote_rerank_model_func(settings: Settings | None = None) -> Callable
 
         # 注意：不同服务商的 rerank API 格式可能不同
         # SiliconFlow / Jina 等使用原生 HTTP POST /v1/rerank，非 OpenAI SDK 的 rerank.create
-        import httpx
-
         rerank_url = f"{api_base_url}/rerank" if "/rerank" not in api_base_url else api_base_url
         payload = {
             "model": api_model_name,
@@ -106,10 +102,19 @@ def build_remote_rerank_model_func(settings: Settings | None = None) -> Callable
         }
 
         try:
-            async with httpx.AsyncClient(timeout=api_timeout) as http_client:
-                resp = await http_client.post(rerank_url, json=payload, headers=headers)
-                resp.raise_for_status()
-                data = resp.json()
+            http_client = get_httpx_client(timeout=api_timeout)
+
+            async def _do_rerank():
+                async with get_semaphore("rerank", int(s.models.max_concurrent_calls)):
+                    resp = await http_client.post(rerank_url, json=payload, headers=headers)
+                    resp.raise_for_status()
+                    return resp
+
+            resp = await call_with_retry(
+                _do_rerank,
+                max_retries=int(s.models.max_retries),
+            )
+            data = resp.json()
 
             # SiliconFlow 格式: { "results": [ { "index": 0, "relevance_score": 0.9, "document": { "text": "..." } } ] }
             raw_results = data.get("results") or []
@@ -165,10 +170,18 @@ async def _fallback_with_embedding_similarity(
             return []
 
         all_texts = [query] + documents
-        response = await client.embeddings.create(
-            model=embed_model,
-            input=all_texts,
-            encoding_format="float",
+
+        async def _do_embed_fallback():
+            async with get_semaphore("embedding", int(get_settings().embedding.api_max_concurrency)):
+                return await client.embeddings.create(
+                    model=embed_model,
+                    input=all_texts,
+                    encoding_format="float",
+                )
+
+        response = await call_with_retry(
+            _do_embed_fallback,
+            max_retries=int(get_settings().embedding.max_retries),
         )
 
         embeddings = sorted(

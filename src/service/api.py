@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import shutil
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -15,9 +16,17 @@ from pydantic import BaseModel, Field
 
 from config.settings import get_settings
 from src.service.rag_service import RAGService
+from src.service.task_manager import AsyncTaskManager
+from src.utils.client_cache import aclose_clients
+from src.evaluation.online_monitor import stop_telemetry_writer
+from src.storage.redis_client import close_redis
 from src.utils.logger import get_logger, setup_logging
+from src.utils.rate_limit import RedisRateLimiter, TokenBucket
 
 logger = get_logger("service.api")
+
+_task_manager: AsyncTaskManager | None = None
+_worker_task: asyncio.Task | None = None
 
 
 class QueryBody(BaseModel):
@@ -69,15 +78,56 @@ def get_rag() -> RAGService:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global _worker_task
     setup_logging()
+    s = get_settings()
+
+    if s.service.async_document_processing_enabled and _task_manager is not None:
+        async def _handle_task(kind: str, payload: dict[str, Any]) -> Any:
+            rag = get_rag()
+            if kind == "add_document":
+                return await rag.add_document(Path(payload["path"]))
+            if kind == "update_document":
+                return await rag.update_document(Path(payload["path"]))
+            if kind == "incremental_update":
+                return await rag.incremental_update(
+                    convert_first=bool(payload.get("convert_first", False))
+                )
+            raise ValueError(f"unknown task kind: {kind}")
+
+        _worker_task = asyncio.create_task(
+            _task_manager.worker_loop(_handle_task)
+        )
+
     logger.info("Graph RAG API 啟動")
     yield
+
+    if _worker_task is not None:
+        _worker_task.cancel()
+        _worker_task = None
+    await aclose_clients()
+    stop_telemetry_writer()
+    await close_redis()
     logger.info("Graph RAG API 關閉")
 
 
 def create_app() -> FastAPI:
+    global _task_manager
     s = get_settings()
+    _task_manager = AsyncTaskManager()
     app = FastAPI(title="Graph RAG (LightRAG + Neo4j + Milvus)", lifespan=lifespan)
+    rate_limiter = None
+    if s.service.rate_limit_enabled:
+        if s.redis.enabled:
+            rate_limiter = RedisRateLimiter(
+                s.service.rate_limit_per_second,
+                window_seconds=1,
+            )
+        else:
+            rate_limiter = TokenBucket(
+                s.service.rate_limit_per_second,
+                s.service.rate_limit_burst,
+            )
 
     origins = [o.strip() for o in s.service.cors_origins.split(",") if o.strip()]
     if origins == ["*"]:
@@ -114,9 +164,19 @@ def create_app() -> FastAPI:
 
     @app.post("/api/rag/query")
     async def rag_query(body: QueryBody):
+        if rate_limiter is not None:
+            if isinstance(rate_limiter, RedisRateLimiter):
+                allowed = await rate_limiter.acquire("global")
+            else:
+                allowed = rate_limiter.acquire()
+            if not allowed:
+                raise HTTPException(
+                    status_code=429,
+                    detail="Too Many Requests",
+                    headers={"Retry-After": "1"},
+                )
         rag = get_rag()
         use_router = body.auto_mode if body.mode is None else False
-        rag.set_llm_mode_router(use_router)
 
         if body.stream:
 
@@ -162,6 +222,11 @@ def create_app() -> FastAPI:
         dest = raw / safe_name
         with dest.open("wb") as f:
             shutil.copyfileobj(file.file, f)
+
+        if s.service.async_document_processing_enabled and _task_manager is not None:
+            task_id = await _task_manager.submit("add_document", {"path": str(dest)})
+            return JSONResponse({"task_id": task_id, "status": "pending"}, status_code=202)
+
         rag = get_rag()
         meta = await rag.add_document(dest)
         return JSONResponse(meta)
@@ -172,6 +237,16 @@ def create_app() -> FastAPI:
         raw.mkdir(parents=True, exist_ok=True)
         rag = get_rag()
         out: list[dict[str, Any]] = []
+        if s.service.async_document_processing_enabled and _task_manager is not None:
+            for file in files:
+                safe_name = Path(file.filename or "upload.bin").name
+                dest = raw / safe_name
+                with dest.open("wb") as f:
+                    shutil.copyfileobj(file.file, f)
+                task_id = await _task_manager.submit("add_document", {"path": str(dest)})
+                out.append({"task_id": task_id, "status": "pending"})
+            return JSONResponse({"items": out}, status_code=202)
+
         for file in files:
             safe_name = Path(file.filename or "upload.bin").name
             dest = raw / safe_name
@@ -190,6 +265,11 @@ def create_app() -> FastAPI:
         dest.parent.mkdir(parents=True, exist_ok=True)
         with dest.open("wb") as f:
             shutil.copyfileobj(file.file, f)
+
+        if s.service.async_document_processing_enabled and _task_manager is not None:
+            task_id = await _task_manager.submit("update_document", {"path": str(dest)})
+            return JSONResponse({"task_id": task_id, "status": "pending"}, status_code=202)
+
         meta = await rag.update_document(dest)
         return JSONResponse(meta)
 
@@ -212,6 +292,13 @@ def create_app() -> FastAPI:
 
     @app.post("/api/rag/incremental-update")
     async def incremental_update(_body: IncrementalBody | None = None):
+        if s.service.async_document_processing_enabled and _task_manager is not None:
+            task_id = await _task_manager.submit(
+                "incremental_update",
+                {"convert_first": False},
+            )
+            return JSONResponse({"task_id": task_id, "status": "pending"}, status_code=202)
+
         rag = get_rag()
         result = await rag.incremental_update()
         return JSONResponse(result)
@@ -231,11 +318,20 @@ def create_app() -> FastAPI:
 
     @app.get("/api/rag/telemetry")
     async def telemetry():
-        from src.evaluation.online_monitor import aggregate_metrics_jsonl, DEFAULT_METRICS_LOG, aggregate_feedback_jsonl, DEFAULT_FEEDBACK_LOG
+        from src.evaluation.online_monitor import aggregate_feedback_sqlite, aggregate_metrics_sqlite
 
-        query_metrics = aggregate_metrics_jsonl(DEFAULT_METRICS_LOG)
-        feedback_metrics = aggregate_feedback_jsonl(DEFAULT_FEEDBACK_LOG)
+        query_metrics = aggregate_metrics_sqlite()
+        feedback_metrics = aggregate_feedback_sqlite()
         return JSONResponse({"query": query_metrics, "feedback": feedback_metrics})
+
+    @app.get("/api/rag/tasks/{task_id}")
+    async def task_status(task_id: str):
+        if _task_manager is None:
+            raise HTTPException(status_code=404, detail="任务管理器未初始化")
+        st = _task_manager.get_status(task_id)
+        if st is None:
+            raise HTTPException(status_code=404, detail="任务不存在")
+        return JSONResponse(st)
 
     return app
 

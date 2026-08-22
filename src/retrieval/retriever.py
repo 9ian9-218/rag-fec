@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from contextvars import ContextVar
 from typing import Any, AsyncIterator
 
 from langchain_core.runnables import RunnableLambda, RunnablePassthrough
@@ -22,14 +23,23 @@ from src.utils.logger import get_logger
 
 logger = get_logger("retrieval.retriever")
 
+# 每个异步任务独立的最近一次模式路由，避免并发请求互相覆盖。
+_last_mode_route_ctx: ContextVar["ModeRouteResult | None"] = ContextVar(
+    "retriever_last_mode_route",
+    default=None,
+)
+
 
 class GraphRAGRetriever:
     """非同步檢索封裝。"""
 
     def __init__(self) -> None:
         self._settings = get_settings()
-        self._use_llm_mode_router = True
-        self._last_mode_route: ModeRouteResult | None = None
+
+    @property
+    def last_mode_route(self) -> ModeRouteResult | None:
+        """返回当前异步任务最近一次模式路由。"""
+        return _last_mode_route_ctx.get()
 
     async def _rag(self):
         return await get_lightrag()
@@ -42,14 +52,14 @@ class GraphRAGRetriever:
         use_llm_router: bool | None = None,
     ) -> ModeRouteResult:
         explicit = mode if isinstance(mode, str) else None
-        router_on = self._use_llm_mode_router if use_llm_router is None else use_llm_router
+        router_on = True if use_llm_router is None else use_llm_router
         route = await resolve_retrieval_mode(
             question,
             explicit,
             settings=self._settings,
             use_llm_router=router_on,
         )
-        self._last_mode_route = route
+        _last_mode_route_ctx.set(route)
         return route
 
     async def retrieve_data(

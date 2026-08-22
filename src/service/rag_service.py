@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import uuid
 from pathlib import Path
 from typing import Any, AsyncIterator
@@ -11,6 +12,8 @@ from src.incremental.conversion_manager import ConversionManager
 from src.incremental.update_manager import UpdateManager
 from src.retrieval.retriever import GraphRAGRetriever
 from src.storage.kv_client import KVClient
+from src.storage.redis_cache import build_query_cache_key, get_json_cache, set_json_cache
+from src.storage.redis_lock import acquire_lock, release_lock
 from src.utils.logger import get_logger
 
 logger = get_logger("service.rag_service")
@@ -23,14 +26,11 @@ class RAGService:
         self._settings = get_settings()
         self._retriever = GraphRAGRetriever()
         self._kv = KVClient()
-
-    def set_llm_mode_router(self, enabled: bool) -> None:
-        """開關檢索前 LLM 智能路由（與 ``RETRIEVAL_LLM_MODE_ROUTER_ENABLED`` 共同生效）。"""
-        self._retriever._use_llm_mode_router = enabled
+        self._query_sem = asyncio.Semaphore(self._settings.service.max_concurrent_queries)
 
     @property
     def last_mode_selection(self) -> dict[str, object] | None:
-        route = self._retriever._last_mode_route
+        route = self._retriever.last_mode_route
         return route.to_dict() if route is not None else None
 
     async def query(
@@ -51,40 +51,101 @@ class RAGService:
             "絕對不要使用你自身的知識來補充、推測或編造答案。"
         )
 
-        out = await self._retriever.query(
-            question,
-            mode=mode,  # type: ignore[arg-type]
-            history=[],  # 不傳入任何歷史對話輪次，確保每次僅使用本次檢索結果
-            stream=stream,
-            multimodal=multimodal,
-            use_llm_router=use_llm_router,
-            custom_instructions=custom_instructions,
-        )
         if stream:
-            return out  # type: ignore[return-value]
+            async def _bounded_stream() -> AsyncIterator[str]:
+                async with self._query_sem:
+                    out = await self._retriever.query(
+                        question,
+                        mode=mode,  # type: ignore[arg-type]
+                        history=[],
+                        stream=True,
+                        multimodal=multimodal,
+                        use_llm_router=use_llm_router,
+                        custom_instructions=custom_instructions,
+                    )
+                    if hasattr(out, "__aiter__"):
+                        async for chunk in out:  # type: ignore[union-attr]
+                            if chunk:
+                                yield str(chunk)
+                    else:
+                        yield str(out)
 
-        return str(out)
+            return _bounded_stream()
+
+        cache_key = build_query_cache_key(
+            question=question,
+            mode=mode,
+            top_k=self._settings.retrieval.top_k,
+            multimodal=multimodal,
+            use_llm_router=bool(
+                use_llm_router if use_llm_router is not None else self._settings.retrieval.llm_mode_router_enabled
+            ),
+        )
+        cached = await get_json_cache(cache_key)
+        if isinstance(cached, dict) and "answer" in cached:
+            return str(cached["answer"])
+
+        async with self._query_sem:
+            out = await self._retriever.query(
+                question,
+                mode=mode,  # type: ignore[arg-type]
+                history=[],
+                stream=False,
+                multimodal=multimodal,
+                use_llm_router=use_llm_router,
+                custom_instructions=custom_instructions,
+            )
+            answer = str(out)
+
+        await set_json_cache(
+            cache_key,
+            {"answer": answer},
+            ttl=int(self._settings.redis.cache_ttl_seconds),
+        )
+        return answer
 
     async def query_with_context(self, question: str, **kw: Any) -> dict[str, Any]:
         return await self._retriever.retrieve_data(question, **kw)  # 含 mode_selection
 
     async def incremental_update(self, *, convert_first: bool = False) -> dict[str, Any]:
-        out: dict[str, Any] = {}
-        if convert_first and self._settings.document.is_two_stage():
-            out["conversion"] = ConversionManager().run_incremental()
-        out["index"] = await UpdateManager(kv=self._kv).run_incremental()
-        return out
+        lock_key = "rag:lock:incremental"
+        token = await acquire_lock(lock_key, timeout=60)
+        if token is None:
+            raise RuntimeError("另一个增量更新正在进行，请稍后重试")
+        try:
+            out: dict[str, Any] = {}
+            if convert_first and self._settings.document.is_two_stage():
+                out["conversion"] = ConversionManager().run_incremental()
+            out["index"] = await UpdateManager(kv=self._kv).run_incremental()
+            return out
+        finally:
+            await release_lock(lock_key, token)
 
     async def add_document(self, path: Path) -> dict[str, Any]:
         path = path.expanduser().resolve()
-        if path.suffix.lower() == ".pdf" and self._settings.document.is_two_stage():
-            ConversionManager().convert_path(path)
-        mgr = UpdateManager(kv=self._kv)
-        return await mgr.ingest_path(path, replace=False)
+        lock_key = f"rag:lock:doc:{path.name}"
+        token = await acquire_lock(lock_key, timeout=60)
+        if token is None:
+            raise RuntimeError(f"文档正在处理中: {path.name}")
+        try:
+            if path.suffix.lower() == ".pdf" and self._settings.document.is_two_stage():
+                ConversionManager().convert_path(path)
+            mgr = UpdateManager(kv=self._kv)
+            return await mgr.ingest_path(path, replace=False)
+        finally:
+            await release_lock(lock_key, token)
 
     async def update_document(self, path: Path) -> dict[str, Any]:
-        mgr = UpdateManager(kv=self._kv)
-        return await mgr.ingest_path(path, replace=True)
+        path = path.expanduser().resolve()
+        lock_key = f"rag:lock:doc:{path.name}"
+        token = await acquire_lock(lock_key, timeout=60)
+        if token is None:
+            raise RuntimeError(f"文档正在处理中: {path.name}")
+        try:
+            mgr = UpdateManager(kv=self._kv)
+            return await mgr.ingest_path(path, replace=True)
+        finally:
+            await release_lock(lock_key, token)
 
     async def delete_document_by_id(self, doc_id: str) -> dict[str, Any]:
         from src.incremental.cascade_cleaner import cascade_delete_document

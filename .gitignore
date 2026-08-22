@@ -58,6 +58,7 @@ data/logs/*
 /*.docx
 /*.md
 !README.md
+!plan.md
 
 # DB / local persistence
 *.sqlite3

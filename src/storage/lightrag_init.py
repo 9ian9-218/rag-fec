@@ -9,7 +9,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from config.settings import Settings, apply_settings_to_environ, get_settings
+from src.utils.concurrency import get_semaphore
 from src.utils.logger import get_logger
+from src.utils.retry import call_with_retry
 
 logger = get_logger("storage.lightrag_init")
 
@@ -93,10 +95,16 @@ async def _openai_keyword_extraction_compat(
             if rf is not None:
                 create_kw["response_format"] = rf
             async with client:
-                resp = await client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    **create_kw,
+                async def _do_create():
+                    return await client.chat.completions.create(
+                        model=model,
+                        messages=messages,
+                        **create_kw,
+                    )
+
+                resp = await call_with_retry(
+                    _do_create,
+                    max_retries=int(settings.llm.max_retries),
                 )
             return (resp.choices[0].message.content or "").strip()
         except Exception as e:
@@ -166,24 +174,25 @@ def _build_llm_func(settings: Settings):
             safe_kw = {k: v for k, v in kwargs.items() if k in _CREATE_EXTRA_KEYS}
 
             async def _call_keyword_llm() -> str:
-                if _keyword_extraction_via_json_object():
-                    return await _openai_keyword_extraction_compat(
-                        model=model,
-                        prompt=prompt,
+                async with get_semaphore("llm", int(settings.llm.max_concurrent_calls)):
+                    if _keyword_extraction_via_json_object():
+                        return await _openai_keyword_extraction_compat(
+                            model=model,
+                            prompt=prompt,
+                            system_prompt=system_prompt,
+                            history_messages=list(history_messages or []),
+                            base_url=base_raw,
+                            api_key=api_key,
+                            http_timeout=http_timeout,
+                            client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
+                            safe_kw=safe_kw,
+                        )
+                    return await openai_complete(
+                        prompt,
                         system_prompt=system_prompt,
-                        history_messages=list(history_messages or []),
-                        base_url=base_raw,
-                        api_key=api_key,
-                        http_timeout=http_timeout,
-                        client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
-                        safe_kw=safe_kw,
+                        history_messages=history_messages or [],
+                        **kwargs,
                     )
-                return await openai_complete(
-                    prompt,
-                    system_prompt=system_prompt,
-                    history_messages=history_messages or [],
-                    **kwargs,
-                )
 
             if settings.lightrag.keyword_fallback_enabled:
                 try:
@@ -202,24 +211,26 @@ def _build_llm_func(settings: Settings):
                 return _keyword_fallback_json(prompt, settings)
 
             if _keyword_extraction_via_json_object():
-                return await _openai_keyword_extraction_compat(
-                    model=model,
-                    prompt=prompt,
-                    system_prompt=system_prompt,
-                    history_messages=list(history_messages or []),
-                    base_url=base_raw,
-                    api_key=api_key,
-                    http_timeout=http_timeout,
-                    client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
-                    safe_kw=safe_kw,
-                )
+                async with get_semaphore("llm", int(settings.llm.max_concurrent_calls)):
+                    return await _openai_keyword_extraction_compat(
+                        model=model,
+                        prompt=prompt,
+                        system_prompt=system_prompt,
+                        history_messages=list(history_messages or []),
+                        base_url=base_raw,
+                        api_key=api_key,
+                        http_timeout=http_timeout,
+                        client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
+                        safe_kw=safe_kw,
+                    )
 
-        return await openai_complete(
-            prompt,
-            system_prompt=system_prompt,
-            history_messages=history_messages or [],
-            **kwargs,
-        )
+        async with get_semaphore("llm", int(settings.llm.max_concurrent_calls)):
+            return await openai_complete(
+                prompt,
+                system_prompt=system_prompt,
+                history_messages=history_messages or [],
+                **kwargs,
+            )
 
     return _llm
 

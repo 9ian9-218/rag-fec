@@ -6,12 +6,17 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 from typing import Any
 
 import numpy as np
 
 from config.settings import Settings, get_settings
+from src.storage.redis_cache import get_json_cache, set_json_cache
+from src.utils.client_cache import get_openai_client
+from src.utils.concurrency import get_semaphore
 from src.utils.logger import get_logger
+from src.utils.retry import call_with_retry
 
 logger = get_logger("storage.remote_embedding")
 
@@ -41,6 +46,10 @@ def build_remote_embedding_func(settings: Settings | None = None):
     api_timeout = int(s.embedding.api_timeout)
     dimension = int(s.embedding.dimension)
 
+    def _embedding_cache_key(text: str) -> str:
+        digest = hashlib.sha1(text.encode("utf-8")).hexdigest()
+        return f"rag:embedding:{digest}"
+
     logger.info(
         "Remote Embedding API 已啟用: model=%s, base_url=%s, timeout=%ds",
         api_model_name,
@@ -50,12 +59,7 @@ def build_remote_embedding_func(settings: Settings | None = None):
 
     async def _call_embedding_api(texts: list[str]) -> list[list[float]]:
         """調用 OpenAI 相容 embedding API。"""
-        try:
-            from openai import AsyncOpenAI
-        except ImportError:
-            raise ImportError("請安裝 openai: pip install openai")
-
-        client = AsyncOpenAI(
+        client = get_openai_client(
             api_key=api_key,
             base_url=f"{api_base_url}/v1" if "/v1" not in api_base_url else api_base_url,
             timeout=api_timeout,
@@ -64,14 +68,22 @@ def build_remote_embedding_func(settings: Settings | None = None):
         # OpenAI embedding API 通常單次請求最多支援 100 個 texts
         batch_size = min(100, int(s.embedding.batch_size) if hasattr(s.embedding, "batch_size") else 16)
         all_embeddings: list[list[float]] = []
+        embedding_sem = get_semaphore("embedding", int(s.embedding.api_max_concurrency))
 
         for i in range(0, len(texts), batch_size):
             batch = texts[i : i + batch_size]
             try:
-                response = await client.embeddings.create(
-                    model=api_model_name,
-                    input=batch,
-                    encoding_format="float",
+                async def _do_embed() -> Any:
+                    async with embedding_sem:
+                        return await client.embeddings.create(
+                            model=api_model_name,
+                            input=batch,
+                            encoding_format="float",
+                        )
+
+                response = await call_with_retry(
+                    _do_embed,
+                    max_retries=int(s.embedding.max_retries),
                 )
                 # 按照返回順序組裝（API 保證順序與輸入一致）
                 batch_embeddings = [item.embedding for item in response.data]
@@ -87,18 +99,37 @@ def build_remote_embedding_func(settings: Settings | None = None):
             return np.array([], dtype=np.float32).reshape(0, dimension)
 
         try:
-            embeddings = await _call_embedding_api(texts)
-            arr = np.array(embeddings, dtype=np.float32)
+            # 先查 Redis 缓存，降低外部 API 调用量。
+            keys = [_embedding_cache_key(t) for t in texts]
+            cached_vectors: list[list[float] | None] = [None] * len(texts)
+            missing_indices: list[int] = []
+            for i, key in enumerate(keys):
+                cached = await get_json_cache(key)
+                if isinstance(cached, list):
+                    cached_vectors[i] = [float(x) for x in cached]
+                else:
+                    missing_indices.append(i)
 
-            # 確保維度正確
+            if missing_indices:
+                missing_texts = [texts[i] for i in missing_indices]
+                embeddings = await _call_embedding_api(missing_texts)
+                arr_missing = np.array(embeddings, dtype=np.float32)
+                if arr_missing.ndim == 1:
+                    arr_missing = arr_missing.reshape(1, -1)
+                norms = np.linalg.norm(arr_missing, axis=1, keepdims=True)
+                norms = np.maximum(norms, 1e-8)
+                arr_missing = arr_missing / norms
+                for idx, vec in zip(missing_indices, arr_missing.tolist()):
+                    cached_vectors[idx] = vec
+                    await set_json_cache(
+                        keys[idx],
+                        vec,
+                        ttl=int(s.redis.cache_ttl_seconds),
+                    )
+
+            arr = np.array(cached_vectors, dtype=np.float32)
             if arr.ndim == 1:
                 arr = arr.reshape(1, -1)
-
-            # 正規化（可選，依模型需求）
-            norms = np.linalg.norm(arr, axis=1, keepdims=True)
-            norms = np.maximum(norms, 1e-8)  # 避免除零
-            arr = arr / norms
-
             return arr
         except Exception as e:
             logger.error("Remote embedding 失敗: %s", e)

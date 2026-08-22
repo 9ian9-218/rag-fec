@@ -26,3 +26,4 @@ opencc-python-reimplemented==0.1.7
 ragas==0.4.3
 datasets==5.0.0
 sentence-transformers==5.6.0
+redis==5.2.1

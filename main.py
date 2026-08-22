@@ -19,11 +19,13 @@ def main() -> None:
     s = get_settings()
     import uvicorn
 
+    workers = 1 if s.service.debug else s.service.workers
     uvicorn.run(
         "src.service.api:app",
         host=s.service.host,
         port=s.service.port,
         reload=s.service.debug,
+        workers=workers,
     )
 
 

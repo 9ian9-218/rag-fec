@@ -45,6 +45,16 @@ services:
       - etcd
       - minio
 
+  redis:
+    image: redis:7-alpine
+    container_name: rag-redis
+    profiles: ["redis"]
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
   neo4j:
     image: neo4j:5.26-community
     environment:
@@ -66,3 +76,4 @@ volumes:
   minio_data:
   milvus_data:
   neo4j_data:
+  redis_data:
