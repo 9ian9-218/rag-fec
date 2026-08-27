@@ -35,6 +35,24 @@ _last_mode_route_ctx: ContextVar["ModeRouteResult | None"] = ContextVar(
 )
 
 
+def _bundle_has_content(bundle: dict[str, Any]) -> bool:
+    """检索 bundle 是否含有任何实质内容（实体/关系/引文任一非空）。
+
+    空结果不得写入检索缓存——否则一次因索引未就绪/瞬时故障产生的空检索
+    会在 TTL 内反复命中，让用户持续看到"有内容却检索为空"。
+    """
+    payload = bundle.get("data") or {}
+    if isinstance(payload, dict) and isinstance(payload.get("data"), dict):
+        payload = payload["data"]
+    if not isinstance(payload, dict):
+        return False
+    for key in ("entities", "relationships", "chunks"):
+        v = payload.get(key)
+        if isinstance(v, list) and v:
+            return True
+    return False
+
+
 class GraphRAGRetriever:
     """非同步檢索封裝。"""
 
@@ -57,12 +75,10 @@ class GraphRAGRetriever:
         use_llm_router: bool | None = None,
     ) -> ModeRouteResult:
         explicit = mode if isinstance(mode, str) else None
-        router_on = True if use_llm_router is None else use_llm_router
         route = await resolve_retrieval_mode(
             question,
             explicit,
             settings=self._settings,
-            use_llm_router=router_on,
         )
         _last_mode_route_ctx.set(route)
         return route
@@ -86,11 +102,17 @@ class GraphRAGRetriever:
             return cached
 
         rag = await self._rag()
-        data = await rag.aquery_data(question, param)
+        try:
+            data = await rag.aquery_data(question, param)
+        except Exception as e:
+            # 外部依赖（embedding/LLM 存储）故障时优雅降级为空上下文，
+            # 让上层生成"无足够信息"兜底回复，而不是把 500 抛给用户。
+            logger.error("检索引擎异常，降级为空上下文 mode=%s: %s", mode, e)
+            data = {"status": "failure", "message": str(e), "data": {}}
         if isinstance(data, dict):
             data = await refine_retrieval_bundle(question, data, settings=self._settings)
 
-        if isinstance(data, dict):
+        if isinstance(data, dict) and _bundle_has_content(data):
             await set_retrieval_cache(
                 cache_key,
                 data,

@@ -38,7 +38,7 @@ class QueryBody(BaseModel):
     )
     auto_mode: bool = Field(
         default=True,
-        description="為 True 且未指定 mode 時啟用 LLM 智能路由（受 RETRIEVAL_LLM_MODE_ROUTER_ENABLED 約束）",
+        description="為 True 且未指定 mode 時啟用基于规则的检索路由（不调用 LLM）",
     )
     stream: bool = False
     multimodal: bool = Field(
@@ -98,6 +98,17 @@ async def lifespan(app: FastAPI):
         _worker_task = asyncio.create_task(
             _task_manager.worker_loop(_handle_task)
         )
+
+    # 预热 LightRAG：把存储初始化（JsonKV/Neo4j/Milvus，约 2 分钟）移到启动阶段。
+    # 否则首个查询才惰性初始化，期间事件循环被占用，health 与所有请求长达数分钟无响应
+    # （压测预检 "health 失败" / 前端"点击无反应"均由此类冻结导致）。
+    try:
+        from src.storage.lightrag_init import get_lightrag
+
+        await get_lightrag()
+        logger.info("LightRAG 预热初始化完成（请求期不再触发懒加载初始化）")
+    except Exception:
+        logger.exception("LightRAG 预热初始化失败，将由首个请求重试")
 
     logger.info("Graph RAG API 啟動")
     yield

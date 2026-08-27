@@ -68,7 +68,15 @@ def build_remote_embedding_func(settings: Settings | None = None):
         # OpenAI embedding API 通常單次請求最多支援 100 個 texts
         batch_size = min(100, int(s.embedding.batch_size) if hasattr(s.embedding, "batch_size") else 16)
         all_embeddings: list[list[float]] = []
-        embedding_sem = get_semaphore("embedding", int(s.embedding.api_max_concurrency))
+        # 查询期与插入期独立配额，避免增量更新的批量嵌入挤占在线查询。
+        from src.utils.concurrency import get_phase
+
+        phase = get_phase()
+        if phase == "insert":
+            embed_limit = int(s.embedding.max_concurrent_insert_calls)
+        else:
+            embed_limit = int(s.embedding.api_max_concurrency)
+        embedding_sem = get_semaphore(f"embedding:{phase}", embed_limit)
 
         for i in range(0, len(texts), batch_size):
             batch = texts[i : i + batch_size]

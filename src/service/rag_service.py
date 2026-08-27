@@ -77,9 +77,6 @@ class RAGService:
             mode=mode,
             top_k=self._settings.retrieval.top_k,
             multimodal=multimodal,
-            use_llm_router=bool(
-                use_llm_router if use_llm_router is not None else self._settings.retrieval.llm_mode_router_enabled
-            ),
         )
         cached = await get_json_cache(cache_key)
         if isinstance(cached, dict) and "answer" in cached:
@@ -97,19 +94,22 @@ class RAGService:
             )
             answer = str(out)
 
-        await set_json_cache(
-            cache_key,
-            {"answer": answer},
-            ttl=int(self._settings.redis.cache_ttl_seconds),
-        )
+        # 空答案不缓存：避免"检索为空/无足够信息"的结果在 TTL 内反复命中
+        if answer.strip():
+            await set_json_cache(
+                cache_key,
+                {"answer": answer},
+                ttl=int(self._settings.redis.cache_ttl_seconds),
+            )
         return answer
 
     async def query_with_context(self, question: str, **kw: Any) -> dict[str, Any]:
         return await self._retriever.retrieve_data(question, **kw)  # 含 mode_selection
 
     async def incremental_update(self, *, convert_first: bool = False) -> dict[str, Any]:
+        lock_timeout = int(self._settings.service.lock_timeout_seconds)
         lock_key = "rag:lock:incremental"
-        token = await acquire_lock(lock_key, timeout=60)
+        token = await acquire_lock(lock_key, timeout=lock_timeout)
         if token is None:
             raise RuntimeError("另一个增量更新正在进行，请稍后重试")
         try:
@@ -123,8 +123,9 @@ class RAGService:
 
     async def add_document(self, path: Path) -> dict[str, Any]:
         path = path.expanduser().resolve()
+        lock_timeout = int(self._settings.service.lock_timeout_seconds)
         lock_key = f"rag:lock:doc:{path.name}"
-        token = await acquire_lock(lock_key, timeout=60)
+        token = await acquire_lock(lock_key, timeout=lock_timeout)
         if token is None:
             raise RuntimeError(f"文档正在处理中: {path.name}")
         try:
@@ -137,8 +138,9 @@ class RAGService:
 
     async def update_document(self, path: Path) -> dict[str, Any]:
         path = path.expanduser().resolve()
+        lock_timeout = int(self._settings.service.lock_timeout_seconds)
         lock_key = f"rag:lock:doc:{path.name}"
-        token = await acquire_lock(lock_key, timeout=60)
+        token = await acquire_lock(lock_key, timeout=lock_timeout)
         if token is None:
             raise RuntimeError(f"文档正在处理中: {path.name}")
         try:

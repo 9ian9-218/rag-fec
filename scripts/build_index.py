@@ -37,7 +37,15 @@ async def _full(raw: Path) -> None:
     kv = KVClient()
     for doc in iter_documents(raw, recursive=True, suffixes=suffixes):
         doc_id = stable_doc_id(doc.path)
-        await rag.ainsert(doc.text, ids=doc_id, file_paths=str(doc.lightrag_file_path()))
+        from src.incremental.update_manager import clear_doc_status_by_basename
+        from src.utils.concurrency import insert_phase
+
+        # 幂等：清理上一轮失败/进行中残留的 doc_status（含 dup-*），避免重跑撞 DUPLICATE
+        cleared = await clear_doc_status_by_basename(rag, doc.path.name)
+        if cleared:
+            print("cleared stale doc_status:", cleared)
+        async with insert_phase():
+            await rag.ainsert(doc.text, ids=doc_id, file_paths=str(doc.lightrag_file_path()))
         kv.upsert_document(
             doc_id,
             str(doc.path.resolve()),

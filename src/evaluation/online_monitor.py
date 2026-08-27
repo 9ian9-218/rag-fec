@@ -173,8 +173,11 @@ def build_telemetry(
     tr = int(pi.get("total_relations_found") or len(rels))
     ea = int(pi.get("entities_after_truncation") or len(ents))
     ra = int(pi.get("relations_after_truncation") or len(rels))
-    merged = int(pi.get("merged_chunks_count") or pi.get("total_chunks_found") or 0)
-    final = int(pi.get("final_chunks_count") or len(payload.get("chunks") or []))
+    # LightRAG 1.5.4 的 aquery_data 不返回 processing_info 时，用实际列表长度兜底，
+    # 保证 merged/final 计数与 tokens 真实反映检索结果（此前无兜底恒为 0）。
+    chunks = payload.get("chunks") or []
+    merged = int(pi.get("merged_chunks_count") or pi.get("total_chunks_found") or len(chunks))
+    final = int(pi.get("final_chunks_count") or len(chunks))
 
     graph_empty = False
     if mode in GRAPH_MODES:

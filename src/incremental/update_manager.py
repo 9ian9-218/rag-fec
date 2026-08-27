@@ -29,10 +29,35 @@ from src.incremental.document_manifest import (
 from src.incremental.doc_registry import stable_doc_id
 from src.storage.kv_client import KVClient
 from src.storage.lightrag_init import get_lightrag
+from src.storage.redis_lock import acquire_lock, release_lock
+from src.utils.concurrency import insert_phase
 from src.utils.hash_utils import md5_file
 from src.utils.logger import get_logger
 
 logger = get_logger("incremental.update_manager")
+
+
+async def clear_doc_status_by_basename(rag, file_path: str) -> list[str]:
+    """清理 doc_status 中所有与指定文件路径匹配的记录（基于 basename，含 dup-* 冲突记录）。
+
+    在 ainsert 前调用，避免 LightRAG 去重检测把"必失败重执"误判为 DUPLICATE。
+    """
+    if rag.doc_status is None:
+        return []
+    from lightrag.base import DocStatus
+
+    basename = Path(file_path).name
+    all_statuses = [
+        DocStatus.PENDING, DocStatus.PARSING, DocStatus.ANALYZING,
+        DocStatus.PROCESSING, DocStatus.PREPROCESSED, DocStatus.PROCESSED, DocStatus.FAILED,
+    ]
+    docs = await rag.doc_status.get_docs_by_statuses(all_statuses)
+    deleted_ids = []
+    for doc_id, doc_data in docs.items():
+        if getattr(doc_data, 'file_path', None) == basename:
+            await rag.doc_status.delete([doc_id])
+            deleted_ids.append(doc_id)
+    return deleted_ids
 
 
 class UpdateManager:
@@ -117,61 +142,27 @@ class UpdateManager:
                 stats["errors"] += 1
             await _maybe_checkpoint()
 
-        async def _ingest_one(path: Path, *, is_modify: bool) -> None:
-            nonlocal stats, cp
-            doc_id = stable_doc_id(path)
-            try:
-                loaded = load_document(path)
-                text = loaded.text
-                if not text.strip():
-                    logger.warning("文件為空，略過索引: %s", path)
-                    stats["errors"] += 1
-                    return
-                # 檢查是否需要強制重新入庫（數據庫無有效數據但 doc_status 有殘留）
-                if not is_modify:
-                    existing = await rag.full_docs.get_by_id(doc_id) if rag.full_docs else None
-                    if existing is None:
-                        logger.info("文件 %s 在數據庫中無有效數據，清理後重新入庫", path)
-                        await cascade_delete_document(rag, doc_id, self._kv)
-                        purge_for_doc_id(doc_id)
-                        cleared = await self._clear_doc_status_by_file_path(rag, path.name)
-                        if cleared:
-                            logger.info("清理 doc_status 同名舊記錄: %s", cleared)
-                        is_modify = True
-                if is_modify:
-                    await cascade_delete_document(rag, doc_id, self._kv)
-                    purge_for_doc_id(doc_id)
-                await rag.ainsert(text, ids=doc_id, file_paths=str(loaded.lightrag_file_path()))
-                from lightrag.base import DocStatus
-
-                failed = await rag.get_docs_by_status(DocStatus.FAILED)
-                if doc_id in failed:
-                    raise RuntimeError(
-                        f"LightRAG 文件處理失敗（FAILED）: {path} — {failed[doc_id]}"
-                    )
-                self._kv.upsert_document(
-                    doc_id,
-                    str(path.resolve()),
-                    loaded.metadata.get("md5_content"),
-                    loaded.metadata.get("size_bytes"),
-                )
-                register_after_ingest(doc_id, loaded, path)
-                if is_modify:
-                    stats["modified"] += 1
-                else:
-                    stats["added"] += 1
-                cp.processed_paths.append(str(path.resolve()))
-                ingested_ok.append(path)
-            except Exception:
-                logger.exception("處理文件失敗: %s", path)
-                stats["errors"] += 1
-            await _maybe_checkpoint()
-
         for path in report.modified:
-            await _ingest_one(path, is_modify=True)
+            await self._ingest_doc_locked(
+                rag,
+                path,
+                is_modify=True,
+                stats=stats,
+                cp=cp,
+                ingested_ok=ingested_ok,
+                interval=interval,
+            )
 
         for path in report.added:
-            await _ingest_one(path, is_modify=False)
+            await self._ingest_doc_locked(
+                rag,
+                path,
+                is_modify=False,
+                stats=stats,
+                cp=cp,
+                ingested_ok=ingested_ok,
+                interval=interval,
+            )
 
         cache = load_hash_cache()
         for path_str in report.removed:
@@ -188,23 +179,120 @@ class UpdateManager:
         logger.info("增量更新完成: %s", stats)
         return {"stats": stats, "report": _serialize_report(report)}
 
+    async def _ingest_doc_locked(
+        self,
+        rag,
+        path: Path,
+        *,
+        is_modify: bool,
+        stats: dict[str, Any],
+        cp,
+        ingested_ok: list[Path],
+        interval: int,
+    ) -> None:
+        """处理单个文档的入口：先取文档级锁，防止与 API 上传/其他进程并发处理同一文件。
+
+        锁失败（同一文件正在被其他任务处理）时跳过本次处理，避免并发双写产生
+        LightRAG 的 DUPLICATE failed 记录。
+        """
+        lock_key = f"rag:lock:doc:{path.name}"
+        lock_timeout = int(get_settings().service.lock_timeout_seconds)
+        token = await acquire_lock(lock_key, timeout=lock_timeout)
+        if token is None:
+            logger.warning("文件 %s 正被其他任务处理，跳过本次处理", path.name)
+            stats["skipped"] = stats.get("skipped", 0) + 1
+            return
+        try:
+            await self._ingest_doc(
+                rag,
+                path,
+                is_modify=is_modify,
+                stats=stats,
+                cp=cp,
+                ingested_ok=ingested_ok,
+                interval=interval,
+            )
+        finally:
+            await release_lock(lock_key, token)
+
+    async def _ingest_doc(
+        self,
+        rag,
+        path: Path,
+        *,
+        is_modify: bool,
+        stats: dict[str, Any],
+        cp,
+        ingested_ok: list[Path],
+        interval: int,
+    ) -> None:
+        """插入/重写单个文档（调用方已持文档级锁）。
+
+        幂等策略：插入前无条件清理该文件在 doc_status 的全部残留
+        （processing/failed/unprocessed/dup 等），保证 LightRAG 的重复检测
+        不会把重试误判为 DUPLICATE；插入失败时残留记录留待下次清理后重试。
+        """
+        tick = 0
+
+        async def _maybe_checkpoint() -> None:
+            nonlocal tick
+            tick += 1
+            if cp is not None and tick % max(1, interval) == 0:
+                self._cp.save(cp)
+
+        doc_id = stable_doc_id(path)
+        try:
+            loaded = load_document(path)
+            text = loaded.text
+            if not text.strip():
+                logger.warning("文件為空，略過索引: %s", path)
+                stats["errors"] += 1
+                return
+            cleared = await self._clear_doc_status_by_file_path(rag, path.name)
+            if cleared:
+                logger.info("清理 doc_status 殘留 %s: %s", path.name, cleared)
+            # 檢查是否需要強制重新入庫（數據庫無有效數據但 doc_status 有殘留）
+            if not is_modify:
+                existing = await rag.full_docs.get_by_id(doc_id) if rag.full_docs else None
+                if existing is None:
+                    logger.info("文件 %s 在數據庫中無有效數據，清理後重新入庫", path)
+                    await cascade_delete_document(rag, doc_id, self._kv)
+                    purge_for_doc_id(doc_id)
+                    is_modify = True
+            if is_modify:
+                await cascade_delete_document(rag, doc_id, self._kv)
+                purge_for_doc_id(doc_id)
+            async with insert_phase():
+                await rag.ainsert(text, ids=doc_id, file_paths=str(loaded.lightrag_file_path()))
+            from lightrag.base import DocStatus
+
+            failed = await rag.get_docs_by_status(DocStatus.FAILED)
+            if doc_id in failed:
+                raise RuntimeError(
+                    f"LightRAG 文件處理失敗（FAILED）: {path} — {failed[doc_id]}"
+                )
+            self._kv.upsert_document(
+                doc_id,
+                str(path.resolve()),
+                loaded.metadata.get("md5_content"),
+                loaded.metadata.get("size_bytes"),
+            )
+            register_after_ingest(doc_id, loaded, path)
+            if is_modify:
+                stats["modified"] += 1
+            else:
+                stats["added"] += 1
+            if cp is not None:
+                cp.processed_paths.append(str(path.resolve()))
+            ingested_ok.append(path)
+        except Exception:
+            logger.exception("處理文件失敗: %s", path)
+            stats["errors"] += 1
+        await _maybe_checkpoint()
+
     async def _clear_doc_status_by_file_path(self, rag, file_path: str) -> list[str]:
         """清理 doc_status 中所有与指定文件路径匹配的旧记录（基于 basename），避免 LightRAG 去重失败。"""
-        if rag.doc_status is None:
-            return []
-        from lightrag.base import DocStatus
-        basename = Path(file_path).name
-        all_statuses = [
-            DocStatus.PENDING, DocStatus.PARSING, DocStatus.ANALYZING,
-            DocStatus.PROCESSING, DocStatus.PREPROCESSED, DocStatus.PROCESSED, DocStatus.FAILED,
-        ]
-        docs = await rag.doc_status.get_docs_by_statuses(all_statuses)
-        deleted_ids = []
-        for doc_id, doc_data in docs.items():
-            if getattr(doc_data, 'file_path', None) == basename:
-                await rag.doc_status.delete([doc_id])
-                deleted_ids.append(doc_id)
-        return deleted_ids
+        return await clear_doc_status_by_basename(rag, file_path)
 
     def _resolve_index_path(self, path: Path) -> Path:
         """兩階段模式下上傳 PDF 時，改為索引同目錄已轉好的 Markdown。"""
@@ -221,10 +309,16 @@ class UpdateManager:
         return path
 
     async def ingest_path(self, path: Path, *, replace: bool = False) -> dict[str, Any]:
-        """單一路徑入庫（API 上傳用）。"""
+        """單一路徑入庫（API 上傳用；调用方 rag_service 已持有文档级锁）。"""
         path = self._resolve_index_path(path)
         rag = await get_lightrag()
         doc_id = stable_doc_id(path)
+
+        # 幂等：先清理该文件在 doc_status 的全部残留，避免 LightRAG 去重检测
+        # 把重试误判为 DUPLICATE（failed/processing/dup 记录）。
+        cleared = await self._clear_doc_status_by_file_path(rag, path.name)
+        if cleared:
+            logger.info("清理 doc_status 同名舊記錄: %s", cleared)
 
         # 若數據庫中無該文檔有效數據（可能之前因 DUPLICATE 失敗且已被清理），強制重新入庫
         if not replace:
@@ -233,16 +327,14 @@ class UpdateManager:
                 logger.info("文檔 %s 在數據庫中無有效數據，強制清理後重新入庫", doc_id)
                 await cascade_delete_document(rag, doc_id, self._kv)
                 purge_for_doc_id(doc_id)
-                cleared = await self._clear_doc_status_by_file_path(rag, path.name)
-                if cleared:
-                    logger.info("清理 doc_status 同名舊記錄: %s", cleared)
                 replace = True
 
         if replace:
             await cascade_delete_document(rag, doc_id, self._kv)
             purge_for_doc_id(doc_id)
         loaded = load_document(path)
-        await rag.ainsert(loaded.text, ids=doc_id, file_paths=str(loaded.lightrag_file_path()))
+        async with insert_phase():
+            await rag.ainsert(loaded.text, ids=doc_id, file_paths=str(loaded.lightrag_file_path()))
         from lightrag.base import DocStatus
 
         failed = await rag.get_docs_by_status(DocStatus.FAILED)

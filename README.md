@@ -203,7 +203,7 @@ python scripts/query.py --interactive
 | `mix`    | 图谱 + 向量 Chunk 双路融合（**推荐**） | 中等以上复杂度、需原文+图证据 |
 
 
-智能路由由 `src/retrieval/mode_router.py` 实现，环境变量 `RETRIEVAL_LLM_MODE_ROUTER_ENABLED=true` 控制开关；CLI 可用 `--no-auto-mode` 关闭。
+检索模式由 `src/retrieval/mode_router.py` 实现，采用基于规则的启发式路由；CLI 可用 `--no-auto-mode` 关闭自动路由。
 
 ### 关系检索增强
 
@@ -307,7 +307,7 @@ python scripts/download_reranker.py    # 预下载重排模型到 models/hub
 ```bash
 $ python scripts/query.py "循环码的生成多项式有什么性质？" --show-mode
 
-[mode_router] 选型: mix | 难度=medium | 原因=需结合图谱实体与原文 chunk 证据
+[mode_router] 选型: local | 规则关键词路由 | 原因=含“生成多项式/性质”等具体实体属性词
 ...
 循环码的生成多项式 g(x) 必须整除 x^n - 1，且 ...
 ```

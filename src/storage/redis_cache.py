@@ -32,7 +32,6 @@ def build_query_cache_key(
     mode: str | None,
     top_k: int,
     multimodal: bool,
-    use_llm_router: bool,
 ) -> str:
     """构造查询结果缓存 key。"""
     import hashlib
@@ -43,7 +42,6 @@ def build_query_cache_key(
             mode or "auto",
             str(top_k),
             str(multimodal),
-            str(use_llm_router),
             get_index_version(),
         ]
     )

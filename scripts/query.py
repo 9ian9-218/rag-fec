@@ -47,15 +47,13 @@ async def _run_stream(
     *,
     no_auto_mode: bool,
 ) -> None:
-    use_router = not no_auto_mode
-    rag.set_llm_mode_router(use_router)
     res = await rag.query(
         question,
         session_id=session_id,
         mode=mode,
         stream=True,
         multimodal=multimodal,
-        use_llm_router=use_router if mode is None else False,
+        use_llm_router=False,
     )
     if hasattr(res, "__aiter__"):
         async for chunk in res:  # type: ignore[union-attr]
@@ -71,10 +69,8 @@ async def _async_main(args: argparse.Namespace) -> int:
     apply_settings_to_environ(get_settings())
 
     rag = RAGService()
-    use_router = not args.no_auto_mode
-    rag.set_llm_mode_router(use_router)
     mode: str | None = args.mode
-    router_kw = use_router if mode is None else False
+    router_kw = False
     session_id: str | None = args.session_id
 
     if args.interactive:

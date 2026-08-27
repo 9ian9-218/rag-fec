@@ -16,7 +16,8 @@ async def test_retrieval_cache_skips_second_lightrag_call(monkeypatch) -> None:
     monkeypatch.setattr(redis_cache, "get_redis_client", lambda *a, **k: fake)
 
     calls = 0
-    bundle = {"status": "success", "data": {"chunks": []}}
+    # 非空 bundle（空结果不写缓存，见 test_no_empty_cache.py）
+    bundle = {"status": "success", "data": {"chunks": [{"chunk_id": "c1", "content": "有内容"}]}}
 
     class FakeRag:
         async def aquery_data(self, question, param):

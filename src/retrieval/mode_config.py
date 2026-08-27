@@ -72,7 +72,8 @@ def suggest_mode_from_question(question: str) -> RetrievalMode:
 
     # Global：總結、概述、宏觀、對比趨勢
     global_keys = (
-        "總結", "整體", "全書", "概述", "全局", "趨勢", "對比", "比較", "宏觀",
+        "總結", "总结", "整體", "整体", "全書", "全书", "概述", "全局",
+        "趨勢", "趋势", "對比", "对比", "比較", "比较", "宏觀", "宏观",
         "global summary", "overview", "compare", "comparison", "contrast",
     )
     if any(k in q for k in global_keys):
@@ -80,17 +81,19 @@ def suggest_mode_from_question(question: str) -> RetrievalMode:
 
     # Naive：簡單事實、定義查詢、直接提問
     naive_keys = (
-        "什麼是", "什麼叫", "定義", "概念", "簡述", "簡單說", "一句話",
-        "what is", "define", "meaning of", "什麼意思",
+        "什麼是", "什麼叫", "什么是", "什么叫", "定義", "定义", "概念", "簡述", "简述",
+        "簡單說", "简单说", "一句話", "一句话",
+        "what is", "define", "meaning of", "什麼意思", "什么意思",
     )
     if any(k in q for k in naive_keys):
         return "naive"
 
     # Local：具體實體、算法細節、性質、參數
     local_keys = (
-        "算法", "步驟", "流程", "性質", "參數", "複雜度", "時間", "空間",
+        "算法", "步骤", "步驟", "流程", "性质", "性質", "参数", "參數",
+        "复杂度", "複雜度", "时间", "時間", "空间", "空間",
         "algorithm", "step", "procedure", "property", "complexity", "parameter",
-        "如何", "怎麼", "方法", "具體",
+        "如何", "怎么", "怎麼", "方法", "具体", "具體",
     )
     if any(k in q for k in local_keys):
         return "local"

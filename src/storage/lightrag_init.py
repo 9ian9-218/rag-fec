@@ -15,108 +15,9 @@ from src.utils.retry import call_with_retry
 
 logger = get_logger("storage.lightrag_init")
 
-_CREATE_EXTRA_KEYS = frozenset(
-    {
-        "max_tokens",
-        "temperature",
-        "top_p",
-        "frequency_penalty",
-        "presence_penalty",
-        "stop",
-        "seed",
-        "logit_bias",
-    }
-)
-
-
 def _env_truthy(name: str) -> bool:
     v = (os.getenv(name) or "").strip().lower()
     return v in ("1", "true", "yes", "on")
-
-
-def _keyword_extraction_via_json_object() -> bool:
-    """DeepSeek 等不支援 ``completions.parse`` + ``GPTKeywordExtractionFormat``，改走 ``json_object`` 或純文本 JSON。"""
-    if _env_truthy("LIGHTRAG_KEYWORD_USE_OPENAI_PARSE"):
-        return False
-    if _env_truthy("LIGHTRAG_KEYWORD_JSON_OBJECT"):
-        return True
-    base = (os.getenv("OPENAI_API_BASE") or os.getenv("OPENAI_BASE_URL") or "").lower()
-    return "deepseek" in base
-
-
-def _effective_openai_http_timeout_seconds(**kwargs: Any) -> int:
-    t = kwargs.get("timeout")
-    if t is not None:
-        try:
-            return max(1, int(t))
-        except (TypeError, ValueError):
-            pass
-    for env in ("OPENAI_TIMEOUT", "LLM_TIMEOUT"):
-        v = (os.getenv(env) or "").strip()
-        if v:
-            try:
-                return max(1, int(v))
-            except ValueError:
-                pass
-    return 180
-
-
-async def _openai_keyword_extraction_compat(
-    *,
-    model: str,
-    prompt: str,
-    system_prompt: str | None,
-    history_messages: list[dict[str, Any]],
-    base_url: str,
-    api_key: str | None,
-    http_timeout: int,
-    client_configs: dict[str, Any] | None,
-    safe_kw: dict[str, Any],
-) -> str:
-    from lightrag.llm.openai import create_openai_async_client
-
-    bu = (base_url or "").strip().rstrip("/") or "https://api.openai.com/v1"
-    messages: list[dict[str, Any]] = []
-    if system_prompt:
-        messages.append({"role": "system", "content": system_prompt})
-    messages.extend(history_messages)
-    messages.append({"role": "user", "content": prompt})
-
-    last_err: Exception | None = None
-    for rf in ({"type": "json_object"}, None):
-        try:
-            client = create_openai_async_client(
-                api_key=api_key,
-                base_url=bu,
-                timeout=http_timeout,
-                client_configs=client_configs,
-            )
-            create_kw: dict[str, Any] = {**safe_kw, "timeout": http_timeout}
-            if rf is not None:
-                create_kw["response_format"] = rf
-            async with client:
-                async def _do_create():
-                    return await client.chat.completions.create(
-                        model=model,
-                        messages=messages,
-                        **create_kw,
-                    )
-
-                resp = await call_with_retry(
-                    _do_create,
-                    max_retries=int(settings.llm.max_retries),
-                )
-            return (resp.choices[0].message.content or "").strip()
-        except Exception as e:
-            last_err = e
-            if rf is None:
-                break
-            logger.warning(
-                "關鍵詞抽取：response_format=json_object 不可用或失敗，改為不帶 response_format 重試: %s",
-                e,
-            )
-    assert last_err is not None
-    raise last_err
 
 
 if TYPE_CHECKING:
@@ -156,79 +57,27 @@ def _keyword_fallback_json(prompt: str, settings: Settings) -> str:
 def _build_llm_func(settings: Settings):
     from lightrag.llm.openai import openai_complete
 
+    from src.utils.concurrency import get_phase, get_semaphore
+
     async def _llm(prompt, system_prompt=None, history_messages=None, **kwargs):
+        # 查询关键词不再调用 LLM，直接使用 FEC 规则启发式生成，避免 query 改写/意图识别。
         if kwargs.get("keyword_extraction"):
-            hashing_kv = kwargs.get("hashing_kv")
-            if hashing_kv is None:
-                raise RuntimeError("LightRAG LLM 呼叫缺少 hashing_kv，無法取得 llm_model_name")
-            model = hashing_kv.global_config["llm_model_name"]
-            base_raw = (
-                os.getenv("OPENAI_API_BASE")
-                or os.getenv("OPENAI_BASE_URL")
-                or (settings.openai_base_url or settings.llm.base_url or "")
-            ).strip()
-            api_key = (os.getenv("OPENAI_API_KEY") or settings.openai_api_key or settings.llm.api_key or "").strip()
-            api_key = api_key or None
-            http_timeout = _effective_openai_http_timeout_seconds(**kwargs)
-            client_cfgs = kwargs.get("openai_client_configs")
-            safe_kw = {k: v for k, v in kwargs.items() if k in _CREATE_EXTRA_KEYS}
+            return _keyword_fallback_json(prompt, settings)
 
-            async def _call_keyword_llm() -> str:
-                async with get_semaphore("llm", int(settings.llm.max_concurrent_calls)):
-                    if _keyword_extraction_via_json_object():
-                        return await _openai_keyword_extraction_compat(
-                            model=model,
-                            prompt=prompt,
-                            system_prompt=system_prompt,
-                            history_messages=list(history_messages or []),
-                            base_url=base_raw,
-                            api_key=api_key,
-                            http_timeout=http_timeout,
-                            client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
-                            safe_kw=safe_kw,
-                        )
-                    return await openai_complete(
-                        prompt,
-                        system_prompt=system_prompt,
-                        history_messages=history_messages or [],
-                        **kwargs,
-                    )
+        # 查询期与插入期使用独立配额，避免增量更新挤占在线查询。
+        phase = get_phase()
+        limit = (
+            int(settings.llm.max_concurrent_calls)
+            if phase == "query"
+            else int(settings.llm.max_concurrent_insert_calls)
+        )
 
-            if settings.lightrag.keyword_fallback_enabled:
-                try:
-                    from lightrag.utils import remove_think_tags
-                    import json_repair
-
-                    raw = await _call_keyword_llm()
-                    parsed = json_repair.loads(remove_think_tags(raw))
-                    hl = (parsed or {}).get("high_level_keywords") or []
-                    ll = (parsed or {}).get("low_level_keywords") or []
-                    if hl or ll:
-                        return _keyword_json_from_lists(prompt, hl, ll, settings)
-                    logger.warning("關鍵詞抽取為空，使用 FEC 啟發式回退")
-                except Exception as e:
-                    logger.warning("關鍵詞抽取失敗，使用 FEC 啟發式回退: %s", e)
-                return _keyword_fallback_json(prompt, settings)
-
-            if _keyword_extraction_via_json_object():
-                async with get_semaphore("llm", int(settings.llm.max_concurrent_calls)):
-                    return await _openai_keyword_extraction_compat(
-                        model=model,
-                        prompt=prompt,
-                        system_prompt=system_prompt,
-                        history_messages=list(history_messages or []),
-                        base_url=base_raw,
-                        api_key=api_key,
-                        http_timeout=http_timeout,
-                        client_configs=client_cfgs if isinstance(client_cfgs, dict) else None,
-                        safe_kw=safe_kw,
-                    )
-
-        async with get_semaphore("llm", int(settings.llm.max_concurrent_calls)):
+        async with get_semaphore(f"llm:{phase}", limit):
             return await openai_complete(
                 prompt,
                 system_prompt=system_prompt,
                 history_messages=history_messages or [],
+                timeout=int(settings.llm.timeout),
                 **kwargs,
             )
 

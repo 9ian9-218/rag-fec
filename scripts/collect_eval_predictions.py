@@ -71,8 +71,7 @@ async def main_async(args: argparse.Namespace) -> None:
     apply_settings_to_environ(get_settings())
     rows = load_jsonl_rows(args.input)
     retriever = GraphRAGRetriever()
-    retriever._use_llm_mode_router = not args.no_auto_mode
-    use_router = not args.no_auto_mode
+    use_router = False
     out_rows: list[dict] = []
     for i, row in enumerate(rows):
         print(f"[{i + 1}/{len(rows)}] {row.get('id', i)} …", flush=True)

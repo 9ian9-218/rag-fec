@@ -17,20 +17,52 @@ function showToast(msg) {
     setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+function setTaskStatus(text, cls) {
+    const el = $('#task-status');
+    if (!el) return;
+    el.textContent = text;
+    el.className = 'task-status' + (cls ? ' ' + cls : '');
+}
+
 async function api(path, opts = {}) {
     const url = `${API_BASE}${path}`;
-    const res = await fetch(url, {
-        headers: { 'Accept': 'application/json', ...(opts.headers || {}) },
-        ...opts
-    });
-    if (!res.ok) {
-        let err = `HTTP ${res.status}`;
-        try { const j = await res.json(); err = j.detail || JSON.stringify(j); } catch {}
-        throw new Error(err);
+    const { timeoutMs = 30000, ...rest } = opts;
+    const controller = new AbortController();
+    let timer = null;
+    if (timeoutMs > 0) {
+        timer = setTimeout(() => controller.abort(), timeoutMs);
     }
-    if (opts.raw) return res;
-    const ct = res.headers.get('content-type') || '';
-    return ct.includes('application/json') ? res.json() : res.text();
+    try {
+        const res = await fetch(url, {
+            headers: { 'Accept': 'application/json', ...(rest.headers || {}) },
+            signal: controller.signal,
+            ...rest
+        });
+        if (!res.ok) {
+            let err = `HTTP ${res.status}`;
+            try { const j = await res.json(); err = j.detail || JSON.stringify(j); } catch {}
+            throw new Error(err);
+        }
+        if (opts.raw) return res;
+        const ct = res.headers.get('content-type') || '';
+        return ct.includes('application/json') ? res.json() : res.text();
+    } catch (e) {
+        if (e.name === 'AbortError') throw new Error(`请求超时（${Math.round(timeoutMs / 1000)}s）`);
+        throw e;
+    } finally {
+        if (timer) clearTimeout(timer);
+    }
+}
+
+async function pollTask(taskId, { intervalMs = 1000, timeoutMs = 3600000 } = {}) {
+    const deadline = Date.now() + timeoutMs;
+    for (;;) {
+        const st = await api(`/api/rag/tasks/${taskId}`, { timeoutMs: intervalMs + 3000 });
+        if (st.status === 'done') return st;
+        if (st.status === 'failed') throw new Error(st.error || '任务失败');
+        if (Date.now() > deadline) throw new Error(`任务 ${taskId} 超时`);
+        await new Promise(r => setTimeout(r, intervalMs));
+    }
 }
 
 function escapeHtml(s) {
@@ -169,7 +201,8 @@ async function sendQuestion() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ question, session_id: sessionId, mode, stream: true, multimodal }),
-                raw: true
+                raw: true,
+                timeoutMs: 0
             });
             removeTyping();
 
@@ -204,7 +237,8 @@ async function sendQuestion() {
             const data = await api('/api/rag/query', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question, session_id: sessionId, mode, stream: false, multimodal })
+                body: JSON.stringify({ question, session_id: sessionId, mode, stream: false, multimodal }),
+                timeoutMs: 120000
             });
             removeTyping();
             const answer = data.answer || '';
@@ -254,21 +288,57 @@ async function uploadFiles(files) {
     files.forEach(f => fd.append('files', f));
     showToast(`正在上传 ${files.length} 个文件...`);
     try {
-        await api('/api/rag/documents/batch', { method: 'POST', body: fd });
-        showToast('上传成功');
+        const data = await api('/api/rag/documents/batch', { method: 'POST', body: fd, timeoutMs: 120000 });
+        const tasks = (data.items || []).map(it => it.task_id).filter(Boolean);
+        if (tasks.length) {
+            setTaskStatus(`正在索引 ${tasks.length} 个文档…`, 'running');
+            let done = 0;
+            for (const tid of tasks) {
+                await pollTask(tid);
+                done += 1;
+            }
+            setTaskStatus(`上传+索引完成 ${done}/${tasks.length}`, done === tasks.length ? 'done' : 'warn');
+            showToast(`上传+索引完成 ${done}/${tasks.length}`);
+        } else {
+            showToast('上传成功');
+        }
         loadDocuments();
     } catch (e) {
+        setTaskStatus('上传/索引出错', 'warn');
         showToast('上传失败: ' + e.message);
     }
 }
 
 async function doIncremental() {
-    showToast('正在执行增量更新...');
+    const btn = $('#incremental-btn');
+    btn.disabled = true;
+    showToast('正在提交增量更新任务...');
+    setTaskStatus('增量更新执行中…', 'running');
     try {
-        await api('/api/rag/incremental-update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' });
-        showToast('增量更新完成');
+        const data = await api('/api/rag/incremental-update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{}',
+            timeoutMs: 30000,
+        });
+        if (data && data.task_id) {
+            const st = await pollTask(data.task_id);
+            const stats = st.result && st.result.index && st.result.index.stats ? st.result.index.stats : null;
+            const msg = stats
+                ? `增量更新完成: +${stats.added} 改 ${stats.modified} 删 ${stats.removed} 错 ${stats.errors}${stats.skipped ? ` 跳 ${stats.skipped}` : ''}`
+                : '增量更新完成';
+            showToast(msg);
+            setTaskStatus(msg, 'done');
+        } else {
+            showToast('增量更新完成');
+            setTaskStatus('增量更新完成', 'done');
+        }
+        loadDocuments();
     } catch (e) {
+        setTaskStatus('增量更新失败: ' + e.message, 'warn');
         showToast('增量更新失败: ' + e.message);
+    } finally {
+        btn.disabled = false;
     }
 }
 

@@ -76,3 +76,11 @@ data/logs/*
 .idea/
 *.swp
 *.swo
+
+# ----- Agent / tooling workspace state -----
+.taskswarm/
+.scratch/
+
+# ----- loadtest 是独立 git 仓库（含自身 .git/），不随 rag-fec 上传 -----
+# 如需发布请单独推送 loadtest 仓库
+loadtest/

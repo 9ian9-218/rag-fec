@@ -98,7 +98,13 @@ class LLMSettings(BaseSettings):
         default=8,
         ge=1,
         le=256,
-        description="LLM API 最大并发调用数",
+        description="LLM API 最大并发调用数（查询期）",
+    )
+    max_concurrent_insert_calls: int = Field(
+        default=4,
+        ge=1,
+        le=256,
+        description="索引插入期 LLM API 最大并发调用数（与查询期隔离，避免增量更新挤占查询）",
     )
     timeout: float = Field(
         default=180.0,
@@ -169,6 +175,12 @@ class EmbeddingSettings(BaseSettings):
         ge=1,
         le=128,
         description="Embedding API 请求最大并发数（查询期背压）",
+    )
+    max_concurrent_insert_calls: int = Field(
+        default=2,
+        ge=1,
+        le=64,
+        description="索引插入期 Embedding API 请求最大并发数（与查询期隔离）",
     )
 
 
@@ -265,10 +277,10 @@ class LightRAGRuntimeSettings(BaseSettings):
         description="LLM 關鍵詞抽取失敗或為空時使用 FEC 啟發式回退",
     )
     entity_extract_max_gleaning: int = Field(
-        default=2,
+        default=1,
         ge=0,
         le=5,
-        description="索引期實體抽取補全輪次（原庫默認 1，提高以補全圖譜實體）",
+        description="索引期實體抽取補全輪次（每轮次=一次 LLM 调用；过高显著拉长插入耗时并提高 Worker 超时风险）",
     )
 
 
@@ -291,16 +303,6 @@ class RetrievalSettings(BaseSettings):
         ge=0.0,
         le=1.0,
         description="對 rerank 分數 min-max 歸一化後的低分過濾；0 表示僅依 chunk_top_k 截斷（對應 MIN_RERANK_SCORE）",
-    )
-    llm_mode_router_enabled: bool = Field(
-        default=True,
-        description="檢索前調用 LLM 評估問題並在 naive/local/global/hybrid/mix 中自動選模式",
-    )
-    llm_mode_router_temperature: float = Field(
-        default=0.0,
-        ge=0.0,
-        le=1.0,
-        description="模式路由 LLM 溫度（建議 0 以穩定選 mode）",
     )
 
 
@@ -336,6 +338,12 @@ class ServiceSettings(BaseSettings):
         le=10000,
         description="API 全局同时在途查询数上限",
     )
+    lock_timeout_seconds: int = Field(
+        default=7200,
+        ge=60,
+        le=86400,
+        description="增量/文档处理锁的持有超时（秒）。单个文档处理可能超过 480s，固定 60s 会导致锁提前过期引发重复提交",
+    )
     rate_limit_enabled: bool = Field(
         default=False,
         description="是否启用进程内令牌桶限流",
@@ -353,8 +361,8 @@ class ServiceSettings(BaseSettings):
         description="进程内限流桶容量（突发上限）",
     )
     async_document_processing_enabled: bool = Field(
-        default=False,
-        description="启用后文档上传/增量更新返回 202 + task_id 异步处理",
+        default=True,
+        description="启用后文档上传/增量更新返回 202 + task_id 异步处理；为 False 时同步执行（可能长时间阻塞请求）",
     )
     workers: int = Field(
         default=1,
@@ -634,6 +642,14 @@ def apply_settings_to_environ(settings: Settings | None = None) -> None:
     os.environ["EMBEDDING_BATCH_NUM"] = str(s.embedding.batch_size)
     os.environ["EMBEDDING_FUNC_MAX_ASYNC"] = str(s.embedding.max_async)
     os.environ["MIN_RERANK_SCORE"] = str(s.retrieval.rerank_min_score)
+
+    # LightRAG 1.5.4 用 LLM_TIMEOUT 计算 LLM Worker 超时（execution = 2×LLM_TIMEOUT），
+    # 不设置时取默认 240s（对应 480s 掐断）。这里显式传导配置，并为 openai_complete
+    # 的 3 次内置重试预留预算：LLM_TIMEOUT = 请求超时 + 120s，保证
+    # 3×timeout ≤ 2×LLM_TIMEOUT，避免"请求还没超时、Worker 先被杀"的历史失败。
+    os.environ["LLM_TIMEOUT"] = str(int(s.llm.timeout) + 120)
+    # 让 LightRAG 自带 worker 池与项目并发配额一致
+    os.environ["MAX_ASYNC_LLM"] = str(s.llm.max_concurrent_calls)
 
     root = os.path.abspath(s.paths.project_root)
     os.environ.setdefault("LIGHTRAG_WORKDIR", os.path.join(root, s.paths.lightrag_working_dir))
