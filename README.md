@@ -227,7 +227,7 @@ python scripts/query.py "解释该译码结构图" --multimodal
 **离线评估流程**
 
 ```bash
-# 1. 准备金标 data/test/eval_gold.jsonl
+# 1. 准备测试数据 data/test/eval_gold.jsonl
 # 2. 批量生成预测
 python scripts/collect_eval_predictions.py \
   --input data/test/eval_gold.jsonl \
@@ -245,7 +245,7 @@ python scripts/metrics_summary.py
 **核心离线指标**
 
 - **排序检索**：实体 / 关系 / Chunk 的 Recall@K、Precision@K、NDCG@K（对齐匹配）
-- **RAGAS v2**：context_recall、context_precision、faithfulness（启发式或 `--ragas-llm`）
+- **RAGAS v2**：context_recall、context_precision、faithfulness（`--ragas-llm`）
 - **多跳**：`multihop: true` 样本的要点/别名匹配准确率
 - **可选**：ROUGE、文档 Hit@K（`--include-answer`）
 
