@@ -32,8 +32,9 @@ def build_query_cache_key(
     mode: str | None,
     top_k: int,
     multimodal: bool,
+    extra: str = "",
 ) -> str:
-    """构造查询结果缓存 key。"""
+    """构造查询结果缓存 key；``extra`` 用于附加维度（如社区摘要开关与版本）。"""
     import hashlib
 
     parts = "|".join(
@@ -42,6 +43,7 @@ def build_query_cache_key(
             mode or "auto",
             str(top_k),
             str(multimodal),
+            str(extra),
             get_index_version(),
         ]
     )
@@ -55,8 +57,9 @@ def build_retrieval_cache_key(
     mode: str,
     top_k: int,
     chunk_top_k: int,
+    extra: str = "",
 ) -> str:
-    """构造检索上下文缓存 key。"""
+    """构造检索上下文缓存 key；``extra`` 用于附加维度（如社区摘要开关与版本）。"""
     import hashlib
 
     parts = "|".join(
@@ -65,6 +68,7 @@ def build_retrieval_cache_key(
             mode,
             str(top_k),
             str(chunk_top_k),
+            str(extra),
             get_index_version(),
         ]
     )

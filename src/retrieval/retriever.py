@@ -34,6 +34,19 @@ _last_mode_route_ctx: ContextVar["ModeRouteResult | None"] = ContextVar(
     default=None,
 )
 
+# 每次请求的社区摘要注入状态（含未生效原因），供 API/CLI 回报给用户。
+_last_community_ctx: ContextVar[dict[str, Any] | None] = ContextVar(
+    "retriever_last_community",
+    default=None,
+)
+
+
+def _community_cache_extra(use_community: bool | None) -> str:
+    """检索/回答缓存 key 的社区维度：开关有效值 + 索引版本。"""
+    from src.community.store import cache_extra
+
+    return cache_extra(use_community)
+
 
 def _bundle_has_content(bundle: dict[str, Any]) -> bool:
     """检索 bundle 是否含有任何实质内容（实体/关系/引文任一非空）。
@@ -64,6 +77,11 @@ class GraphRAGRetriever:
         """返回当前异步任务最近一次模式路由。"""
         return _last_mode_route_ctx.get()
 
+    @property
+    def last_community_status(self) -> dict[str, Any] | None:
+        """返回当前异步任务最近一次社区摘要注入状态。"""
+        return _last_community_ctx.get()
+
     async def _rag(self):
         return await get_lightrag()
 
@@ -83,12 +101,51 @@ class GraphRAGRetriever:
         _last_mode_route_ctx.set(route)
         return route
 
+    async def _attach_community_context(
+        self,
+        data: dict[str, Any],
+        question: str,
+        mode: str,
+        use_community: bool | None,
+        rag: Any,
+    ) -> dict[str, Any]:
+        """按需把社区摘要挂到 bundle（``community_context`` + 状态 ``community``）。
+
+        任何异常都降级为"不注入"，绝不影响主检索链路。
+        """
+        try:
+            from src.community.injector import select_community_context
+
+            injection = await select_community_context(
+                question,
+                use_community=use_community,
+                mode=mode,
+                settings=self._settings,
+                embed_fn=getattr(rag, "embedding_func", None),
+            )
+        except Exception as e:
+            logger.warning("社区摘要注入异常，跳过: %s", e)
+            _last_community_ctx.set(None)
+            return data
+
+        status = injection.to_dict()
+        _last_community_ctx.set(status)
+        data["community"] = status
+        if injection.applied and injection.text:
+            data["community_context"] = {
+                "text": injection.text,
+                "ids": list(injection.ids),
+                "tokens": int(injection.tokens),
+            }
+        return data
+
     async def _get_retrieval_bundle(
         self,
         question: str,
         param,
         mode: str,
         top_k: int | None,
+        use_community: bool | None = None,
     ) -> dict[str, Any]:
         """获取检索上下文，优先命中 Redis 检索缓存；未命中则执行 LightRAG 检索并写回。"""
         cache_key = build_retrieval_cache_key(
@@ -96,9 +153,11 @@ class GraphRAGRetriever:
             mode=mode,
             top_k=top_k or self._settings.retrieval.top_k,
             chunk_top_k=int(param.chunk_top_k or self._settings.retrieval.top_k),
+            extra=_community_cache_extra(use_community),
         )
         cached = await get_retrieval_cache(cache_key)
         if cached is not None and isinstance(cached, dict):
+            _last_community_ctx.set(cached.get("community"))
             return cached
 
         rag = await self._rag()
@@ -111,6 +170,7 @@ class GraphRAGRetriever:
             data = {"status": "failure", "message": str(e), "data": {}}
         if isinstance(data, dict):
             data = await refine_retrieval_bundle(question, data, settings=self._settings)
+            data = await self._attach_community_context(data, question, mode, use_community, rag)
 
         if isinstance(data, dict) and _bundle_has_content(data):
             await set_retrieval_cache(
@@ -130,8 +190,9 @@ class GraphRAGRetriever:
         only_need_context: bool = False,
         history: list[dict[str, str]] | None = None,
         use_llm_router: bool | None = None,
+        use_community: bool | None = None,
     ) -> dict[str, Any]:
-        """呼叫 ``aquery_data``，回傳結構化檢索結果。"""
+        """呼叫 ``aquery_data``，回傳結構化檢索結果（含社区摘要注入状态）。"""
         route = await self._resolve_mode(question, mode, use_llm_router=use_llm_router)
         m = route.mode
         param = build_query_param(
@@ -143,7 +204,7 @@ class GraphRAGRetriever:
         )
         clear_rerank_stats()
         timer = QueryTimer()
-        data = await self._get_retrieval_bundle(question, param, str(m), top_k)
+        data = await self._get_retrieval_bundle(question, param, str(m), top_k, use_community)
         sources = extract_sources(data if isinstance(data, dict) else {})
         kg_text = ""
         if isinstance(data, dict):
@@ -159,7 +220,7 @@ class GraphRAGRetriever:
                 bundle=bundle,
                 latency_ms=timer.elapsed_ms(),
                 kg_text=kg_text,
-                min_rerank_score=float(self._settings.retrieval.rerank_min_score),
+                community=_last_community_ctx.get(),
             )
         )
         clear_rerank_stats()
@@ -169,6 +230,7 @@ class GraphRAGRetriever:
             "kg_text": kg_text,
             "mode": m,
             "mode_selection": route.to_dict(),
+            "community": _last_community_ctx.get(),
         }
 
     async def query(
@@ -182,6 +244,7 @@ class GraphRAGRetriever:
         stream: bool = False,
         multimodal: bool = False,
         use_llm_router: bool | None = None,
+        use_community: bool | None = None,
     ) -> str | AsyncIterator[str]:
         """端到端問答（含 LLM）。``stream=True`` 時回傳 async iterator。
 
@@ -217,7 +280,7 @@ class GraphRAGRetriever:
         clear_rerank_stats()
         timer = QueryTimer()
         if multimodal and m != "bypass":
-            bundle = await self._get_retrieval_bundle(question, param, str(m), top_k)
+            bundle = await self._get_retrieval_bundle(question, param, str(m), top_k, use_community)
             if isinstance(bundle, dict) and bundle.get("status") == "success":
                 from src.retrieval.multimodal_answer import (
                     _extract_chunks_and_kg,
@@ -246,7 +309,7 @@ class GraphRAGRetriever:
                             kg_text=kg_text,
                             reference_chunks_before=len(chunks_raw),
                             reference_chunks_after=len(trimmed),
-                            min_rerank_score=float(self._settings.retrieval.rerank_min_score),
+                            community=_last_community_ctx.get(),
                         )
                     )
                     clear_rerank_stats()
@@ -269,7 +332,7 @@ class GraphRAGRetriever:
                                 kg_text=kg_text,
                                 reference_chunks_before=len(chunks_raw),
                                 reference_chunks_after=len(trimmed),
-                                min_rerank_score=float(self._settings.retrieval.rerank_min_score),
+                                community=_last_community_ctx.get(),
                             )
                         )
                         clear_rerank_stats()
@@ -277,7 +340,7 @@ class GraphRAGRetriever:
                     except Exception as e2:
                         logger.warning("僅文字檢索作答仍失敗，降級為 LightRAG aquery: %s", e2)
 
-        bundle = await self._get_retrieval_bundle(question, param, str(m), top_k)
+        bundle = await self._get_retrieval_bundle(question, param, str(m), top_k, use_community)
         sources = extract_sources(bundle if isinstance(bundle, dict) else {})
         kg_text = ""
         if isinstance(bundle, dict):
@@ -308,7 +371,7 @@ class GraphRAGRetriever:
                 bundle=bundle if isinstance(bundle, dict) else {},
                 latency_ms=timer.elapsed_ms(),
                 kg_text=kg_text,
-                min_rerank_score=float(self._settings.retrieval.rerank_min_score),
+                community=_last_community_ctx.get(),
             )
         )
         clear_rerank_stats()

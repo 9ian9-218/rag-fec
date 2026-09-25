@@ -305,3 +305,36 @@ def apply_lightrag_relation_patches() -> None:
 
     _PATCHED = True
     logger.info("LightRAG 关系检索补丁已启用（relation_top_k / related_relation_chunk_number）")
+
+_SESSION_HEADER_PATCHED = False
+
+
+def apply_openai_session_header_patch() -> None:
+    """為 OpenAI 客戶端注入 ``x-opencode-session`` 頭（OpenCode 網關強制要求）。
+
+    LightRAG 建立 client 時會覆蓋 ``client_configs`` 裡的 ``default_headers``，
+    因此這裡在 client 建立後直接寫入 SDK 的 ``_custom_headers``。
+    """
+    global _SESSION_HEADER_PATCHED
+    if _SESSION_HEADER_PATCHED:
+        return
+    from lightrag.llm import openai as lr_openai
+
+    from src.utils.openai_session import session_headers, session_id
+
+    orig = lr_openai.create_openai_async_client
+    sid = session_headers()["x-opencode-session"]
+
+    def _patched(*args, **kwargs):
+        client = orig(*args, **kwargs)
+        try:
+            custom = dict(getattr(client, "_custom_headers", None) or {})
+            custom.setdefault("x-opencode-session", sid)
+            client._custom_headers = custom
+        except Exception as exc:  # pragma: no cover - 兼容 SDK 內部改名
+            logger.warning("注入 x-opencode-session 失敗: %s", exc)
+        return client
+
+    lr_openai.create_openai_async_client = _patched
+    _SESSION_HEADER_PATCHED = True
+    logger.info("OpenAI client 補丁：x-opencode-session=%s", session_id())

@@ -8,6 +8,8 @@ from typing import Any
 import httpx
 from openai import AsyncOpenAI
 
+from src.utils.openai_session import session_headers
+
 _openai_clients: dict[tuple[str, str, float | None], AsyncOpenAI] = {}
 _openai_lock = threading.Lock()
 
@@ -26,7 +28,12 @@ def get_openai_client(
     with _openai_lock:
         client = _openai_clients.get(key)
         if client is None:
-            client = AsyncOpenAI(api_key=api_key, base_url=base_url, timeout=timeout)
+            client = AsyncOpenAI(
+                api_key=api_key,
+                base_url=base_url,
+                timeout=timeout,
+                default_headers=session_headers(),
+            )
             _openai_clients[key] = client
         return client
 

@@ -48,11 +48,16 @@ def _keyword_json_from_lists(prompt: str, hl: list, ll: list, settings: Settings
 
 
 def _keyword_fallback_json(prompt: str, settings: Settings) -> str:
-    from src.retrieval.keyword_fallback import fec_keyword_fallback
+    from src.retrieval.keyword_fallback import scholarly_keyword_fallback
 
-    hl, ll = fec_keyword_fallback(prompt)
+    hl, ll = scholarly_keyword_fallback(prompt)
     return _keyword_json_from_lists(prompt, hl, ll, settings)
 
+
+def _is_keyword_extraction_prompt(prompt: str) -> bool:
+    """判斷是否為 LightRAG 的關鍵詞抽取提示詞。"""
+    p = prompt or ""
+    return "high_level_keywords" in p and "low_level_keywords" in p
 
 def _build_llm_func(settings: Settings):
     from lightrag.llm.openai import openai_complete
@@ -60,8 +65,10 @@ def _build_llm_func(settings: Settings):
     from src.utils.concurrency import get_phase, get_semaphore
 
     async def _llm(prompt, system_prompt=None, history_messages=None, **kwargs):
-        # 查询关键词不再调用 LLM，直接使用 FEC 规则启发式生成，避免 query 改写/意图识别。
-        if kwargs.get("keyword_extraction"):
+        # 查询关键词不再调用 LLM，直接使用规则启发式生成（科研文献通用词表），避免 query 改写/意图识别。
+        # 關鍵詞抽取不調 LLM：LightRAG 1.5.x 經 keyword 角色調用，不帶 keyword_extraction 參數，
+        # 因此再按提示詞特徵（同時要求 high/low level keywords）判斷。
+        if kwargs.get("keyword_extraction") or _is_keyword_extraction_prompt(prompt):
             return _keyword_fallback_json(prompt, settings)
 
         # 查询期与插入期使用独立配额，避免增量更新挤占在线查询。
@@ -88,53 +95,56 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
     """依設定建立 ``LightRAG``（尚未 ``initialize_storages``）。"""
     s = settings or get_settings()
     apply_settings_to_environ(s)
-    from src.storage.lightrag_patches import apply_lightrag_relation_patches
+    from src.storage.lightrag_patches import (
+        apply_lightrag_relation_patches,
+        apply_openai_session_header_patch,
+    )
     from src.storage.pymilvus_timeout_patch import ensure_pymilvus_connection_timeout
 
     ensure_pymilvus_connection_timeout()
     apply_lightrag_relation_patches()
+    apply_openai_session_header_patch()
     from lightrag import LightRAG
 
     root = _project_root()
     working_dir = str(root / s.paths.lightrag_working_dir)
     os.makedirs(working_dir, exist_ok=True)
 
-    # Embedding: 仅支持线上 API
-    from src.storage.remote_embedding import build_remote_embedding_func
+    # Embedding：本地模型（EMBEDDING_BACKEND=local）或第三方线上 API
+    if s.embedding.backend == "local":
+        from src.storage.local_embedding import build_local_embedding_func
 
-    if not s.embedding.api_enabled:
-        raise RuntimeError(
-            "Embedding API 未启用。本项目现已移除本地模型支持，必须使用线上 API。\n"
-            "请在 .env 中设置：\n"
-            "  EMBEDDING_API_ENABLED=true\n"
-            "  EMBEDDING_API_KEY=your-api-key\n"
-            "  EMBEDDING_API_BASE_URL=https://api.siliconflow.cn\n"
-            "  EMBEDDING_API_MODEL_NAME=BAAI/bge-m3\n"
-            "  EMBEDDING_DIMENSION=1024"
-        )
-
-    embedding_func = build_remote_embedding_func(s)
-    logger.info(
-        "Embedding backend: remote API, model=%s, base_url=%s, dim=%d",
-        s.embedding.api_model_name,
-        s.embedding.api_base_url,
-        s.embedding.dimension,
-    )
-    llm_model_func = _build_llm_func(s)
-
-    # Rerank: 仅支持线上 API
-    rerank_model_func = None
-
-    if not s.models.rerank_api_enabled:
-        logger.warning(
-            "Rerank API 未启用。本项目现已移除本地模型支持。\n"
-            "如需启用 rerank，请在 .env 中设置：\n"
-            "  MODELS_RERANK_API_ENABLED=true\n"
-            "  MODELS_RERANK_API_KEY=your-api-key\n"
-            "  MODELS_RERANK_API_BASE_URL=https://api.siliconflow.cn\n"
-            "  MODELS_RERANK_API_MODEL_NAME=BAAI/bge-reranker-v2-m3"
+        embedding_func = build_local_embedding_func(s)
+        logger.info(
+            "Embedding backend: local, path=%s device=%s dtype=%s dim=%d",
+            s.embedding.local_model_path,
+            s.embedding.local_device,
+            s.embedding.local_dtype,
+            s.embedding.dimension,
         )
     else:
+        from src.storage.remote_embedding import build_remote_embedding_func
+
+        if not s.embedding.api_enabled:
+            raise RuntimeError(
+                "Embedding 未配置：请设置 EMBEDDING_BACKEND=local 使用本地模型，"
+                "或设置 EMBEDDING_API_ENABLED=true 并补齐 EMBEDDING_API_KEY / BASE_URL / MODEL_NAME。"
+            )
+
+        embedding_func = build_remote_embedding_func(s)
+        logger.info(
+            "Embedding backend: remote API, model=%s, base_url=%s, dim=%d",
+            s.embedding.api_model_name,
+            s.embedding.api_base_url,
+            s.embedding.dimension,
+        )
+
+    llm_model_func = _build_llm_func(s)
+
+    # Rerank：线上 API（显式启用优先）→ 本地 CrossEncoder 权重 → 显式关闭
+    rerank_model_func = None
+
+    if s.models.rerank_api_enabled:
         from src.storage.remote_rerank import build_remote_rerank_model_func
 
         rerank_model_func = build_remote_rerank_model_func(s)
@@ -146,16 +156,41 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
                 s.retrieval.rerank_min_score,
             )
         else:
-            logger.warning("Remote rerank API 初始化失敗，将跳过 rerank")
+            logger.warning(
+                "MODELS_RERANK_API_ENABLED=true 但线上 rerank 配置不完整"
+                "（需 KEY / BASE_URL / MODEL_NAME），将尝试本地 CrossEncoder"
+            )
+
+    if rerank_model_func is None:
+        from src.storage.bge_rerank import build_local_rerank_model_func
+
+        rerank_model_func = build_local_rerank_model_func(s)
+        if rerank_model_func is not None:
+            logger.info(
+                "Rerank enabled: local CrossEncoder, batch_size=%d min_score=%s",
+                s.models.rerank_batch_size,
+                s.retrieval.rerank_min_score,
+            )
+
+    if rerank_model_func is None:
+        logger.warning(
+            "Chunk 精排未启用：线上 rerank 未配置，且本地未找到 CrossEncoder 权重，"
+            "查询将显式 enable_rerank=False（不再出现『看似在重排』的状态）。\n"
+            "启用本地免费重排：python scripts/download_reranker.py"
+        )
 
     lr = s.lightrag
     max_graph_nodes = min(1000, max(64, int(lr.max_graph_nodes)))
     chunk_top_k = lr.chunk_top_k if lr.chunk_top_k is not None else s.retrieval.top_k
 
-    entity_types = s.fec.resolve_entity_types()
+    entity_types = s.domain.resolve_entity_types()
+    entity_types_guidance = s.domain.resolve_entity_types_guidance()
     addon_params = {
-        "language": s.fec.summary_language,
-        "entity_types": entity_types,
+        "language": s.domain.summary_language,
+        # LightRAG 1.5+ 以 entity_types_guidance（字串）決定實體類型；
+        # 舊版（<=1.4）讀 entity_types 列表，一併傳入以保持相容。
+        "entity_types_guidance": entity_types_guidance,
+        "entity_types": [name for name, _ in entity_types],
         "relation_top_k": lr.relation_top_k,
         "related_relation_chunk_number": lr.related_relation_chunk_number,
     }
@@ -218,9 +253,10 @@ def build_lightrag(settings: Settings | None = None) -> "LightRAG":
         s.multimodal.reference_context_max_chars,
     )
     logger.info(
-        "LightRAG FEC addon_params: language=%s entity_types=%d kinds gleaning=%s",
+        "LightRAG schema addon_params: language=%s entity_types=%d kinds guidance_chars=%d gleaning=%s",
         addon_params["language"],
         len(entity_types),
+        len(entity_types_guidance),
         lr.entity_extract_max_gleaning,
     )
     return rag

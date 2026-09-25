@@ -24,6 +24,9 @@ jieba==0.42.1
 nltk==3.10.0
 opencc-python-reimplemented==0.1.7
 ragas==0.4.3
+# ragas 0.4.3 顶层导入 langchain_community.chat_models.vertexai；该模块在 0.4.2 被删除，
+# 会把 ragas 直接 import 失败并让评测静默返回 0 分。必须钉在 0.4.x 中仍带此模块的版本。
+langchain-community==0.4.1
 datasets==5.0.0
 sentence-transformers==5.6.0
 redis==5.2.1

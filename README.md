@@ -2,7 +2,7 @@
 
 本项目聚焦于 **LightRAG + Neo4j + Milvus** 的知识图谱增强检索（KG-RAG），面向 **前向纠错编码（FEC）** 领域文献与教材，提供文档解析、图谱构建、多模式检索、智能路由、增量更新、离线/在线评估与 FastAPI 服务，适合科研文献问答与领域知识库构建，本项目由vibe coding生成。
 
-> 灵感来源于 GraphRAG 与 LightRAG 的轻量图谱方案，在 FEC 专业语料上做了实体类型、关系优化与评估体系的领域化落地。
+> 灵感来源于 GraphRAG 与 LightRAG 的轻量图谱方案：实体 schema 面向通用理工科科研文献，检索优化与评估体系在 FEC 语料上做了领域化验证。
 
 ## 系统架构
 
@@ -16,7 +16,7 @@ flowchart TB
     subgraph Pipeline["数据处理与索引"]
         Loader["document_loader + text_splitter"]
         LightRAG["LightRAG 管线"]
-        Extract["实体/关系抽取（FEC 12 类）"]
+        Extract["实体/关系抽取（理工科科研 schema 18 类）"]
     end
 
     subgraph Storage["存储层"]
@@ -27,7 +27,7 @@ flowchart TB
     end
 
     subgraph Retrieval["检索与生成"]
-        Router["LLM 模式路由"]
+        Router["规则化模式路由"]
         Modes["naive / local / global / hybrid / mix"]
         Rerank["BGE CrossEncoder 重排"]
         LLM["OpenAI 兼容 LLM"]
@@ -73,7 +73,7 @@ flowchart TB
 rag-fec/
 ├── config/                     # 全局配置
 │   ├── settings.py             # pydantic-settings，.env 驱动
-│   ├── fec_defaults.py         # FEC 领域 12 类实体类型
+│   ├── schema_defaults.py      # 理工科科研文献通用实体类型（18 类）
 │   └── model_paths.py          # 本机模型路径（models/hub）
 ├── data/
 │   ├── raw/                    # 原始文档（PDF/MD/…）
@@ -110,9 +110,10 @@ rag-fec/
 ## 项目亮点
 
 - **生产导向的 KG-RAG**：LightRAG 图谱 + 向量双路召回，默认 `mix` 模式融合图与 Chunk 证据
-- **FEC 领域实体体系**：12 类实体（码型、编解码、信道模型等），摘要语言默认中文
-- **LLM 智能检索路由**：按问题复杂度与难度实现LightRAG的模式路由，适配不同query
-- **关系检索优化**：关键词回退、CrossEncoder 关系重排、关系描述过滤，降低图谱噪声
+- **理工科科研实体体系**：18 类通用实体（研究问题、理论与模型、方法与算法、定理与公式、实验与数据集、指标、系统与工具等），
+  适用于数学/物理/化学/生物/材料/计算机/电子等领域的论文与专著；摘要语言默认中文，类型词表可按需覆写
+- **规则化检索模式路由**：按问题关键词启发式选择 LightRAG 检索模式，适配不同 query
+- **关系检索优化**：关键词回退、CrossEncoder 关系重排（需本地重排权重，见 `python scripts/download_reranker.py`）、关系描述过滤，降低图谱噪声
 - **两阶段文档管线**：MinerU 转档与 LightRAG 索引解耦，支持 `convert-first` 一步执行
 - **稳健增量更新**：MD5 哈希比对、`doc_id` 稳定映射、删除级联清理侧车文件
 - **完整评估体系**：实体/关系/Chunk 排序指标、RAGAS v2、在线 query 遥测
@@ -188,7 +189,8 @@ python scripts/query.py --interactive
 - **两阶段管线**（默认 `two_stage`）：
   - 阶段一：`scripts/convert.py` — 仅 PDF 转 Markdown
   - 阶段二：`scripts/incremental_update.py` — 仅对文本建 LightRAG 索引
-- **FEC 实体类型**：经 `LightRAG.addon_params["entity_types"]` 注入，可用 `FEC_ENTITY_TYPES_JSON` 覆盖
+- **实体类型 schema**：理工科科研文献（论文/专著/技术报告）通用 16 类，经 `LightRAG.addon_params["entity_types_guidance"]` 注入抽取提示词；
+  可用 `SCHEMA_ENTITY_TYPES_JSON`（JSON 数组或 `类型名→说明` 对象）或 `SCHEMA_ENTITY_TYPES_GUIDANCE`（整段文本）覆盖
 - **增量更新**：`data/hash_cache.json` 记录路径 MD5；变更时 `adelete_by_doc_id` 再 `ainsert`
 
 ### 检索模式
@@ -208,7 +210,7 @@ python scripts/query.py --interactive
 ### 关系检索增强
 
 - **关系关键词评分**（`relation_keywords.py`）
-- **CrossEncoder 关系重排**（`bge_rerank.py`）
+- **CrossEncoder 关系重排**（`bge_rerank.py` + `config/model_paths.py`）：本地权重存在或线上 rerank 配置完整时才生效；两者都不可用时查询显式 `enable_rerank=False`
 - **关键词回退**（`keyword_fallback.py`）：向量召回不足时补充
 - **检索后精炼**（`relation_optimizer.py`）：打包过滤低质量关系
 
@@ -221,6 +223,49 @@ python scripts/query.py "解释该译码结构图" --multimodal
 ```
 
 需在 `.env` 配置 `MULTIMODAL_*`（与主 LLM 分离）。
+
+### 社区摘要（可选能力，默认关闭）
+
+LightRAG 的 `global` 模式是按"高度数实体/关系"做的扁平全局召回，缺少一层**主题化整体视野**。本能力用 Louvain 把实体关系图划分成**粗粒度社区**（不加启发式权重），离线为每个社区生成摘要，查询期按需注入上下文——查询本身**不增加 LLM 调用**（本地 embedding + numpy 余弦）。
+
+- **默认关闭**：`COMMUNITY_ENABLED=false` 时不构建索引、不注入、`/communities/rebuild` 直接返回 `disabled`
+- **请求级开关（真 opt-in）**：`use_community=true/false/省略`；省略时按 `COMMUNITY_DEFAULT_ENABLED`（默认 false）+ 宏观问题启发式
+- **用户意愿优先**：显式 `true` 会跳过"只给宏观问题注入"的门槛（仍受 `COMMUNITY_SIM_THRESHOLD` 与 `COMMUNITY_MAX_TOKENS` 约束）
+- **状态可解释**：响应带 `community:{requested,applied,reason,...}`，`reason` 可取 `ok / disabled_by_server / disabled_by_request / mode_not_eligible / not_macro_question / index_missing / index_stale / low_similarity / error`
+- **不进引用**：摘要只作为背景概览块注入 prompt（并标注"具体结论以检索材料为准"），`sources` 引用列表不受影响
+
+社区数量按目标数自适应并封顶：`clamp(round(节点数 / COMMUNITY_TARGET_PER_NODES), COMMUNITY_TARGET_MIN, COMMUNITY_TARGET_MAX)`（当前 2046 节点 → **10 个社区**，分辨率自动搜到 ≈0.37、模块度 0.73）；规模 < `COMMUNITY_MIN_SIZE` 的社区并入跨边权重最大的相邻大社区，不额外消耗 LLM。
+
+```bash
+# 只看划分与调用预算（不调 LLM、不写文件）
+python scripts/build_communities.py --dry-run
+
+# 增量构建/刷新（图谱指纹未变则 0 次 LLM；成员 Jaccard≥阈值直接复用旧摘要）
+python scripts/build_communities.py
+
+# 全量重建（能力关闭时也可用于离线试跑）
+python scripts/build_communities.py --mode full --force
+
+# 查看当前社区摘要
+python scripts/build_communities.py --list
+```
+
+启用后，CLI 与 HTTP 均可按需选择：
+
+```bash
+python scripts/query.py "这几篇论文在 RM 译码上的整体思路对比" --community --json   # 显式启用
+python scripts/query.py "什么是循环码？" --no-community                            # 显式关闭
+```
+
+```bash
+curl -s http://127.0.0.1:8000/api/rag/query -H 'Content-Type: application/json' \
+  -d '{"question":"整体对比这几篇论文的方法","use_community":true,"include_mode_selection":true}'
+curl -s http://127.0.0.1:8000/api/rag/communities
+curl -s -X POST http://127.0.0.1:8000/api/rag/communities/rebuild -H 'Content-Type: application/json' -d '{"force":false}'
+```
+
+产物（与 LightRAG JsonKV 同目录，不进 Neo4j/Milvus schema）：
+`data/lightrag_workdir/kv_store_community_reports.json` 与 `community_index.npz`。
 
 ### 评估与监控
 
@@ -249,7 +294,7 @@ python scripts/metrics_summary.py
 - **多跳**：`multihop: true` 样本的要点/别名匹配准确率
 - **可选**：ROUGE、文档 Hit@K（`--include-answer`）
 
-**在线遥测**：每次 query/retrieve 追加 `data/logs/query_metrics.jsonl`，记录延迟、图谱空率、重排过滤率、token 用量等，无需测试集。
+**在线遥测**：每次 query/retrieve 写入 SQLite `data/meta/app_kv.sqlite3` 的 `query_telemetry` 表，记录延迟、图谱空率、chunk 截断率与重排过滤率、token 用量等，无需测试集。
 
 ### API 服务
 
@@ -325,7 +370,7 @@ export PYTHONPATH=.
 pytest -q
 ```
 
-覆盖模块：增量更新、FEC 实体、模式路由、RAGAS/对齐指标、关系优化、多模态、MinerU 侧车等。
+覆盖模块：增量更新、科研实体 schema、模式路由、RAGAS/对齐指标、关系优化、多模态、MinerU 侧车等。
 
 ## 常见问题
 
@@ -351,7 +396,9 @@ pytest -q
 - **EMBEDDING_***：bge-m3 嵌入
 - **RETRIEVAL_***：默认模式、top_k、BM25、重排阈值、智能路由
 - **LIGHTRAG_***：token 上限、关系 top_k、关键词回退
-- **FEC_SUMMARY_LANGUAGE** / **FEC_ENTITY_TYPES_JSON**：领域配置
+- **SCHEMA_***：领域 schema —— `SCHEMA_SUMMARY_LANGUAGE`、`SCHEMA_ENTITY_TYPES_JSON`、`SCHEMA_ENTITY_TYPES_GUIDANCE`
+  （旧名 `FEC_SUMMARY_LANGUAGE` / `FEC_ENTITY_TYPES_JSON` 仍可读，优先序更低）
+- **ENTITY_TYPE_PROMPT_FILE**（LightRAG 原生）：指向 `prompts/entity_type/*.yaml`，整份替换类型指引与抽取示例
 - **MODELS_***：本机模型目录与离线模式
 - **MULTIMODAL_***：多模态 LLM（可选）
 

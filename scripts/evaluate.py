@@ -85,6 +85,8 @@ def main() -> None:
             }
         if "ragas" in report:
             snap["ragas"] = {k: v for k, v in report["ragas"].items() if k != "details"}
+        if "refusal" in report:
+            snap["refusal"] = {k: v for k, v in report["refusal"].items() if k != "details"}
         if "multihop" in report:
             snap["multihop"] = {k: v for k, v in report["multihop"].items() if k != "details"}
         print(json.dumps(snap, ensure_ascii=False, indent=2))

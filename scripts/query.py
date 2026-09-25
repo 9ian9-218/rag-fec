@@ -24,6 +24,7 @@ if str(ROOT) not in sys.path:
 
 from config.settings import apply_settings_to_environ, get_settings
 from src.service.rag_service import RAGService
+from src.utils.stream_text import strip_think_stream
 from src.utils.logger import setup_logging
 
 
@@ -46,6 +47,7 @@ async def _run_stream(
     multimodal: bool,
     *,
     no_auto_mode: bool,
+    use_community: bool | None = None,
 ) -> None:
     res = await rag.query(
         question,
@@ -54,9 +56,11 @@ async def _run_stream(
         stream=True,
         multimodal=multimodal,
         use_llm_router=False,
+        use_community=use_community,
     )
     if hasattr(res, "__aiter__"):
-        async for chunk in res:  # type: ignore[union-attr]
+        # 与 API 一致：剥离网关混入正文的 <think> 推理块
+        async for chunk in strip_think_stream(res):  # type: ignore[arg-type]
             if chunk:
                 print(str(chunk), end="", flush=True)
         print()
@@ -88,7 +92,7 @@ async def _async_main(args: argparse.Namespace) -> int:
             if line.lower() in ("exit", "quit", "/exit", "/quit"):
                 break
             if args.stream:
-                await _run_stream(rag, line, sid, mode, args.multimodal, no_auto_mode=args.no_auto_mode)
+                await _run_stream(rag, line, sid, mode, args.multimodal, no_auto_mode=args.no_auto_mode, use_community=args.use_community)
             else:
                 ans = await rag.query(
                     line,
@@ -97,6 +101,7 @@ async def _async_main(args: argparse.Namespace) -> int:
                     stream=False,
                     multimodal=args.multimodal,
                     use_llm_router=router_kw,
+                    use_community=args.use_community,
                 )
                 print(ans)
         return 0
@@ -112,6 +117,7 @@ async def _async_main(args: argparse.Namespace) -> int:
             mode=mode,
             stream=False,
             use_llm_router=router_kw,
+            use_community=args.use_community,
         )
         if args.json:
             print(json.dumps(payload, ensure_ascii=False, indent=2, default=str))
@@ -122,7 +128,7 @@ async def _async_main(args: argparse.Namespace) -> int:
         return 0
 
     if args.stream:
-        await _run_stream(rag, question, session_id, mode, args.multimodal, no_auto_mode=args.no_auto_mode)
+        await _run_stream(rag, question, session_id, mode, args.multimodal, no_auto_mode=args.no_auto_mode, use_community=args.use_community)
         return 0
 
     answer = await rag.query(
@@ -132,11 +138,16 @@ async def _async_main(args: argparse.Namespace) -> int:
         stream=False,
         multimodal=args.multimodal,
         use_llm_router=router_kw,
+        use_community=args.use_community,
     )
     if args.json:
         payload: dict = {"answer": answer}
         if args.show_mode and rag._retriever._last_mode_route is not None:
             payload["mode_selection"] = rag._retriever._last_mode_route.to_dict()
+        community = rag.last_community_status
+        if args.show_mode or args.use_community is not None:
+            if community is not None:
+                payload["community"] = community
         print(json.dumps(payload, ensure_ascii=False))
     else:
         print(answer)
@@ -185,6 +196,20 @@ def main() -> None:
         action="store_true",
         help="檢索後將 chunk 內圖片一併送入視覺模型（與 --stream 同開時會自動改非串流）",
     )
+    community_group = p.add_mutually_exclusive_group()
+    community_group.add_argument(
+        "--community",
+        dest="use_community",
+        action="store_true",
+        help="可選能力：本次強制啟用社區摘要概覽（跳過宏觀問題啟發式，仍受相似度/預算約束）",
+    )
+    community_group.add_argument(
+        "--no-community",
+        dest="use_community",
+        action="store_false",
+        help="可選能力：本次強制關閉社區摘要概覽",
+    )
+    p.set_defaults(use_community=None)
     args = p.parse_args()
     try:
         raise SystemExit(asyncio.run(_async_main(args)))

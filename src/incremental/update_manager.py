@@ -177,7 +177,25 @@ class UpdateManager:
         cp.stats.update(stats)
         self._cp.save(cp)
         logger.info("增量更新完成: %s", stats)
+        await self._refresh_communities_if_needed(stats)
         return {"stats": stats, "report": _serialize_report(report)}
+
+    async def _refresh_communities_if_needed(self, stats: dict[str, Any] | None = None) -> None:
+        """入库完成后按需刷新社区摘要（可选能力；失败不得影响入库结果）。"""
+        try:
+            cfg = get_settings().community
+            if not cfg.enabled or cfg.refresh_mode != "auto":
+                return
+            if stats is not None and not any(
+                int(stats.get(key) or 0) for key in ("added", "modified", "removed")
+            ):
+                return
+            from src.community.builder import refresh_communities
+
+            out = await refresh_communities(reason="incremental")
+            logger.info("社区摘要刷新: %s", out)
+        except Exception as e:  # 摘要属可选增强，任何失败都只记录
+            logger.warning("社区摘要刷新失败（不影响入库）: %s", e)
 
     async def _ingest_doc_locked(
         self,
@@ -356,6 +374,7 @@ class UpdateManager:
             except OSError as e:
                 logger.warning("無法更新 hash 快取 %s: %s", path, e)
             write_hash_cache(c)
+        await self._refresh_communities_if_needed({"added": 1})
         return {"doc_id": doc_id, "metadata": loaded.metadata}
 
 

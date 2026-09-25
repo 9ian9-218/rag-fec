@@ -6,6 +6,7 @@ import asyncio
 import re
 from typing import Any
 
+from config.model_paths import rerank_backend_available
 from config.settings import Settings, get_settings
 from src.retrieval.relation_keywords import enhance_keywords_for_retrieval, extract_user_query_from_prompt
 from src.storage.bge_rerank import minmax_normalize_scores
@@ -61,16 +62,6 @@ def _keyword_overlap_score(text: str, keywords: list[str]) -> float:
     return hits / max(1, len(keywords))
 
 
-def _online_rerank_available(settings: Settings) -> bool:
-    m = settings.models
-    return bool(
-        m.rerank_api_enabled
-        and m.rerank_api_key
-        and m.rerank_api_base_url
-        and m.rerank_api_model_name
-    )
-
-
 async def _rerank_relations_online(
     question: str,
     relations: list[dict[str, Any]],
@@ -113,7 +104,11 @@ def _rerank_relations_sync(
     model = _get_cross_encoder(load_path)
     docs = [_relation_text(r) or " " for r in relations]
     pairs = [[question, d] for d in docs]
-    raw = model.predict(pairs, batch_size=int(settings.models.rerank_batch_size), show_progress_bar=False)
+    raw = model.predict(
+        pairs,
+        batch_size=int(settings.models.rerank_batch_size),
+        show_progress_bar=False,
+    )
     scores = minmax_normalize_scores([float(x) for x in raw])
     return list(zip(relations, scores))
 
@@ -159,7 +154,7 @@ async def filter_relationships(
             scored_kw.sort(key=lambda x: x[1], reverse=True)
             deduped = [r for r, _ in scored_kw[: max(1, lr.relation_top_k)]]
 
-    if lr.relation_rerank_enabled and (_online_rerank_available(s) or s.rerank_runtime_available()) and deduped:
+    if lr.relation_rerank_enabled and rerank_backend_available(s) and deduped:
         try:
             ranked = await _rerank_relations_online(q, deduped, settings=s)
             min_rr = float(lr.relation_min_rerank_score)

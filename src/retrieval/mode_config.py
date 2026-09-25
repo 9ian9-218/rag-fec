@@ -7,6 +7,7 @@ from typing import Literal
 
 from lightrag.base import QueryParam
 
+from config.model_paths import rerank_backend_available
 from config.settings import Settings, get_settings
 
 RetrievalMode = Literal["naive", "local", "global", "hybrid", "mix", "bypass"]
@@ -61,22 +62,31 @@ def build_query_param(
         ct = settings.lightrag.chunk_top_k
         if ct is not None:
             param = replace(param, chunk_top_k=int(ct))
-    if not settings.rerank_runtime_available():
+    if not rerank_backend_available(settings):
         param = replace(param, enable_rerank=False)
     return param
+
+
+# Global/宏觀問題的判別詞表（模式路由與社區摘要注入共用同一份來源）
+MACRO_QUESTION_KEYS: tuple[str, ...] = (
+    "總結", "总结", "整體", "整体", "全書", "全书", "概述", "全局",
+    "趨勢", "趋势", "對比", "对比", "比較", "比较", "宏觀", "宏观",
+    "global summary", "overview", "compare", "comparison", "contrast",
+)
+
+
+def is_macro_question(question: str) -> bool:
+    """問題是否屬於"宏觀/綜述"類（用於社區摘要注入門檻與模式路由）。"""
+    q = (question or "").strip().lower()
+    return any(k in q for k in MACRO_QUESTION_KEYS)
 
 
 def suggest_mode_from_question(question: str) -> RetrievalMode:
     """改進啟發式：根據關鍵詞選擇模式，不再默認 mix。"""
     q = question.strip().lower()
 
-    # Global：總結、概述、宏觀、對比趨勢
-    global_keys = (
-        "總結", "总结", "整體", "整体", "全書", "全书", "概述", "全局",
-        "趨勢", "趋势", "對比", "对比", "比較", "比较", "宏觀", "宏观",
-        "global summary", "overview", "compare", "comparison", "contrast",
-    )
-    if any(k in q for k in global_keys):
+    # Global：總結、概述、宏觀、對比趨勢（與 is_macro_question 共用詞表）
+    if is_macro_question(q):
         return "global"
 
     # Naive：簡單事實、定義查詢、直接提問

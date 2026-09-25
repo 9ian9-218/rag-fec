@@ -110,6 +110,23 @@ def _build_context_from_chunks(
     return "\n\n".join(parts).strip()
 
 
+COMMUNITY_HEADER = "【全局主題概覽（背景概述，非逐字证据；具体结论请以检索材料为准）】"
+COMMUNITY_RULE = (
+    "\n【全局主題概覽的使用規則】概覽僅用於把握整體脈絡；"
+    "具體事實、數值與結論必須以下方檢索材料為準，不得僅憑概覽作答。"
+)
+
+
+def _community_block(bundle: dict[str, Any]) -> str:
+    """取出社区摘要概览块（可选能力；未注入时为空字符串）。"""
+    if not isinstance(bundle, dict):
+        return ""
+    ctx = bundle.get("community_context")
+    if isinstance(ctx, dict):
+        return str(ctx.get("text") or "").strip()
+    return ""
+
+
 def _main_llm_client_and_base(settings: Settings) -> tuple[AsyncOpenAI, str]:
     """純文字問答與多模態降級：頂層 ``OPENAI_*``，其次 ``LLM_*``。"""
     api_key = (settings.openai_api_key or settings.llm.api_key or "").strip()
@@ -191,9 +208,11 @@ async def answer_with_retrieved_text_only(
     context = _build_context_from_chunks(trimmed, kg_text, strip_images=True)
     if not context.strip():
         raise ValueError("純文字回答：檢索上下文為空")
+    community = _community_block(bundle)
+    community_section = f"{COMMUNITY_HEADER}\n{community}\n\n" if community else ""
     user_text = (
         "請根據以下檢索到的文字材料回答用戶問題（材料中已移除圖片鏈接語法，請依文字推理）。\n\n"
-        f"【問題】\n{question}\n\n【檢索上下文】\n{context}"
+        f"【問題】\n{question}\n\n{community_section}【檢索上下文】\n{context}"
     )
     model = settings.resolved_llm_model_name()
     sys_prompt = (
@@ -205,6 +224,8 @@ async def answer_with_retrieved_text_only(
             "絕對不要使用你自身的知識來補充、推測或編造答案。"
         )
     ).strip()
+    if community:
+        sys_prompt = f"{sys_prompt}{COMMUNITY_RULE}"
     return await _chat_completion_text(
         settings=settings,
         model=model,
@@ -302,12 +323,14 @@ async def answer_with_retrieved_images(
         len(resolved_paths),
         resolved_paths,
     )
+    community = _community_block(bundle)
+    community_section = f"{COMMUNITY_HEADER}\n{community}\n\n" if community else ""
     user_parts: list[dict[str, Any]] = [
         {
             "type": "text",
             "text": (
                 "請根據以下檢索到的文字與圖片回答用戶問題。若圖片與問題相關請結合圖中內容說明。\n\n"
-                f"【問題】\n{question}\n\n【檢索上下文】\n{context}"
+                f"【問題】\n{question}\n\n{community_section}【檢索上下文】\n{context}"
             ),
         }
     ]
@@ -329,6 +352,8 @@ async def answer_with_retrieved_images(
             )
         )
     ).strip()
+    if community:
+        sys_prompt = f"{sys_prompt}{COMMUNITY_RULE}"
     if sys_prompt:
         messages.append({"role": "system", "content": sys_prompt})
     if history_messages:

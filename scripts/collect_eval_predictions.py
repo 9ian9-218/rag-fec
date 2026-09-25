@@ -18,12 +18,6 @@ from src.evaluation.runner import load_jsonl_rows
 from src.evaluation.text_utils import to_simplified_chinese
 from src.retrieval.retriever import GraphRAGRetriever
 
-# 與金標 reference 語言一致，避免繁簡差異拉低生成類指標
-_EVAL_SYSTEM_PROMPT = (
-    "你是 FEC 领域专家助手。请完全基于检索材料，准确回答问题，使用简体中文，"
-    "条理清晰，避免无依据的推测。"
-)
-
 
 async def _run_row(
     retriever: GraphRAGRetriever,
@@ -56,12 +50,13 @@ async def _run_row(
         out["mode_selection"] = mode_selection
     if selected_mode:
         out["selected_mode"] = selected_mode
+    # 刻意不覆寫任何 system prompt：基線要量測的是線上實際回答行為
+    # （自訂 prompt 會讓拒答率/誤答率變得不可比）。
     answer = await retriever.query(
         q,
         mode=selected_mode if isinstance(selected_mode, str) else mode,  # type: ignore[arg-type]
         multimodal=multimodal,
         use_llm_router=False,
-        system_prompt=_EVAL_SYSTEM_PROMPT,
     )
     out["prediction"] = to_simplified_chinese(str(answer or ""))
     return out

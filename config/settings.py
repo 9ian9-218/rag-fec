@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from functools import lru_cache
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -155,6 +155,29 @@ class EmbeddingSettings(BaseSettings):
         description="Embedding API 失败最大重试次数",
     )
 
+    # 本地模型（EMBEDDING_BACKEND=local 时启用）
+    backend: Literal["api", "local"] = Field(
+        default="api",
+        description="embedding 后端：api=第三方线上 API，local=本地模型（sentence-transformers + 显卡/CPU）",
+    )
+    local_model_path: str = Field(
+        default="models/hub/bge-m3",
+        description="本地模型目录（相对路径以项目根目录为基准）",
+    )
+    local_device: str = Field(default="cuda", description="本地推理设备：cuda / cpu")
+    local_dtype: str = Field(
+        default="float32",
+        description="本地推理精度：float32 / float16 / bfloat16（GTX16 系无 Tensor Core，实测 float32 更快）",
+    )
+    local_max_seq_length: int = Field(default=8192, ge=128, le=8192)
+    local_batch_size: int = Field(default=16, ge=1, le=256, description="本地推理 batch size")
+    local_max_concurrency: int = Field(
+        default=1,
+        ge=1,
+        le=8,
+        description="本地 embedding 并发上限；显存有限时保持 1，避免多路同时推理撑爆显存",
+    )
+
     # 模型参数
     dimension: int = Field(default=1024, ge=32, le=4096)
     batch_size: int = Field(default=16, ge=1, le=256)
@@ -274,7 +297,7 @@ class LightRAGRuntimeSettings(BaseSettings):
     )
     keyword_fallback_enabled: bool = Field(
         default=True,
-        description="LLM 關鍵詞抽取失敗或為空時使用 FEC 啟發式回退",
+        description="LLM 關鍵詞抽取失敗或為空時使用規則啟發式回退（科研文獻通用詞表）",
     )
     entity_extract_max_gleaning: int = Field(
         default=1,
@@ -412,6 +435,16 @@ class ModelsSettings(BaseSettings):
         default="",
         description="第三方 rerank API 模型名称（如 BAAI/bge-reranker-v2-m3）",
     )
+    reranker_local_path: str = Field(
+        default="",
+        description="本地 CrossEncoder 重排权重目录；留空则查 models/hub 下的 HF 快照",
+    )
+    rerank_batch_size: int = Field(
+        default=32,
+        ge=1,
+        le=256,
+        description="本地 CrossEncoder 重排的 batch size",
+    )
     rerank_api_timeout: int = Field(
         default=60,
         ge=10,
@@ -429,6 +462,22 @@ class ModelsSettings(BaseSettings):
         ge=0,
         le=5,
         description="Rerank API 失败最大重试次数",
+    )
+
+
+class EvaluationSettings(BaseSettings):
+    """离线评测（RAGAS 判官）配置。"""
+
+    model_config = SettingsConfigDict(env_prefix="EVAL_", env_file=".env", extra="ignore")
+
+    ragas_max_tokens: int = Field(
+        default=16384,
+        ge=512,
+        le=100000,
+        description=(
+            "RAGAS 裁判 LLM 的最大输出 token（上限而非目标值，用不到不会计费）。"
+            "本语料答案偏长：8192 时 faithfulness 有 2/5 行因输出截断而失败，16384 可全部成功"
+        ),
     )
 
 
@@ -499,35 +548,92 @@ class MultimodalSettings(BaseSettings):
     )
 
 
-class FecDomainSettings(BaseSettings):
-    """FEC 領域：LightRAG 實體抽取所用 ``entity_types`` 與摘要語言。"""
+class DomainSchemaSettings(BaseSettings):
+    """領域 schema：LightRAG 實體抽取所用的實體類型指引與摘要語言。
 
-    model_config = SettingsConfigDict(env_prefix="FEC_", env_file=".env", extra="ignore")
+    預設面向理工科科研文獻（論文 / 專著 / 技術報告），以 ``SCHEMA_*`` 環境變數覆寫；
+    ``FEC_*`` 為相容舊部署的別名（已廢止，優先序低於 ``SCHEMA_*``）。
+    """
+
+    model_config = SettingsConfigDict(env_prefix="SCHEMA_", env_file=".env", extra="ignore")
 
     summary_language: str = Field(
         default="Chinese",
+        validation_alias=AliasChoices("SCHEMA_SUMMARY_LANGUAGE", "FEC_SUMMARY_LANGUAGE"),
         description="對應 LightRAG ``SUMMARY_LANGUAGE`` / ``addon_params['language']``",
     )
     entity_types_json: str | None = Field(
         default=None,
-        description="可選：JSON 字串陣列，覆寫 ``config/fec_defaults.FEC_DEFAULT_ENTITY_TYPES``",
+        validation_alias=AliasChoices("SCHEMA_ENTITY_TYPES_JSON", "FEC_ENTITY_TYPES_JSON"),
+        description=(
+            "可選：JSON 陣列（類型名）或物件（類型名→說明），"
+            "覆寫 ``config/schema_defaults.SCHOLARLY_ENTITY_TYPES``"
+        ),
+    )
+    entity_types_guidance: str | None = Field(
+        default=None,
+        validation_alias="SCHEMA_ENTITY_TYPES_GUIDANCE",
+        description="可選：整段覆寫注入抽取提示詞的實體類型指引（優先於 ``entity_types_json``）",
     )
 
-    def resolve_entity_types(self) -> list[str]:
-        """回傳實體類型列表（FEC 預設或可選 JSON 覆寫）。"""
+    def resolve_entity_types(self) -> list[tuple[str, str]]:
+        """回傳 ``(類型名, 說明)`` 列表（預設理工科 schema，或可選 JSON 覆寫）。"""
         import json
 
-        from config.fec_defaults import FEC_DEFAULT_ENTITY_TYPES
+        from config.schema_defaults import SCHOLARLY_ENTITY_TYPES
 
         raw = self.entity_types_json
         if raw and str(raw).strip():
             try:
                 v = json.loads(raw)
-                if isinstance(v, list) and v and all(isinstance(x, str) for x in v):
-                    return list(v)
             except json.JSONDecodeError:
-                pass
-        return list(FEC_DEFAULT_ENTITY_TYPES)
+                return list(SCHOLARLY_ENTITY_TYPES)
+            if isinstance(v, dict) and v and all(isinstance(k, str) for k in v):
+                return [(str(k), str(val)) for k, val in v.items()]
+            if isinstance(v, list) and v and all(isinstance(x, str) for x in v):
+                return [(x, "") for x in v]
+        return list(SCHOLARLY_ENTITY_TYPES)
+
+    def resolve_entity_types_guidance(self) -> str:
+        """回傳注入 LightRAG 實體抽取提示詞的 ``entity_types_guidance`` 文字。"""
+        from config.schema_defaults import build_entity_types_guidance
+
+        raw = self.entity_types_guidance
+        if raw and str(raw).strip():
+            return str(raw).strip()
+        return build_entity_types_guidance(self.resolve_entity_types())
+
+
+class CommunitySettings(BaseSettings):
+    """社区摘要（可选能力）配置。
+
+    能力默认关闭：关闭时不构建索引、不注入检索、rebuild 返回 disabled；
+    开启后仍需调用方显式 use_community=true（或 COMMUNITY_DEFAULT_ENABLED=true）才会注入。
+    """
+
+    model_config = SettingsConfigDict(env_prefix="COMMUNITY_", env_file=".env", extra="ignore")
+
+    enabled: bool = Field(default=False, description="能力总开关：false 时不构建、不注入、rebuild 直接返回 disabled")
+    default_enabled: bool = Field(default=False, description="请求未显式指定 use_community 时的默认行为（保持真 opt-in）")
+    min_size: int = Field(default=20, ge=2, le=100000, description="社区最小规模（节点数），低于此值并入相邻大社区")
+    target_per_nodes: int = Field(default=200, ge=1, le=1000000, description="目标社区数 = 节点数 / 该值")
+    target_min: int = Field(default=6, ge=1, le=1000)
+    target_max: int = Field(default=20, ge=1, le=1000, description="摘要数量硬上限，约束 LLM 成本与维护负担")
+    resolution: float | None = Field(default=None, description="留空=按目标社区数自动二分搜索分辨率；指定则固定使用")
+    resolution_min: float = Field(default=0.05, gt=0.0, le=10.0)
+    resolution_max: float = Field(default=3.0, gt=0.0, le=10.0)
+    seed: int = Field(default=42)
+    top_k: int = Field(default=2, ge=1, le=50, description="查询期注入的社区摘要条数")
+    max_tokens: int = Field(default=1500, ge=100, le=50000, description="查询期社区概览 token 上限")
+    sim_threshold: float = Field(default=0.35, ge=0.0, le=1.0, description="问题与社区摘要的最小余弦相似度")
+    refresh_mode: Literal["auto", "manual"] = Field(default="auto", description="auto=增量入库后自动刷新")
+    summary_max_input_tokens: int = Field(default=3000, ge=200, le=100000)
+    max_concurrent_summaries: int = Field(default=4, ge=1, le=64)
+    max_retries: int = Field(default=2, ge=0, le=5)
+    summary_model: str = Field(default="", description="留空沿用主 LLM 模型")
+    reuse_jaccard: float = Field(default=0.9, ge=0.0, le=1.0, description="成员集合 Jaccard≥该值时复用旧摘要")
+    prompt_version: str = Field(default="v1", description="摘要提示词版本，参与缓存哈希")
+    rebuild_timeout_seconds: int = Field(default=1800, ge=30, le=14400)
 
 
 class Settings(BaseSettings):
@@ -547,9 +653,11 @@ class Settings(BaseSettings):
     service: ServiceSettings = Field(default_factory=ServiceSettings)
     paths: PathsSettings = Field(default_factory=PathsSettings)
     models: ModelsSettings = Field(default_factory=ModelsSettings)
+    evaluation: EvaluationSettings = Field(default_factory=EvaluationSettings)
     document: DocumentConversionSettings = Field(default_factory=DocumentConversionSettings)
     multimodal: MultimodalSettings = Field(default_factory=MultimodalSettings)
-    fec: FecDomainSettings = Field(default_factory=FecDomainSettings)
+    domain: DomainSchemaSettings = Field(default_factory=DomainSchemaSettings)
+    community: CommunitySettings = Field(default_factory=CommunitySettings)
 
     lightrag_workspace: str = Field(default="", validation_alias="WORKSPACE")
     openai_api_key: str | None = Field(default=None, validation_alias="OPENAI_API_KEY")
@@ -587,14 +695,6 @@ class Settings(BaseSettings):
 
     def resolved_multimodal_temperature(self) -> float:
         return float(self.multimodal.temperature)
-
-    def rerank_runtime_available(self) -> bool:
-        """檢查本地 CrossEncoder 運行時是否可用（sentence-transformers 是否已安裝）。"""
-        try:
-            import sentence_transformers
-            return True
-        except ImportError:
-            return False
 
 
 @lru_cache(maxsize=1)
@@ -654,5 +754,5 @@ def apply_settings_to_environ(settings: Settings | None = None) -> None:
     root = os.path.abspath(s.paths.project_root)
     os.environ.setdefault("LIGHTRAG_WORKDIR", os.path.join(root, s.paths.lightrag_working_dir))
 
-    # FEC 領域：摘要語言（entity_types 已透過 addon_params 傳入 LightRAG）
-    os.environ.setdefault("SUMMARY_LANGUAGE", s.fec.summary_language)
+    # 領域 schema：摘要語言（entity_types_guidance 已透過 addon_params 傳入 LightRAG）
+    os.environ.setdefault("SUMMARY_LANGUAGE", s.domain.summary_language)

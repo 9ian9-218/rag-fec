@@ -202,6 +202,27 @@ def remove_mineru_sidecars_for_pdf(pdf_path: Path) -> None:
             pass
 
 
+def remove_mineru_metadata_sidecar(md_path: Path) -> None:
+    """仅删除 MinerU 元数据侧车 ``.{stem}.mineru.json``，保留 ``.md`` 与 ``images/``。
+
+    删除「索引里的文档」时使用：``.md`` 是用户的源文件（也是 ingest 输入），
+    绝不能被当作侧车删掉——历史上 ``legacy_cleanup_markdown_sidecars`` 会连
+    ``.md`` 一起删，导致源文件丢失。
+    """
+    raw = md_path.expanduser()
+    try:
+        md = raw.resolve(strict=False)
+    except TypeError:  # pragma: no cover
+        md = raw.resolve()
+    meta_path = md.parent / f".{md.stem}.mineru.json"
+    if meta_path.is_file():
+        try:
+            meta_path.unlink()
+            logger.info("已删除 MinerU 元数据侧车 %s（保留源文件 %s）", meta_path, md.name)
+        except OSError as e:
+            logger.warning("删除 MinerU 元数据侧车失败 %s: %s", meta_path, e)
+
+
 def remove_mineru_sidecars_for_markdown(md_path: Path) -> None:
     """刪除/已刪除索引的 Markdown 時，清理同目錄 ``.{stem}.mineru.json`` 與 MinerU ``images/``。
 

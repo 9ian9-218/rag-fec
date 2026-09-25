@@ -1,64 +1,30 @@
-"""FEC 领域查询关键词启发式回退（LLM 抽取失败或返回空列表时使用）。"""
+"""查询关键词规则回退（LLM 抽取失败或返回空列表时使用）。
+
+面向理工科科研文献（论文 / 专著 / 技术报告）的通用启发式，不绑定具体子领域。
+"""
 
 from __future__ import annotations
 
 import re
 
-from src.retrieval.relation_keywords import enhance_keywords_for_retrieval, extract_user_query_from_prompt
-
-_FEC_LOW_PATTERNS = (
-    r"\bRM\b",
-    r"Reed[\s-]?Muller",
-    r"Polar",
-    r"极化码",
-    r"RPA",
-    r"BEC",
-    r"BSC",
-    r"AGNC",
-    r"BER",
-    r"SCL",
-    r"BP\s*译码",
-    r"Plotkin",
-    r"Arıkan",
-    r"Arikan",
-    r"G_RM",
-    r"N_max",
-    r"Proj\s*\(",
-    r"\(\d+\s*,\s*\d+\)",
-    r"RM\s*\(\s*m\s*,\s*r\s*\)",
-    r"Table\s+[IVX\d]+",
-    r"Algorithm\s+\d+",
+from src.retrieval.relation_keywords import (
+    SCHOLARLY_HIGH_HINTS,
+    SCHOLARLY_LOW_PATTERNS,
+    enhance_keywords_for_retrieval,
+    extract_user_query_from_prompt,
 )
 
-_FEC_HIGH_HINTS = (
-    "性能",
-    "对比",
-    "比较",
-    "译码",
-    "编码",
-    "构造",
-    "复杂度",
-    "等价",
-    "包含关系",
-    "步骤",
-    "算法",
-    "矩阵",
-    "投影",
-    "信道",
-    "误码",
-    "作者",
-    "发表",
-)
+_DEFAULT_HIGH_KEYWORDS = ("研究方法", "理论模型")
 
 
-def fec_keyword_fallback(question: str) -> tuple[list[str], list[str]]:
+def scholarly_keyword_fallback(question: str) -> tuple[list[str], list[str]]:
     """从问题文本拆出 high/low 关键词，供 LightRAG 图检索使用。"""
     q = extract_user_query_from_prompt(question) or (question or "").strip()
     if not q:
         return [], []
 
     low: list[str] = []
-    for pat in _FEC_LOW_PATTERNS:
+    for pat in SCHOLARLY_LOW_PATTERNS:
         for m in re.finditer(pat, q, flags=re.IGNORECASE):
             s = m.group(0).strip()
             if s and s not in low:
@@ -78,11 +44,13 @@ def fec_keyword_fallback(question: str) -> tuple[list[str], list[str]]:
     low = [x for x in low if len(x) <= 48][:12]
 
     high: list[str] = []
-    for hint in _FEC_HIGH_HINTS:
-        if hint in q and hint not in high:
-            high.append(hint)
+    ql = q.lower()
+    for hint in SCHOLARLY_HIGH_HINTS:
+        if hint in q or (hint.isascii() and hint in ql):
+            if hint not in high:
+                high.append(hint)
     if not high:
-        high = ["信道编码", "差错控制"]
+        high = list(_DEFAULT_HIGH_KEYWORDS)
     if len(q) <= 80 and q not in low:
         low.insert(0, q)
 

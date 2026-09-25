@@ -41,10 +41,16 @@ def build_ragas_llm(settings: Any = None) -> Any:
         raise RuntimeError(
             "RAGAS 需要配置 LLM base_url（OPENAI_API_BASE / LLM_BASE_URL / MULTIMODAL_BASE_URL）"
         )
-    # 本機 OpenAI 相容端點允許 api_key 為 none
-    client = OpenAI(api_key=key or "none", base_url=base)
-    # 評測裁判輸出 JSON，需足夠 token 避免截斷
-    return llm_factory(model, client=client, max_tokens=4096)
+    # 本機 OpenAI 相容端點允許 api_key 為 none；OpenCode 網關強制要求會話頭，
+    # 否則裁判請求一律 400（MissingSessionID），所有指標會變成 0 分
+    from src.utils.openai_session import session_headers
+
+    client = OpenAI(api_key=key or "none", base_url=base, default_headers=session_headers())
+    # 评测裁判输出 JSON，需足够 token 避免截断；模型/答案越长越容易撞上限。
+    # 注意：本网关模型即使 temperature=0 也非完全确定（实测同问两次结果不同），
+    # 因此判官分数存在固有波动，小差异不可当作信号——详见 docs/jev-laya-step1-results。
+    max_tokens = int(getattr(s, "evaluation", None).ragas_max_tokens)
+    return llm_factory(model, client=client, max_tokens=max_tokens, temperature=0)
 
 
 def build_ragas_reference(
@@ -127,13 +133,27 @@ def _safe_float(value: Any) -> float:
     return 0.0 if math.isnan(num) else num
 
 
+def _is_missing(value: Any) -> bool:
+    """ragas 裁判失敗時該行指標為 NaN；與「真的是 0 分」必須區分開。"""
+    if value is None:
+        return True
+    try:
+        return math.isnan(float(value))
+    except (TypeError, ValueError):
+        return True
+
+
 def compute_ragas_batch(
     samples: list[dict[str, Any]],
     *,
     llm: Any = None,
     settings: Any = None,
 ) -> list[dict[str, float]]:
-    """批量計算 RAGAS 三項指標，返回與 samples 同序的分數。"""
+    """批量計算 RAGAS 三項指標，返回與 samples 同序的分數。
+
+    每行附帶 ``ragas_ok``：為 False 表示裁判 LLM 調用失敗、分數不可用
+    （而不是「答案確實得 0 分」），上層據此把這些行排除在均值之外。
+    """
     if not samples:
         return []
     from datasets import Dataset
@@ -149,14 +169,40 @@ def compute_ragas_batch(
         raise_exceptions=False,
     )
     df = result.to_pandas()
-    return [
-        {
-            "context_recall": _safe_float(row.get("context_recall")),
-            "context_precision": _safe_float(row.get("context_precision")),
-            "faithfulness": _safe_float(row.get("faithfulness")),
+
+    out: list[dict[str, Any]] = []
+    failed_rows = 0
+    failed_metrics: dict[str, int] = {}
+    for _, row in df.iterrows():
+        vals = {
+            "context_recall": row.get("context_recall"),
+            "context_precision": row.get("context_precision"),
+            "faithfulness": row.get("faithfulness"),
         }
-        for _, row in df.iterrows()
-    ]
+        missing = {k: _is_missing(v) for k, v in vals.items()}
+        if all(missing.values()):
+            failed_rows += 1
+        for k, is_missing in missing.items():
+            if is_missing:
+                failed_metrics[k] = failed_metrics.get(k, 0) + 1
+        rec: dict[str, Any] = {k: _safe_float(v) for k, v in vals.items()}
+        # 逐指标标记是否真的算出来了；上層均值只統計 <metric>_scored=True 的行，
+        # 避免「某指标裁判失败」被当成「該指標得 0 分」拉低均值
+        rec |= {f"{k}_scored": not is_missing for k, is_missing in missing.items()}
+        rec["ragas_ok"] = not all(missing.values())
+        out.append(rec)
+
+    if failed_rows or failed_metrics:
+        logger.warning(
+            "RAGAS 裁判部分/全部失败：整行失败 %d/%d；逐指标失败 %s。"
+            "失败指标已标 <metric>_scored=False 并排除在均值外。"
+            "常见原因：裁判 LLM 调用失败（连接/鉴权/缺 x-opencode-session 头）"
+            "或输出被 max_tokens 截斷（IncompleteOutputException）。",
+            failed_rows,
+            len(out),
+            failed_metrics or "无",
+        )
+    return out
 
 
 def compute_ragas_row(
@@ -172,7 +218,7 @@ def compute_ragas_row(
     use_embedding_faithfulness: bool = True,
     llm: Any = None,
     settings: Any = None,
-) -> dict[str, float]:
+) -> dict[str, Any]:
     """單條樣本 RAGAS 評分（內部走 batch 以复用 ragas.evaluate）。"""
     del use_embedding_faithfulness  # ragas 包下由 LLM 裁判，保留參數僅為兼容舊調用
     sample = row_to_ragas_sample(
@@ -188,4 +234,9 @@ def compute_ragas_row(
     scores = compute_ragas_batch([sample], llm=llm, settings=settings)
     if scores:
         return scores[0]
-    return {"context_recall": 0.0, "context_precision": 0.0, "faithfulness": 0.0}
+    return {
+        "context_recall": 0.0,
+        "context_precision": 0.0,
+        "faithfulness": 0.0,
+        "ragas_ok": False,
+    }

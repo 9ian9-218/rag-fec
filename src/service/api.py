@@ -21,6 +21,7 @@ from src.utils.client_cache import aclose_clients
 from src.evaluation.online_monitor import stop_telemetry_writer
 from src.storage.redis_client import close_redis
 from src.utils.logger import get_logger, setup_logging
+from src.utils.stream_text import strip_think_stream
 from src.utils.rate_limit import RedisRateLimiter, TokenBucket
 
 logger = get_logger("service.api")
@@ -49,12 +50,27 @@ class QueryBody(BaseModel):
         default=False,
         description="為 True 時在 JSON 響應中附帶 mode_selection（難度/複雜度/選中模式）",
     )
+    use_community: bool | None = Field(
+        default=None,
+        description=(
+            "可選能力：是否使用社區摘要概覽。None=按服務端默認（COMMUNITY_DEFAULT_ENABLED，預設關閉）；"
+            "true=本次強制啟用（跳過宏觀問題啟發式，仍受相似度與 token 預算約束）；false=本次強制關閉。"
+            "實際是否生效見響應 community.{requested,applied,reason}"
+        ),
+    )
 
 
 class IncrementalBody(BaseModel):
     """可擴充的增量請求體（目前無必填欄位）。"""
 
     pass
+
+
+class CommunityRebuildBody(BaseModel):
+    """社區摘要重建請求體（可選能力）。"""
+
+    force: bool = Field(default=False, description="為 True 時忽略緩存全量重建")
+    limit: int | None = Field(default=None, ge=1, le=1000, description="本次最多新增多少次 LLM 摘要調用")
 
 
 class FeedbackBody(BaseModel):
@@ -92,6 +108,15 @@ async def lifespan(app: FastAPI):
             if kind == "incremental_update":
                 return await rag.incremental_update(
                     convert_first=bool(payload.get("convert_first", False))
+                )
+            if kind == "community_rebuild":
+                from src.community.builder import build_communities
+
+                return await build_communities(
+                    mode="full" if payload.get("force") else "auto",
+                    force=bool(payload.get("force", False)),
+                    limit=payload.get("limit"),
+                    reason="api",
                 )
             raise ValueError(f"unknown task kind: {kind}")
 
@@ -199,9 +224,11 @@ def create_app() -> FastAPI:
                     stream=True,
                     multimodal=body.multimodal,
                     use_llm_router=use_router,
+                    use_community=body.use_community,
                 )
                 if hasattr(res, "__aiter__"):
-                    async for chunk in res:  # type: ignore[union-attr]
+                    # 网关会把 <think> 推理块混进正文流，这里剥离后再转发
+                    async for chunk in strip_think_stream(res):  # type: ignore[arg-type]
                         if chunk:
                             yield str(chunk).encode("utf-8")
                 else:
@@ -216,6 +243,7 @@ def create_app() -> FastAPI:
             stream=False,
             multimodal=body.multimodal,
             use_llm_router=use_router,
+            use_community=body.use_community,
         )
         payload: dict[str, Any] = {"answer": text}
         if body.include_mode_selection:
@@ -223,6 +251,9 @@ def create_app() -> FastAPI:
             if sel is not None:
                 payload["mode_selection"] = sel
                 payload["mode"] = sel.get("mode")
+            community = rag.last_community_status
+            if community is not None:
+                payload["community"] = community
         return JSONResponse(payload)
 
     @app.post("/api/rag/documents")
@@ -334,6 +365,82 @@ def create_app() -> FastAPI:
         query_metrics = aggregate_metrics_sqlite()
         feedback_metrics = aggregate_feedback_sqlite()
         return JSONResponse({"query": query_metrics, "feedback": feedback_metrics})
+
+    @app.get("/api/rag/communities")
+    async def list_communities():
+        """社區摘要列表（可選能力；未構建時返回 enabled=false 與空列表）。"""
+        from src.community import store
+
+        enabled = bool(s.community.enabled)
+        data = store.load_reports()
+        if not data:
+            return JSONResponse(
+                {"success": True, "enabled": enabled, "built": False, "communities": []}
+            )
+        meta = data.get("meta") or {}
+        items = []
+        for cid, rep in (data.get("reports") or {}).items():
+            if not isinstance(rep, dict):
+                continue
+            items.append(
+                {
+                    "community_id": cid,
+                    "title": rep.get("title") or "",
+                    "size": int(rep.get("size") or len(rep.get("members") or [])),
+                    "docs": list(rep.get("docs") or []),
+                    "summary_chars": len(str(rep.get("summary") or "")),
+                    "key_points": list(rep.get("key_points") or []),
+                    "model": rep.get("model"),
+                    "generated_at": rep.get("generated_at"),
+                    "stale": bool(rep.get("stale")),
+                    "pending": bool(rep.get("pending")),
+                }
+            )
+        items.sort(key=lambda x: (-x["size"], x["community_id"]))
+        return JSONResponse(
+            {
+                "success": True,
+                "enabled": enabled,
+                "built": True,
+                "version": store.community_version(),
+                "meta": meta,
+                "communities": items,
+            }
+        )
+
+    @app.get("/api/rag/communities/{community_id}")
+    async def community_detail(community_id: str):
+        from src.community import store
+
+        data = store.load_reports()
+        rep = ((data or {}).get("reports") or {}).get(community_id)
+        if not isinstance(rep, dict):
+            raise HTTPException(status_code=404, detail="找不到該社區摘要")
+        return JSONResponse(rep)
+
+    @app.post("/api/rag/communities/rebuild")
+    async def rebuild_communities(body: CommunityRebuildBody | None = None):
+        from src.community import store
+
+        cfg = get_settings().community
+        if not cfg.enabled:
+            return JSONResponse(
+                {"success": False, "reason": "disabled_by_server"},
+                status_code=409,
+            )
+        payload = {"force": bool(body.force) if body else False, "limit": (body.limit if body else None)}
+        if s.service.async_document_processing_enabled and _task_manager is not None:
+            task_id = await _task_manager.submit("community_rebuild", payload)
+            return JSONResponse({"task_id": task_id, "status": "pending"}, status_code=202)
+        from src.community.builder import build_communities
+
+        result = await build_communities(
+            mode="full" if payload["force"] else "auto",
+            force=payload["force"],
+            limit=payload["limit"],
+            reason="api",
+        )
+        return JSONResponse({"success": True, "version": store.community_version(), "result": result})
 
     @app.get("/api/rag/tasks/{task_id}")
     async def task_status(task_id: str):

@@ -12,6 +12,7 @@ from src.incremental.conversion_manager import ConversionManager
 from src.incremental.update_manager import UpdateManager
 from src.retrieval.retriever import GraphRAGRetriever
 from src.storage.kv_client import KVClient
+from src.community.store import cache_extra
 from src.storage.redis_cache import build_query_cache_key, get_json_cache, set_json_cache
 from src.storage.redis_lock import acquire_lock, release_lock
 from src.utils.logger import get_logger
@@ -33,6 +34,11 @@ class RAGService:
         route = self._retriever.last_mode_route
         return route.to_dict() if route is not None else None
 
+    @property
+    def last_community_status(self) -> dict[str, object] | None:
+        """最近一次社区摘要注入状态（含未生效原因），供 API/CLI 回报。"""
+        return self._retriever.last_community_status
+
     async def query(
         self,
         question: str,
@@ -42,6 +48,7 @@ class RAGService:
         stream: bool = False,
         multimodal: bool = False,
         use_llm_router: bool | None = None,
+        use_community: bool | None = None,
     ) -> str | AsyncIterator[str]:
         # 每次問答僅使用本次檢索結果，不再將歷史對話作為上下文傳給 LLM
         custom_instructions = (
@@ -61,6 +68,7 @@ class RAGService:
                         stream=True,
                         multimodal=multimodal,
                         use_llm_router=use_llm_router,
+                        use_community=use_community,
                         custom_instructions=custom_instructions,
                     )
                     if hasattr(out, "__aiter__"):
@@ -77,6 +85,7 @@ class RAGService:
             mode=mode,
             top_k=self._settings.retrieval.top_k,
             multimodal=multimodal,
+            extra=cache_extra(use_community),
         )
         cached = await get_json_cache(cache_key)
         if isinstance(cached, dict) and "answer" in cached:
@@ -90,6 +99,7 @@ class RAGService:
                 stream=False,
                 multimodal=multimodal,
                 use_llm_router=use_llm_router,
+                use_community=use_community,
                 custom_instructions=custom_instructions,
             )
             answer = str(out)
@@ -150,8 +160,9 @@ class RAGService:
             await release_lock(lock_key, token)
 
     async def delete_document_by_id(self, doc_id: str) -> dict[str, Any]:
+        from src.data_processing.mineru_convert import remove_mineru_metadata_sidecar
         from src.incremental.cascade_cleaner import cascade_delete_document
-        from src.incremental.document_manifest import legacy_cleanup_markdown_sidecars, purge_for_doc_id
+        from src.incremental.document_manifest import purge_for_doc_id
         from src.storage.lightrag_init import get_lightrag
 
         row = self._kv.get_doc_by_id(doc_id)
@@ -159,7 +170,8 @@ class RAGService:
         rag = await get_lightrag()
         result = await cascade_delete_document(rag, doc_id, self._kv)
         if manifest_out.get("skipped") and row and isinstance(row.get("source_path"), str):
-            legacy_cleanup_markdown_sidecars(row["source_path"])
+            # 只清 MinerU 元数据侧车：.md 是 ingest 源文件，删文档时不得删除
+            remove_mineru_metadata_sidecar(Path(row["source_path"]))
         return result
 
     def list_documents(self) -> list[dict[str, Any]]:

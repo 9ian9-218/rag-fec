@@ -65,6 +65,13 @@ class QueryTelemetry:
     rerank_candidates: int = 0
     rerank_returned: int = 0
     rerank_below_min_score: int = 0
+    # 社区摘要（可选能力）注入情况：requested=用户是否请求，applied=是否真的注入
+    community_requested: bool = False
+    community_applied: bool = False
+    community_reason: str = ""
+    community_ids: str = ""
+    community_tokens: int = 0
+    community_similarity: float = 0.0
     timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
     def to_dict(self) -> dict[str, Any]:
@@ -163,7 +170,7 @@ def build_telemetry(
     kg_text: str = "",
     reference_chunks_before: int = 0,
     reference_chunks_after: int = 0,
-    min_rerank_score: float = 0.0,
+    community: dict[str, Any] | None = None,
 ) -> QueryTelemetry:
     payload = _payload_from_bundle(bundle or {})
     pi = _processing_info(bundle or {})
@@ -193,13 +200,14 @@ def build_telemetry(
     rerank_candidates = int(rs.get("candidates") or 0)
     rerank_returned = int(rs.get("returned") or 0)
     below_min = int(rs.get("below_min_score") or 0)
+    # 只在 rerank 真的跑过（candidates>0）时才有过滤率；否则为 0。
+    # 曾用 chunk 截断率 (merged-final)/merged 兜底，导致「重排从未运行」的查询
+    # 也报出非 0 过滤率（0.47 实为 LightRAG token 截断），污染所有重排类 A/B。
     rerank_filter_rate = 0.0
     if rerank_candidates > 0:
         rerank_filter_rate = max(0.0, (rerank_candidates - rerank_returned) / rerank_candidates)
         if below_min > 0:
             rerank_filter_rate = max(rerank_filter_rate, below_min / rerank_candidates)
-    elif merged > 0 and final < merged and min_rerank_score > 0:
-        rerank_filter_rate = (merged - final) / merged
 
     ent_text = "\n".join(ents)
     rel_text = "\n".join(rels)
@@ -235,6 +243,16 @@ def build_telemetry(
         rerank_candidates=rerank_candidates,
         rerank_returned=rerank_returned,
         rerank_below_min_score=below_min,
+        community_requested=bool((community or {}).get("requested")),
+        community_applied=bool((community or {}).get("applied")),
+        community_reason=str((community or {}).get("reason") or ""),
+        community_ids=",".join(str(x) for x in ((community or {}).get("ids") or [])),
+        community_tokens=int((community or {}).get("tokens") or 0),
+        community_similarity=(
+            round(float(((community or {}).get("similarities") or [0.0])[0]), 4)
+            if (community or {}).get("similarities")
+            else 0.0
+        ),
     )
 
 
@@ -274,6 +292,12 @@ def _init_schema(conn: sqlite3.Connection) -> None:
             rerank_candidates INTEGER,
             rerank_returned INTEGER,
             rerank_below_min_score INTEGER,
+            community_requested INTEGER,
+            community_applied INTEGER,
+            community_reason TEXT,
+            community_ids TEXT,
+            community_tokens INTEGER,
+            community_similarity REAL,
             timestamp TEXT
         );
         CREATE TABLE IF NOT EXISTS feedback_telemetry (
@@ -288,6 +312,18 @@ def _init_schema(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_feedback_telemetry_timestamp ON feedback_telemetry(timestamp);
         """
     )
+    # 老库补列（SQLite 不支持 IF NOT EXISTS 加列，用 PRAGMA 判存在性）
+    existing = {row[1] for row in conn.execute("PRAGMA table_info(query_telemetry)")}
+    for column, ddl in (
+        ("community_requested", "INTEGER DEFAULT 0"),
+        ("community_applied", "INTEGER DEFAULT 0"),
+        ("community_reason", "TEXT DEFAULT ''"),
+        ("community_ids", "TEXT DEFAULT ''"),
+        ("community_tokens", "INTEGER DEFAULT 0"),
+        ("community_similarity", "REAL DEFAULT 0"),
+    ):
+        if column not in existing:
+            conn.execute(f"ALTER TABLE query_telemetry ADD COLUMN {column} {ddl}")
 
 
 def _publish_redis_stream(rows: list[tuple[str, dict[str, Any]]]) -> None:
@@ -331,7 +367,9 @@ def _write_batch_to_sqlite(rows: list[tuple[str, dict[str, Any]]]) -> None:
                         final_chunks_count, reference_chunks_before_trim, reference_chunks_after_trim,
                         tokens_entities, tokens_relations, tokens_chunks, tokens_kg_text,
                         tokens_total_estimated, rerank_candidates, rerank_returned,
-                        rerank_below_min_score, timestamp
+                        rerank_below_min_score, community_requested, community_applied,
+                        community_reason, community_ids, community_tokens, community_similarity,
+                        timestamp
                     ) VALUES (
                         :question, :mode, :latency_ms, :graph_empty, :graph_empty_rate_component,
                         :chunk_truncation_rate, :rerank_filter_rate, :entities_found, :relations_found,
@@ -339,7 +377,9 @@ def _write_batch_to_sqlite(rows: list[tuple[str, dict[str, Any]]]) -> None:
                         :final_chunks_count, :reference_chunks_before_trim, :reference_chunks_after_trim,
                         :tokens_entities, :tokens_relations, :tokens_chunks, :tokens_kg_text,
                         :tokens_total_estimated, :rerank_candidates, :rerank_returned,
-                        :rerank_below_min_score, :timestamp
+                        :rerank_below_min_score, :community_requested, :community_applied,
+                        :community_reason, :community_ids, :community_tokens, :community_similarity,
+                        :timestamp
                     )
                     """,
                     query_rows,
@@ -403,13 +443,17 @@ def append_telemetry(
         logger.warning("遥测队列已满，丢弃 query telemetry")
         return
     logger.info(
-        "eval_telemetry mode=%s latency_ms=%.1f graph_empty=%s chunk_trunc=%.3f rerank_filter=%.3f tokens=%d",
+        "eval_telemetry mode=%s latency_ms=%.1f graph_empty=%s chunk_trunc=%.3f rerank_filter=%.3f "
+        "tokens=%d community=%s/%s(%s)",
         telemetry.mode,
         telemetry.latency_ms,
         telemetry.graph_empty,
         telemetry.chunk_truncation_rate,
         telemetry.rerank_filter_rate,
         telemetry.tokens_total_estimated,
+        "req" if telemetry.community_requested else "-",
+        "on" if telemetry.community_applied else "off",
+        telemetry.community_reason or "-",
     )
 
 

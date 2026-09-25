@@ -10,6 +10,10 @@ from src.evaluation.answer_metrics import compute_answer_row
 from src.evaluation.context_utils import resolve_eval_context
 from src.evaluation.multihop_metrics import multihop_correct
 from src.evaluation.ragas_metrics import build_ragas_llm, compute_ragas_batch, row_to_ragas_sample
+from src.evaluation.refusal_metrics import (
+    has_refusal_labels,
+    score_rows as score_refusal_rows,
+)
 from src.evaluation.align_metrics import ordered_sources_from_context, ranked_metrics_bundle_aligned
 from src.evaluation.set_metrics import multiset_precision_recall_f1, set_jaccard
 
@@ -309,13 +313,27 @@ def build_report(
             ragas_version = ragas.__version__
         except Exception:
             ragas_version = "unknown"
+        # 裁判失败的行/指标不参与均值，否则会把「判官挂了」显示成「答案不忠实」的 0 分
+        _ragas_metrics = ("context_recall", "context_precision", "faithfulness")
+
+        def _metric_mean(name: str) -> float:
+            vals = [float(d[name]) for d in ragas_details if d.get(f"{name}_scored", True)]
+            return _mean(vals)
+
+        def _metric_scored(name: str) -> int:
+            return sum(1 for d in ragas_details if d.get(f"{name}_scored", True))
+
         report["ragas"] = {
             "mode": "ragas",
             "ragas_version": ragas_version,
             "context_for_eval": "context_for_llm or retrieved_context",
-            "context_recall_mean": _nested_mean(ragas_details, ["context_recall"]),
-            "context_precision_mean": _nested_mean(ragas_details, ["context_precision"]),
-            "faithfulness_mean": _nested_mean(ragas_details, ["faithfulness"]),
+            "scored_rows": sum(1 for d in ragas_details if d.get("ragas_ok", True)),
+            "unscored_rows": sum(1 for d in ragas_details if not d.get("ragas_ok", True)),
+            # 每个指标的均值只统计该指标真正算出结果的行；scored 计数便于判断可信度
+            "scored_by_metric": {m: _metric_scored(m) for m in _ragas_metrics},
+            "context_recall_mean": _metric_mean("context_recall"),
+            "context_precision_mean": _metric_mean("context_precision"),
+            "faithfulness_mean": _metric_mean("faithfulness"),
             "details": ragas_details[:max_detail_rows],
         }
 
@@ -323,6 +341,14 @@ def build_report(
         report["multihop"] = {
             "accuracy": _mean([float(d["correct"]) for d in multihop_details]),
             "details": multihop_details[:max_detail_rows],
+        }
+
+    # 负样本集（行带 label）额外输出拒答/误答口径，避免与 scripts/score_refusal.py 两套数字
+    if has_refusal_labels(rows):
+        refusal_summary, refusal_details = score_refusal_rows(rows)
+        report["refusal"] = {
+            **refusal_summary,
+            "details": refusal_details[:max_detail_rows],
         }
 
     if include_answer and n_answer:
