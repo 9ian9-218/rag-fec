@@ -147,3 +147,40 @@ async def test_refresh_respects_refresh_mode(env):
     out = await builder.refresh_communities(reason="incremental", settings=s)
     assert out == {"skipped": True, "reason": "disabled_by_server"}
     assert state["llm_calls"] == 0
+
+
+@pytest.mark.parametrize("previous_algorithm", ["louvain", None])
+async def test_algorithm_change_repartitions_even_when_graph_is_unchanged(env, previous_algorithm):
+    s, state = env
+    await builder.build_communities(mode="full", force=True, settings=s)
+    previous = store.load_reports(s)
+    previous["meta"]["algorithm"] = previous_algorithm
+    store.save_reports(previous["meta"], previous["reports"], s)
+
+    out = await builder.build_communities(mode="auto", settings=s)
+
+    assert not out.get("skipped")
+    assert out["algorithm"] == "leiden"
+    assert out["communities"] == 3
+    assert out["reused"] == 3
+    assert state["llm_calls"] == 3
+    assert store.load_reports(s)["meta"]["algorithm"] == "leiden"
+
+
+async def test_all_summary_failures_preserve_previous_reports_and_index(env, monkeypatch):
+    s, state = env
+    await builder.build_communities(mode="full", force=True, settings=s)
+    previous_reports = store.reports_path(s).read_bytes()
+    previous_index = store.index_path(s).read_bytes()
+
+    async def fail_summary(*args, **kwargs):
+        raise RuntimeError("LLM returned 403")
+
+    monkeypatch.setattr(builder, "summarize_community", fail_summary)
+    out = await builder.build_communities(mode="full", force=True, settings=s)
+
+    assert out["skipped"] is True
+    assert out["reason"] == "summaries_unavailable"
+    assert out["failed"] == 3
+    assert store.reports_path(s).read_bytes() == previous_reports
+    assert store.index_path(s).read_bytes() == previous_index

@@ -143,7 +143,7 @@ async def build_communities(
 ) -> dict[str, Any]:
     """构建/刷新社区摘要。
 
-    - ``mode="auto"``：图谱指纹未变则直接跳过（0 次 LLM 调用）；
+    - ``mode="auto"``：算法与图谱指纹未变则直接跳过（0 次 LLM 调用）；
     - ``mode="full"`` 或 ``force=True``：忽略缓存，全部重新生成；
     - ``dry_run=True``：只做划分与预算估算，不调 LLM、不落盘；
     - ``limit``：本次最多新增多少次 LLM 摘要调用（超出的社区标记 pending）。
@@ -178,6 +178,7 @@ async def build_communities(
         not force
         and mode == "auto"
         and previous is not None
+        and prev_meta.get("algorithm") == P.ALGORITHM
         and prev_meta.get("graph_fingerprint") == fingerprint
         and not bool(prev_meta.get("stale"))
     ):
@@ -203,6 +204,7 @@ async def build_communities(
     communities = P.enrich_communities(result.communities, node_meta, degrees)
 
     summary = {
+        "algorithm": P.ALGORITHM,
         "reason": reason,
         "mode": mode,
         "fingerprint": fingerprint,
@@ -340,6 +342,18 @@ async def build_communities(
         cid for cid, rep in reports.items()
         if str(rep.get("summary") or "").strip()
     ]
+    if failed and not usable:
+        # Preserve the current reports and index when the LLM is unavailable.
+        return {
+            **summary,
+            "skipped": True,
+            "reason": "summaries_unavailable",
+            "built": llm_calls,
+            "reused": reused,
+            "pending": sum(1 for rep in reports.values() if rep.get("pending")),
+            "failed": failed,
+            "indexed": 0,
+        }
     if usable:
         try:
             vectors = await _embed_texts([_report_text(reports[cid]) for cid in usable], s)

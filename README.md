@@ -226,7 +226,7 @@ python scripts/query.py "解释该译码结构图" --multimodal
 
 ### 社区摘要（可选能力，默认关闭）
 
-LightRAG 的 `global` 模式是按"高度数实体/关系"做的扁平全局召回，缺少一层**主题化整体视野**。本能力用 Louvain 把实体关系图划分成**粗粒度社区**（不加启发式权重），离线为每个社区生成摘要，查询期按需注入上下文——查询本身**不增加 LLM 调用**（本地 embedding + numpy 余弦）。
+LightRAG 的 `global` 模式是按"高度数实体/关系"做的扁平全局召回，缺少一层**主题化整体视野**。本能力用 Leiden 把实体关系图划分成**粗粒度社区**（不加启发式权重），仅保留一层社区，离线为每个社区生成轻量摘要，查询期按需注入上下文——查询本身**不增加 LLM 调用**（本地 embedding + numpy 余弦）。
 
 - **默认关闭**：`COMMUNITY_ENABLED=false` 时不构建索引、不注入、`/communities/rebuild` 直接返回 `disabled`
 - **请求级开关（真 opt-in）**：`use_community=true/false/省略`；省略时按 `COMMUNITY_DEFAULT_ENABLED`（默认 false）+ 宏观问题启发式
@@ -234,13 +234,13 @@ LightRAG 的 `global` 模式是按"高度数实体/关系"做的扁平全局召�
 - **状态可解释**：响应带 `community:{requested,applied,reason,...}`，`reason` 可取 `ok / disabled_by_server / disabled_by_request / mode_not_eligible / not_macro_question / index_missing / index_stale / low_similarity / error`
 - **不进引用**：摘要只作为背景概览块注入 prompt（并标注"具体结论以检索材料为准"），`sources` 引用列表不受影响
 
-社区数量按目标数自适应并封顶：`clamp(round(节点数 / COMMUNITY_TARGET_PER_NODES), COMMUNITY_TARGET_MIN, COMMUNITY_TARGET_MAX)`（当前 2046 节点 → **10 个社区**，分辨率自动搜到 ≈0.37、模块度 0.73）；规模 < `COMMUNITY_MIN_SIZE` 的社区并入跨边权重最大的相邻大社区，不额外消耗 LLM。
+社区数量按目标数自适应并封顶：`clamp(round(节点数 / COMMUNITY_TARGET_PER_NODES), COMMUNITY_TARGET_MIN, COMMUNITY_TARGET_MAX)`（例如 2046 节点的目标为 **10 个社区**；分辨率与模块度以 Leiden 实际划分结果为准）；规模 < `COMMUNITY_MIN_SIZE` 的社区并入跨边权重最大的相邻大社区，不额外消耗 LLM。
 
 ```bash
 # 只看划分与调用预算（不调 LLM、不写文件）
 python scripts/build_communities.py --dry-run
 
-# 增量构建/刷新（图谱指纹未变则 0 次 LLM；成员 Jaccard≥阈值直接复用旧摘要）
+# 增量构建/刷新（算法与图谱指纹未变则 0 次 LLM；成员 Jaccard≥阈值直接复用旧摘要）
 python scripts/build_communities.py
 
 # 全量重建（能力关闭时也可用于离线试跑）

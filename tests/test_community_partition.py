@@ -95,3 +95,25 @@ def test_enrich_communities_fills_types_docs_and_representatives() -> None:
     assert enriched and all(cm.docs == ["a.md", "b.md"] for cm in enriched)
     assert any("Metric" in cm.entity_types for cm in enriched)
     assert all(len(cm.top_entities) <= 30 for cm in enriched)
+
+
+def test_leiden_keeps_all_nodes_in_one_flat_partition() -> None:
+    nodes, edges = _clustered_graph()
+    graph = P.build_graph(nodes, edges)
+    first = P.leiden_communities(graph, resolution=1.0, seed=42)
+    second = P.leiden_communities(graph, resolution=1.0, seed=42)
+    assert P.ALGORITHM == "leiden"
+    assert first == second
+    assert set.union(*first) == set(nodes)
+    assert sum(len(group) for group in first) == len(nodes)
+    assert all(nx.is_connected(graph.subgraph(group)) for group in first)
+
+
+def test_leiden_handles_empty_and_edgeless_graphs() -> None:
+    assert P.leiden_communities(nx.Graph(), resolution=1.0) == []
+    for resolution in (None, 1.0):
+        result = P.detect_communities(
+            ["a", "b"], [], target=1, min_size=2, resolution=resolution,
+        )
+        assert result.communities == []
+        assert result.unclustered == ["a", "b"]

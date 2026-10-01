@@ -1,7 +1,7 @@
-"""社区划分：实体关系图 → Louvain 社区（目标数自适应 + 小社区归并）。
+"""社区划分：实体关系图 → Leiden 社区（目标数自适应 + 小社区归并）。
 
 算法说明：
-- 用 networkx 的 Louvain（模块度优化）在**加权无向图**上划分，边权取关系 ``weight``；
+- 用 leidenalg 的 Leiden（模块度优化）在**加权无向图**上划分，边权取关系 ``weight``；
 - 不固定分辨率，而是二分搜索 ``resolution`` 命中目标社区数
   ``clamp(round(节点数 / target_per_nodes), target_min, target_max)``，
   这样语料增长时摘要数量仍被硬性封顶；
@@ -15,13 +15,15 @@ import hashlib
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Sequence
 
+import igraph as ig
+import leidenalg
 import networkx as nx
 
 from src.utils.logger import get_logger
 
 logger = get_logger("community.partition")
 
-ALGORITHM = "louvain"
+ALGORITHM = "leiden"
 MEMBER_SEP = "<SEP>"
 
 
@@ -105,17 +107,25 @@ def graph_fingerprint(
     return h.hexdigest()
 
 
-def louvain_communities(g: nx.Graph, resolution: float, seed: int = 42) -> list[set[str]]:
-    """对图执行一次 Louvain，返回社区成员集合列表。"""
-    return [
-        set(c)
-        for c in nx.community.louvain_communities(
-            g,
-            weight="weight",
-            resolution=float(resolution),
-            seed=int(seed),
-        )
-    ]
+def leiden_communities(g: nx.Graph, resolution: float, seed: int = 42) -> list[set[str]]:
+    """对图执行一次 Leiden，返回社区成员集合列表。"""
+    nodes = list(g.nodes)
+    if g.number_of_edges() == 0:
+        return [{node} for node in nodes]
+    node_index = {node: i for i, node in enumerate(nodes)}
+    graph = ig.Graph(
+        n=len(nodes),
+        edges=[(node_index[a], node_index[b]) for a, b in g.edges],
+        directed=False,
+    )
+    partition = leidenalg.find_partition(
+        graph,
+        leidenalg.RBConfigurationVertexPartition,
+        weights=[float(data.get("weight", 1.0)) for _, _, data in g.edges(data=True)],
+        resolution_parameter=float(resolution),
+        seed=int(seed),
+    )
+    return [{nodes[i] for i in community} for community in partition]
 
 
 def count_summarizable(communities: Sequence[set[str]], min_size: int) -> int:
@@ -142,7 +152,7 @@ def search_resolution(
     best: tuple[float, list[set[str]], int] | None = None
     for _ in range(max(1, int(max_iter))):
         mid = (lo + hi) / 2.0
-        communities = louvain_communities(g, mid, seed)
+        communities = leiden_communities(g, mid, seed)
         k = count_summarizable(communities, min_size)
         if best is None or abs(k - target) < abs(best[2] - target):
             best = (mid, communities, k)
@@ -211,7 +221,7 @@ def detect_communities(
     resolution_max: float = 3.0,
     max_iter: int = 24,
 ) -> PartitionResult:
-    """完整划分流程：建图 → Louvain（固定或自动分辨率）→ 小社区归并 → 稳定 ID。"""
+    """完整划分流程：建图 → Leiden（固定或自动分辨率）→ 小社区归并 → 稳定 ID。"""
     fingerprint = graph_fingerprint(node_ids, edges)
     g = build_graph(node_ids, edges)
     node_count = g.number_of_nodes()
@@ -221,7 +231,7 @@ def detect_communities(
 
     if resolution is not None:
         used_resolution = float(resolution)
-        communities = louvain_communities(g, used_resolution, seed)
+        communities = leiden_communities(g, used_resolution, seed)
     else:
         used_resolution, communities, _ = search_resolution(
             g,
